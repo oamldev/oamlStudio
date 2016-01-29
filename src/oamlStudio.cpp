@@ -287,11 +287,28 @@ public:
 	}
 };
 
+class StudioTimer : public wxTimer {
+	wxWindow* pane;
+public:
+	StudioTimer(wxWindow* pane);
+
+	void Notify();
+};
+
+StudioTimer::StudioTimer(wxWindow* pane) : wxTimer() {
+	StudioTimer::pane = pane;
+}
+
+void StudioTimer::Notify() {
+	pane->Layout();
+}
+
 class StudioFrame: public wxFrame {
 private:
 	wxListView* trackList;
 	wxBoxSizer* mainSizer;
 	ScrolledWidgetsPane* trackPane;
+	StudioTimer* timer;
 
 	oamlTracksInfo* tinfo;
 
@@ -300,6 +317,7 @@ public:
 
 	void OnTrackListActivated(wxListEvent& event);
 	void OnTrackListMenu(wxMouseEvent& event);
+	void OnTrackEndLabelEdit(wxCommandEvent& event);
 	void OnNew(wxCommandEvent& event);
 	void OnLoad(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
@@ -347,6 +365,8 @@ bool oamlStudio::OnInit() {
 }
 
 StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size) : wxFrame(NULL, -1, title, pos, size) {
+	timer = NULL;
+
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(ID_About, _("&New..."));
@@ -382,10 +402,11 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	tinfo = oaml->GetTracksInfo();
 
-	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS);
+	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
 	trackList->SetBackgroundColour(wxColour(0xA0, 0xA0, 0xA0));
 	trackList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnTrackListActivated, this);
 	trackList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnTrackListMenu, this);
+	trackList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnTrackEndLabelEdit, this);
 	for (size_t i=0; i<tinfo->tracks.size(); i++) {
 		oamlTrackInfo *track = &tinfo->tracks[i];
 		trackList->InsertItem(i, wxString(track->name));
@@ -432,6 +453,14 @@ void StudioFrame::OnTrackListMenu(wxMouseEvent& WXUNUSED(event)) {
 	menu.Append(ID_AddTrack, wxT("&Add Track"));
 	menu.Append(ID_EditTrackName, wxT("Edit Track &Name"));
 	PopupMenu(&menu);
+}
+
+void StudioFrame::OnTrackEndLabelEdit(wxCommandEvent& WXUNUSED(event)) {
+	if (timer == NULL) {
+		timer = new StudioTimer(this);
+	}
+
+	timer->StartOnce(10);
 }
 
 void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
