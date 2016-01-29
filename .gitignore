@@ -1,0 +1,11 @@
+CMakeCache.txt
+CMakeFiles/
+liboaml.a
+Makefile
+cmake_install.cmake
+make.sh
+oaml.defs
+oamlStudio
+music/
+build/
+vs/
