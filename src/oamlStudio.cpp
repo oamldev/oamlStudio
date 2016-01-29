@@ -369,7 +369,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
-	menuFile->Append(ID_About, _("&New..."));
+	menuFile->Append(ID_New, _("&New..."));
 	menuFile->AppendSeparator();
 	menuFile->Append(ID_Load, _("&Load..."));
 	menuFile->Append(ID_Save, _("&Save..."));
@@ -468,6 +468,14 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
+	if (tinfo) {
+//		delete tinfo;
+		tinfo = NULL;
+	}
+	if (trackPane) {
+		trackPane->Destroy();
+	}
+	trackList->ClearAll();
 }
 
 void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
@@ -488,10 +496,15 @@ void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	char name[1024];
 	snprintf(name, 1024, "Track%ld", tinfo->tracks.size()+1);
 	track.name = name;
+
+	if (tinfo == NULL) {
+		tinfo = new oamlTracksInfo;
+	}
 	tinfo->tracks.push_back(track);
 
 	trackList->InsertItem(tinfo->tracks.size()-1, wxString(track.name));
 }
 
 void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
+	trackList->EditLabel(trackList->GetFirstSelected());
 }
