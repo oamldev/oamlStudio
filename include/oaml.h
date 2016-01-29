@@ -36,10 +36,18 @@ typedef struct {
 	int bars;
 	int minMovementBars;
 	int randomChance;
+	int fadeIn;
+	int fadeOut;
+	int xfadeIn;
+	int xfadeOut;
 } oamlAudioInfo;
 
 typedef struct {
 	std::string name;
+	int fadeIn;
+	int fadeOut;
+	int xfadeIn;
+	int xfadeOut;
 	std::vector<oamlAudioInfo> audios;
 } oamlTrackInfo;
 

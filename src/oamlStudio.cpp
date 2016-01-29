@@ -4,6 +4,7 @@
 
 #include "oamlCommon.h"
 #include "oamlStudio.h"
+#include "tinyxml2.h"
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -305,6 +306,7 @@ void StudioTimer::Notify() {
 
 class StudioFrame: public wxFrame {
 private:
+	std::string defsPath;
 	wxListView* trackList;
 	wxBoxSizer* mainSizer;
 	ScrolledWidgetsPane* trackPane;
@@ -312,6 +314,8 @@ private:
 
 	oamlTracksInfo* tinfo;
 
+	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value);
+	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value);
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
@@ -321,6 +325,7 @@ public:
 	void OnNew(wxCommandEvent& event);
 	void OnLoad(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
+	void OnSaveAs(wxCommandEvent& event);
 	void OnExport(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
@@ -335,6 +340,7 @@ enum {
 	ID_About,
 	ID_New,
 	ID_Save,
+	ID_SaveAs,
 	ID_Load,
 	ID_Export,
 	ID_AddTrack,
@@ -345,6 +351,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_New, StudioFrame::OnNew)
 	EVT_MENU(ID_Load, StudioFrame::OnLoad)
 	EVT_MENU(ID_Save, StudioFrame::OnSave)
+	EVT_MENU(ID_SaveAs, StudioFrame::OnSaveAs)
 	EVT_MENU(ID_Export, StudioFrame::OnExport)
 	EVT_MENU(ID_Quit, StudioFrame::OnQuit)
 	EVT_MENU(ID_About, StudioFrame::OnAbout)
@@ -356,7 +363,6 @@ oamlApi *oaml;
 
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
-	oaml->Init("oaml.defs");
 
 	StudioFrame *frame = new StudioFrame(_("oamlStudio"), wxPoint(50, 50), wxSize(1024, 768));
 	frame->Show(true);
@@ -373,6 +379,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	menuFile->AppendSeparator();
 	menuFile->Append(ID_Load, _("&Load..."));
 	menuFile->Append(ID_Save, _("&Save..."));
+	menuFile->Append(ID_SaveAs, _("&Save As..."));
 	menuFile->Append(ID_Export, _("&Export..."));
 	menuFile->AppendSeparator();
 	menuFile->Append(ID_Quit, _("E&xit"));
@@ -479,9 +486,81 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
+	wxFileDialog openFileDialog(this, _("Open oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	oaml->Init(openFileDialog.GetPath());
+
+	tinfo = oaml->GetTracksInfo();
+
+	for (size_t i=0; i<tinfo->tracks.size(); i++) {
+		oamlTrackInfo *track = &tinfo->tracks[i];
+		trackList->InsertItem(i, wxString(track->name));
+	}
+}
+
+void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value) {
+	tinyxml2::XMLElement *el = node->GetDocument()->NewElement(name);
+	el->SetText(value);
+	node->InsertEndChild(el);
+}
+
+void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value) {
+	tinyxml2::XMLElement *el = node->GetDocument()->NewElement(name);
+	el->SetText(value);
+	node->InsertEndChild(el);
 }
 
 void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
+	tinyxml2::XMLDocument xmlDoc;
+
+	xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration());
+
+	for (size_t i=0; i<tinfo->tracks.size(); i++) {
+		oamlTrackInfo *track = &tinfo->tracks[i];
+
+		tinyxml2::XMLNode *trackEl = xmlDoc.NewElement("track");
+
+		AddSimpleChildToNode(trackEl, "name", track->name.c_str());
+
+		if (track->fadeIn) AddSimpleChildToNode(trackEl, "fadeIn", track->fadeIn);
+		if (track->fadeOut) AddSimpleChildToNode(trackEl, "fadeOut", track->fadeOut);
+		if (track->xfadeIn) AddSimpleChildToNode(trackEl, "xfadeIn", track->xfadeIn);
+		if (track->xfadeOut) AddSimpleChildToNode(trackEl, "xfadeOut", track->xfadeOut);
+
+		for (size_t j=0; j<track->audios.size(); j++) {
+			oamlAudioInfo *audio = &track->audios[j];
+
+			tinyxml2::XMLNode *audioEl = xmlDoc.NewElement("audio");
+			AddSimpleChildToNode(audioEl, "filename", audio->filename.c_str());
+			if (audio->type) AddSimpleChildToNode(audioEl, "type", audio->type);
+			if (audio->bpm) AddSimpleChildToNode(audioEl, "bpm", audio->bpm);
+			if (audio->beatsPerBar) AddSimpleChildToNode(audioEl, "beatsPerBar", audio->beatsPerBar);
+			if (audio->bars) AddSimpleChildToNode(audioEl, "bars", audio->bars);
+			if (audio->minMovementBars) AddSimpleChildToNode(audioEl, "minMovementBars", audio->minMovementBars);
+			if (audio->randomChance) AddSimpleChildToNode(audioEl, "randomChance", audio->randomChance);
+			if (audio->fadeIn) AddSimpleChildToNode(audioEl, "fadeIn", audio->fadeIn);
+			if (audio->fadeOut) AddSimpleChildToNode(audioEl, "fadeOut", audio->fadeOut);
+			if (audio->xfadeIn) AddSimpleChildToNode(audioEl, "xfadeIn", audio->xfadeIn);
+			if (audio->xfadeOut) AddSimpleChildToNode(audioEl, "xfadeOut", audio->xfadeOut);
+
+			trackEl->InsertEndChild(audioEl);
+		}
+
+		xmlDoc.InsertEndChild(trackEl);
+	}
+
+	xmlDoc.SaveFile(defsPath.c_str());
+}
+
+void StudioFrame::OnSaveAs(wxCommandEvent& event) {
+	wxFileDialog openFileDialog(this, _("Save oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_SAVE);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	defsPath = openFileDialog.GetPath();
+	OnSave(event);
 }
 
 void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
