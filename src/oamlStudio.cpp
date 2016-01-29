@@ -17,7 +17,7 @@
 #include <wx/scrolbar.h>
 #include <wx/sizer.h>
 #include <wx/frame.h>
-#include <wx/dcbuffer.h>
+#include <wx/textctrl.h>
 
 
 IMPLEMENT_APP(oamlStudio)
@@ -241,50 +241,89 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	}
 }
 
+class AudioPanel : public wxPanel {
+private:
+	wxBoxSizer *sizer;
+	int index;
+
+public:
+	AudioPanel(wxFrame* parent, int index) : wxPanel(parent) {
+		wxString texts[5] = { "Intro", "Main loop", "With random chance", "Conditional", "Ending" };
+
+		sizer = new wxBoxSizer(wxVERTICAL);
+		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, texts[index], wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
+		staticText->SetBackgroundColour(wxColour(0xD0, 0xD0, 0xD0));
+		sizer->Add(staticText, 0, wxALL | wxEXPAND | wxGROW, 5);
+		SetSizer(sizer);
+
+		Bind(wxEVT_PAINT, &AudioPanel::OnPaint, this);
+	}
+
+	void OnPaint(wxPaintEvent& WXUNUSED(evt)) {
+		wxPaintDC dc(this);
+
+		wxSize size = GetSize();
+		int x2 = size.GetWidth();
+		int y2 = size.GetHeight();
+
+		dc.SetPen(wxPen(wxColour(0, 0, 0), 4));
+		dc.DrawLine(0,  0,  0,  y2);
+		dc.DrawLine(x2, 0,  x2, y2);
+		dc.DrawLine(0,  0,  x2, 0);
+		dc.DrawLine(0,  y2, x2, y2);
+	}
+
+	void AddWaveform(oamlAudioInfo *audio, wxFrame *topWnd) {
+		WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
+		waveDisplay->setFile(audio->filename);
+
+		sizer->Add(waveDisplay, 0, wxALL, 5);
+		Layout();
+	}
+};
+
 class ScrolledWidgetsPane : public wxScrolledWindow {
 private:
-	wxBoxSizer* hSizer;
-	wxBoxSizer* vSizer[5];
+	wxBoxSizer* sizer;
+	AudioPanel* audioPanel[5];
 
 public:
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id) : wxScrolledWindow(parent, id, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL) {
+
 		SetBackgroundColour(wxColour(0x40, 0x40, 0x40));
 		SetScrollRate(50, 50);
 
-		// the sizer will take care of determining the needed scroll size
-		// (if you don't use sizers you will need to manually set the viewport size)
-		hSizer = new wxBoxSizer(wxHORIZONTAL);
+		sizer = new wxBoxSizer(wxHORIZONTAL);
 
 		for (int i=0; i<5; i++) {
-			vSizer[i] = new wxBoxSizer(wxVERTICAL);
-			hSizer->Add(vSizer[i]);
+			audioPanel[i] = new AudioPanel((wxFrame*)this, i);
+
+			sizer->Add(audioPanel[i], 0, wxALL | wxEXPAND | wxGROW, 0);
 		}
 
-		SetSizer(hSizer);
+		SetSizer(sizer);
 		Layout();
 
-		hSizer->Fit(this);
+		sizer->Fit(this);
 	}
 
-	void AddDisplay(WaveformDisplay *waveDisplay, oamlAudioInfo *audio) {
-		wxBoxSizer* sizer;
+	void AddDisplay(oamlAudioInfo *audio) {
+		int i = 1;
 
 		if (audio->type == 1) {
-			sizer = vSizer[0];
+			i = 0;
 		} else if (audio->type == 3) {
-			sizer = vSizer[4];
+			i = 4;
 		} else if (audio->type == 4) {
-			sizer = vSizer[3];
+			i = 3;
 		} else if (audio->randomChance > 0) {
-			sizer = vSizer[2];
-		} else {
-			sizer = vSizer[1];
+			i = 2;
 		}
-		sizer->Add(waveDisplay, 0, wxALL, 5);
+		audioPanel[i]->AddWaveform(audio, (wxFrame*)GetParent());
 
-		SetSizer(hSizer);
+		SetSizer(sizer);
 		Layout();
-		hSizer->Fit(this);
+		sizer->Fit(this);
 	}
 };
 
@@ -344,6 +383,9 @@ enum {
 	ID_Load,
 	ID_Export,
 	ID_AddTrack,
+	ID_RemoveTrack,
+	ID_AddAudio,
+	ID_RemoveAudio,
 	ID_EditTrackName
 };
 
@@ -363,6 +405,7 @@ oamlApi *oaml;
 
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
+	oaml->Init("oaml.defs");
 
 	StudioFrame *frame = new StudioFrame(_("oamlStudio"), wxPoint(50, 50), wxSize(1024, 768));
 	frame->Show(true);
@@ -392,6 +435,12 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	menuBar->Append(menuFile, _("&Tracks"));
 
+/*	menuFile = new wxMenu;
+	menuFile->Append(ID_AddAudio, _("&Add audio"));
+	menuFile->AppendSeparator();
+
+	menuBar->Append(menuFile, _("&Audios"));*/
+
 	menuFile = new wxMenu;
 	menuFile->Append(ID_About, _("A&bout..."));
 	menuFile->AppendSeparator();
@@ -410,7 +459,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	tinfo = oaml->GetTracksInfo();
 
 	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
-	trackList->SetBackgroundColour(wxColour(0xA0, 0xA0, 0xA0));
+	trackList->SetBackgroundColour(wxColour(0x80, 0x80, 0x80));
 	trackList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnTrackListActivated, this);
 	trackList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnTrackListMenu, this);
 	trackList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnTrackEndLabelEdit, this);
@@ -445,10 +494,7 @@ void StudioFrame::OnTrackListActivated(wxListEvent& event) {
 	oamlTrackInfo *track = &tinfo->tracks[index];
 	for (size_t i=0; i<track->audios.size(); i++) {
 		oamlAudioInfo *audio = &track->audios[i];
-
-		WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)trackPane, this);
-		waveDisplay->setFile(audio->filename);
-		trackPane->AddDisplay(waveDisplay, audio);
+		trackPane->AddDisplay(audio);
 
 		SetSizer(mainSizer);
 		Layout();
