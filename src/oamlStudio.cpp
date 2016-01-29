@@ -8,7 +8,7 @@
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/string.h>
-#include <wx/listbox.h>
+#include <wx/listctrl.h>
 #include <wx/gdicmn.h>
 #include <wx/font.h>
 #include <wx/colour.h>
@@ -289,7 +289,7 @@ public:
 
 class StudioFrame: public wxFrame {
 private:
-	wxListBox* trackList;
+	wxListView* trackList;
 	wxBoxSizer* mainSizer;
 	ScrolledWidgetsPane* trackPane;
 
@@ -298,10 +298,16 @@ private:
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
-	void OnTrackListDClick(wxCommandEvent& event);
+	void OnTrackListActivated(wxListEvent& event);
+	void OnTrackListMenu(wxMouseEvent& event);
+	void OnNew(wxCommandEvent& event);
+	void OnLoad(wxCommandEvent& event);
+	void OnSave(wxCommandEvent& event);
+	void OnExport(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnAddTrack(wxCommandEvent& event);
+	void OnEditTrackName(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE()
 };
@@ -309,13 +315,23 @@ public:
 enum {
 	ID_Quit = 1,
 	ID_About,
-	ID_AddTrack
+	ID_New,
+	ID_Save,
+	ID_Load,
+	ID_Export,
+	ID_AddTrack,
+	ID_EditTrackName
 };
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
+	EVT_MENU(ID_New, StudioFrame::OnNew)
+	EVT_MENU(ID_Load, StudioFrame::OnLoad)
+	EVT_MENU(ID_Save, StudioFrame::OnSave)
+	EVT_MENU(ID_Export, StudioFrame::OnExport)
 	EVT_MENU(ID_Quit, StudioFrame::OnQuit)
 	EVT_MENU(ID_About, StudioFrame::OnAbout)
 	EVT_MENU(ID_AddTrack, StudioFrame::OnAddTrack)
+	EVT_MENU(ID_EditTrackName, StudioFrame::OnEditTrackName)
 END_EVENT_TABLE()
 
 oamlApi *oaml;
@@ -331,14 +347,16 @@ bool oamlStudio::OnInit() {
 }
 
 StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size) : wxFrame(NULL, -1, title, pos, size) {
-	wxMenu *menuFile;
-
-	menuFile = new wxMenu;
-	menuFile->Append(ID_About, _("&About..."));
+	wxMenuBar *menuBar = new wxMenuBar;
+	wxMenu *menuFile = new wxMenu;
+	menuFile->Append(ID_About, _("&New..."));
+	menuFile->AppendSeparator();
+	menuFile->Append(ID_Load, _("&Load..."));
+	menuFile->Append(ID_Save, _("&Save..."));
+	menuFile->Append(ID_Export, _("&Export..."));
 	menuFile->AppendSeparator();
 	menuFile->Append(ID_Quit, _("E&xit"));
 
-	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, _("&File"));
 
 	menuFile = new wxMenu;
@@ -346,6 +364,12 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	menuFile->AppendSeparator();
 
 	menuBar->Append(menuFile, _("&Tracks"));
+
+	menuFile = new wxMenu;
+	menuFile->Append(ID_About, _("A&bout..."));
+	menuFile->AppendSeparator();
+
+	menuBar->Append(menuFile, _("&About"));
 
 	SetMenuBar(menuBar);
 
@@ -358,13 +382,13 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	tinfo = oaml->GetTracksInfo();
 
-	trackList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), 0, NULL, 0);
+	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS);
 	trackList->SetBackgroundColour(wxColour(0xA0, 0xA0, 0xA0));
-	trackList->Bind(wxEVT_LISTBOX_DCLICK, &StudioFrame::OnTrackListDClick, this);
+	trackList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnTrackListActivated, this);
+	trackList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnTrackListMenu, this);
 	for (size_t i=0; i<tinfo->tracks.size(); i++) {
 		oamlTrackInfo *track = &tinfo->tracks[i];
-		wxString str(track->name);
-		trackList->InsertItems(1, &str, i);
+		trackList->InsertItem(i, wxString(track->name));
 	}
 
 	trackPane = NULL;
@@ -377,8 +401,8 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	Centre(wxBOTH);
 }
 
-void StudioFrame::OnTrackListDClick(wxCommandEvent& WXUNUSED(event)) {
-	int index = trackList->GetSelection();
+void StudioFrame::OnTrackListActivated(wxListEvent& event) {
+	int index = event.GetIndex();
 	if (index == -1) {
 //		WxUtils::ShowErrorDialog(_("You must choose a track!"));
 		return;
@@ -403,9 +427,27 @@ void StudioFrame::OnTrackListDClick(wxCommandEvent& WXUNUSED(event)) {
 	}
 }
 
+void StudioFrame::OnTrackListMenu(wxMouseEvent& WXUNUSED(event)) {
+	wxMenu menu(wxT(""));
+	menu.Append(ID_AddTrack, wxT("&Add Track"));
+	menu.Append(ID_EditTrackName, wxT("Edit Track &Name"));
+	PopupMenu(&menu);
+}
 
 void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 	Close(TRUE);
+}
+
+void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
+}
+
+void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
+}
+
+void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
+}
+
+void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
@@ -415,11 +457,12 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTrackInfo track;
 	char name[1024];
-	snprintf(name, 1024, "Track%dd", tinfo->tracks.size());
+	snprintf(name, 1024, "Track%ld", tinfo->tracks.size()+1);
 	track.name = name;
 	tinfo->tracks.push_back(track);
 
-	wxString str(track.name);
-	trackList->InsertItems(1, &str, tinfo->tracks.size()-1);
+	trackList->InsertItem(tinfo->tracks.size()-1, wxString(track.name));
 }
 
+void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
+}
