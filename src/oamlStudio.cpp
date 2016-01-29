@@ -22,6 +22,8 @@
 
 IMPLEMENT_APP(oamlStudio)
 
+wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+
 static void* oamlOpen(const char *filename) {
 	return fopen(filename, "rb");
 }
@@ -71,9 +73,10 @@ class WaveformDisplay : public wxPanel {
 private:
 	RenderTimer* timer;
 
-	std::string audiofile;
+	std::string filename;
 	audioFile *handle;
 	ByteBuffer buffer;
+	oamlAudioInfo *info;
 
 	int peakl;
 	int peakr;
@@ -92,8 +95,9 @@ public:
 	~WaveformDisplay();
 
 	int read32();
-	void setFile(std::string filename);
+	void SetSource(oamlAudioInfo *audio);
 	void OnPaint(wxPaintEvent& evt);
+	void OnLeftUp(wxMouseEvent& evt);
 };
 
 WaveformDisplay::WaveformDisplay(wxFrame* parent, wxFrame* wnd) : wxPanel(parent) {
@@ -102,6 +106,7 @@ WaveformDisplay::WaveformDisplay(wxFrame* parent, wxFrame* wnd) : wxPanel(parent
 	timer = NULL;
 
 	Bind(wxEVT_PAINT, &WaveformDisplay::OnPaint, this);
+	Bind(wxEVT_LEFT_UP, &WaveformDisplay::OnLeftUp, this);
 }
 
 WaveformDisplay::~WaveformDisplay() {
@@ -132,8 +137,9 @@ int WaveformDisplay::read32() {
 	return ret;
 }
 
-void WaveformDisplay::setFile(std::string filename) {
-	audiofile = filename;
+void WaveformDisplay::SetSource(oamlAudioInfo *audio) {
+	info = audio;
+	filename = audio->filename;
 
 	buffer.clear();
 	peaksL.clear();
@@ -176,6 +182,13 @@ void WaveformDisplay::setFile(std::string filename) {
 	timer->Start(10);
 
 	topWnd->SetStatusText(_("Reading.."));
+}
+
+void WaveformDisplay::OnLeftUp(wxMouseEvent& WXUNUSED(evt)) {
+	wxCommandEvent event(EVENT_SELECT_AUDIO);
+	event.SetClientData(info);
+
+	wxPostEvent(GetParent(), event);
 }
 
 void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
@@ -232,7 +245,7 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	}
 
 	dc.SetTextForeground(wxColor(228, 228, 228));
-	dc.DrawText(audiofile, 10, 10);
+	dc.DrawText(filename.c_str(), 10, 10);
 
 	if (bytesRead == 0) {
 		topWnd->SetStatusText(_("Ready"));
@@ -244,7 +257,6 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 class AudioPanel : public wxPanel {
 private:
 	wxBoxSizer *sizer;
-	int index;
 
 public:
 	AudioPanel(wxFrame* parent, int index) : wxPanel(parent) {
@@ -275,7 +287,7 @@ public:
 
 	void AddWaveform(oamlAudioInfo *audio, wxFrame *topWnd) {
 		WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
-		waveDisplay->setFile(audio->filename);
+		waveDisplay->SetSource(audio);
 
 		sizer->Add(waveDisplay, 0, wxALL, 5);
 		Layout();
@@ -327,6 +339,63 @@ public:
 	}
 };
 
+class ControlPanel : public wxPanel {
+private:
+	wxTextCtrl *fileCtrl;
+	wxTextCtrl *bpmCtrl;
+	wxTextCtrl *bpbCtrl;
+	wxTextCtrl *barsCtrl;
+	wxGridSizer *sizer;
+
+public:
+	ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
+		sizer = new wxGridSizer(2, 5, 5);
+
+		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+		sizer->Add(staticText, 0, wxALL, 10);
+
+		fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(320, -1), wxTE_READONLY);
+		sizer->Add(fileCtrl, 0, wxALL, 10);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
+		sizer->Add(staticText, 0, wxALL, 10);
+
+		bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		sizer->Add(bpmCtrl, 0, wxALL, 10);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
+		sizer->Add(staticText, 0, wxALL, 10);
+
+		bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		sizer->Add(bpbCtrl, 0, wxALL, 10);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
+		sizer->Add(staticText, 0, wxALL, 10);
+
+		barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		sizer->Add(barsCtrl, 0, wxALL, 10);
+
+		SetSizer(sizer);
+		SetMinSize(wxSize(-1, 180));
+
+		Layout();
+	}
+
+	void OnSelectAudio(oamlAudioInfo *info) {
+		fileCtrl->Clear();
+		bpmCtrl->Clear();
+		bpbCtrl->Clear();
+		barsCtrl->Clear();
+
+		if (info) {
+			*fileCtrl << info->filename;
+			*bpmCtrl << info->bpm;
+			*bpbCtrl << info->beatsPerBar;
+			*barsCtrl << info->bars;
+		}
+	}
+};
+
 class StudioTimer : public wxTimer {
 	wxWindow* pane;
 public:
@@ -348,6 +417,8 @@ private:
 	std::string defsPath;
 	wxListView* trackList;
 	wxBoxSizer* mainSizer;
+	wxBoxSizer* vSizer;
+	ControlPanel* controlPane;
 	ScrolledWidgetsPane* trackPane;
 	StudioTimer* timer;
 
@@ -370,6 +441,7 @@ public:
 	void OnAbout(wxCommandEvent& event);
 	void OnAddTrack(wxCommandEvent& event);
 	void OnEditTrackName(wxCommandEvent& event);
+	void OnSelectAudio(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE()
 };
@@ -399,6 +471,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_About, StudioFrame::OnAbout)
 	EVT_MENU(ID_AddTrack, StudioFrame::OnAddTrack)
 	EVT_MENU(ID_EditTrackName, StudioFrame::OnEditTrackName)
+	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 END_EVENT_TABLE()
 
 oamlApi *oaml;
@@ -472,6 +545,13 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	mainSizer->Add(trackList, 0, wxEXPAND | wxALL, 5);
 
+	vSizer = new wxBoxSizer(wxVERTICAL);
+
+	controlPane = new ControlPanel(this, wxID_ANY);
+	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
+
+	mainSizer->Add(vSizer, 1, wxEXPAND | wxALL, 0);
+
 	SetSizer(mainSizer);
 	Layout();
 
@@ -488,8 +568,9 @@ void StudioFrame::OnTrackListActivated(wxListEvent& event) {
 	if (trackPane) {
 		trackPane->Destroy();
 	}
+
 	trackPane = new ScrolledWidgetsPane(this, wxID_ANY);
-	mainSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
+	vSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
 
 	oamlTrackInfo *track = &tinfo->tracks[index];
 	for (size_t i=0; i<track->audios.size(); i++) {
@@ -499,6 +580,8 @@ void StudioFrame::OnTrackListActivated(wxListEvent& event) {
 		SetSizer(mainSizer);
 		Layout();
 	}
+
+	controlPane->OnSelectAudio(NULL);
 }
 
 void StudioFrame::OnTrackListMenu(wxMouseEvent& WXUNUSED(event)) {
@@ -632,4 +715,8 @@ void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 
 void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
 	trackList->EditLabel(trackList->GetFirstSelected());
+}
+
+void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
+	controlPane->OnSelectAudio((oamlAudioInfo*)event.GetClientData());
 }
