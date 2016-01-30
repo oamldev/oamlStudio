@@ -67,6 +67,8 @@ WaveformDisplay::WaveformDisplay(wxFrame* parent, wxFrame* wnd) : wxPanel(parent
 
 	Bind(wxEVT_PAINT, &WaveformDisplay::OnPaint, this);
 	Bind(wxEVT_LEFT_UP, &WaveformDisplay::OnLeftUp, this);
+	Bind(wxEVT_RIGHT_UP, &WaveformDisplay::OnRightUp, this);
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &WaveformDisplay::OnMenuEvent, this, ID_RemoveAudio);
 }
 
 WaveformDisplay::~WaveformDisplay() {
@@ -97,11 +99,7 @@ int WaveformDisplay::read32() {
 	return ret;
 }
 
-void WaveformDisplay::SetSource(int trackIdx, int audioIdx) {
-	trackIndex = trackIdx;
-	audioIndex = audioIdx;
-
-	oamlAudioInfo* audio = GetAudioInfo(trackIndex, audioIndex);
+void WaveformDisplay::SetSource(oamlAudioInfo* audio) {
 	filename = audio->filename;
 
 	buffer.clear();
@@ -149,9 +147,24 @@ void WaveformDisplay::SetSource(int trackIdx, int audioIdx) {
 
 void WaveformDisplay::OnLeftUp(wxMouseEvent& WXUNUSED(evt)) {
 	wxCommandEvent event(EVENT_SELECT_AUDIO);
-	event.SetInt((trackIndex << 16) | audioIndex);
-
+	event.SetString(wxString(filename));
 	wxPostEvent(GetParent(), event);
+}
+
+void WaveformDisplay::OnRightUp(wxMouseEvent& WXUNUSED(evt)) {
+	wxMenu menu(wxT(""));
+	menu.Append(ID_RemoveAudio, wxT("&Remove Audio"));
+	PopupMenu(&menu);
+}
+
+void WaveformDisplay::OnMenuEvent(wxCommandEvent& event) {
+	switch (event.GetId()) {
+		case ID_RemoveAudio:
+			wxCommandEvent event(EVENT_REMOVE_AUDIO);
+			event.SetString(wxString(filename));
+			wxPostEvent(GetParent(), event);
+			break;
+	}
 }
 
 void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {

@@ -6,11 +6,13 @@
 
 extern oamlApi *oaml;
 
-oamlTrackInfo* GetTrackInfo(int trackIndex);
-oamlAudioInfo* GetAudioInfo(int trackIndex, int audioIndex);
-int AddAudioInfo(int trackIndex, oamlAudioInfo& audio);
+oamlTrackInfo* GetTrackInfo(std::string trackName);
+oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile);
+void AddAudioInfo(std::string trackName, oamlAudioInfo& audio);
+void RemoveAudioInfo(std::string trackName, std::string audioFile);
 
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 
 enum {

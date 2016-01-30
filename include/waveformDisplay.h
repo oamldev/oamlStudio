@@ -16,8 +16,6 @@ private:
 	std::string filename;
 	audioFile *handle;
 	ByteBuffer buffer;
-	int trackIndex;
-	int audioIndex;
 
 	int peakl;
 	int peakr;
@@ -36,9 +34,14 @@ public:
 	~WaveformDisplay();
 
 	int read32();
-	void SetSource(int trackIdx, int audioIdx);
+	void SetSource(oamlAudioInfo *audio);
+
 	void OnPaint(wxPaintEvent& evt);
 	void OnLeftUp(wxMouseEvent& evt);
+	void OnRightUp(wxMouseEvent& evt);
+	void OnMenuEvent(wxCommandEvent& evt);
+
+	std::string GetAudioFile() { return filename; }
 };
 
 #endif
