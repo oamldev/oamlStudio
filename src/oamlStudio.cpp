@@ -324,6 +324,9 @@ private:
 
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value);
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value);
+
+	void SelectTrack(int index);
+
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
@@ -442,13 +445,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	Centre(wxBOTH);
 }
 
-void StudioFrame::OnTrackListActivated(wxListEvent& event) {
-	int index = event.GetIndex();
-	if (index == -1) {
-//		WxUtils::ShowErrorDialog(_("You must choose a track!"));
-		return;
-	}
-
+void StudioFrame::SelectTrack(int index) {
 	if (trackPane) {
 		trackPane->Destroy();
 	}
@@ -465,6 +462,16 @@ void StudioFrame::OnTrackListActivated(wxListEvent& event) {
 	Layout();
 
 	controlPane->OnSelectAudio(-1, -1);
+}
+
+void StudioFrame::OnTrackListActivated(wxListEvent& event) {
+	int index = event.GetIndex();
+	if (index == -1) {
+//		WxUtils::ShowErrorDialog(_("You must choose a track!"));
+		return;
+	}
+
+	SelectTrack(index);
 }
 
 void StudioFrame::OnTrackListMenu(wxMouseEvent& WXUNUSED(event)) {
@@ -593,7 +600,11 @@ void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	}
 	tinfo->tracks.push_back(track);
 
-	trackList->InsertItem(tinfo->tracks.size()-1, wxString(track.name));
+	int index = tinfo->tracks.size()-1;
+	trackList->InsertItem(index, wxString(track.name));
+	SelectTrack(index);
+
+	trackList->EditLabel(index);
 }
 
 void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
