@@ -590,14 +590,17 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
+	if (tinfo == NULL) {
+		tinfo = new oamlTracksInfo;
+	}
+
 	oamlTrackInfo track;
+	memset(&track, 0, sizeof(oamlTrackInfo));
+
 	char name[1024];
 	snprintf(name, 1024, "Track%ld", tinfo->tracks.size()+1);
 	track.name = name;
 
-	if (tinfo == NULL) {
-		tinfo = new oamlTracksInfo;
-	}
 	tinfo->tracks.push_back(track);
 
 	int index = tinfo->tracks.size()-1;
