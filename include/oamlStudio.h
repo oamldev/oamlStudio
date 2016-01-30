@@ -10,8 +10,8 @@ oamlTrackInfo* GetTrackInfo(int trackIndex);
 oamlAudioInfo* GetAudioInfo(int trackIndex, int audioIndex);
 int AddAudioInfo(int trackIndex, oamlAudioInfo& audio);
 
-wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 
 enum {
 	ID_Quit = 1,

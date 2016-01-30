@@ -149,7 +149,7 @@ void WaveformDisplay::SetSource(int trackIdx, int audioIdx) {
 
 void WaveformDisplay::OnLeftUp(wxMouseEvent& WXUNUSED(evt)) {
 	wxCommandEvent event(EVENT_SELECT_AUDIO);
-	event.SetInt(trackIndex << 16 | audioIndex);
+	event.SetInt((trackIndex << 16) | audioIndex);
 
 	wxPostEvent(GetParent(), event);
 }

@@ -21,6 +21,9 @@
 
 IMPLEMENT_APP(oamlStudio)
 
+wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+
 oamlApi *oaml;
 
 oamlTrackInfo* GetTrackInfo(int trackIndex) {
@@ -189,9 +192,14 @@ private:
 	wxTextCtrl *bpbCtrl;
 	wxTextCtrl *barsCtrl;
 	wxGridSizer *sizer;
+	int trackIndex;
+	int audioIndex;
 
 public:
 	ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
+		trackIndex = -1;
+		audioIndex = -1;
+
 		sizer = new wxGridSizer(2, 5, 5);
 
 		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
@@ -204,18 +212,21 @@ public:
 		sizer->Add(staticText, 0, wxALL, 10);
 
 		bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		bpmCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpmChange, this);
 		sizer->Add(bpmCtrl, 0, wxALL, 10);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
 		sizer->Add(staticText, 0, wxALL, 10);
 
 		bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		bpbCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpbChange, this);
 		sizer->Add(bpbCtrl, 0, wxALL, 10);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
 		sizer->Add(staticText, 0, wxALL, 10);
 
 		barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		barsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBarsChange, this);
 		sizer->Add(barsCtrl, 0, wxALL, 10);
 
 		SetSizer(sizer);
@@ -224,7 +235,49 @@ public:
 		Layout();
 	}
 
-	void OnSelectAudio(int trackIndex, int audioIndex) {
+	void OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = bpmCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackIndex, audioIndex);
+		if (info) {
+			double d = 0;
+			str.ToDouble(&d);
+			info->bpm = (float)d;
+		}
+	}
+
+	void OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = bpbCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackIndex, audioIndex);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->beatsPerBar = (int)l;
+		}
+	}
+
+	void OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = barsCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackIndex, audioIndex);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->bars = (int)l;
+		}
+	}
+
+	void OnSelectAudio(int trackIdx, int audioIdx) {
+		trackIndex = trackIdx;
+		audioIndex = audioIdx;
+
 		fileCtrl->Clear();
 		bpmCtrl->Clear();
 		bpbCtrl->Clear();
