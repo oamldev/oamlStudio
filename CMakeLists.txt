@@ -38,5 +38,5 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(LIBS ${OAML_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/liboaml.a)
 
-ADD_EXECUTABLE(oamlStudio WIN32 ${SRCS} src/audioFile.cpp src/oamlStudio.cpp src/aif.cpp src/ogg.cpp src/wav.cpp )
+ADD_EXECUTABLE(oamlStudio WIN32 ${SRCS} src/audioFile.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp )
 TARGET_LINK_LIBRARIES(oamlStudio ${wxWidgets_LIBRARIES} ${LIBS})

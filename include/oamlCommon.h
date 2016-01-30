@@ -37,5 +37,7 @@
 #include "aif.h"
 #include "ogg.h"
 #include "wav.h"
+#include "oamlStudio.h"
+#include "waveformDisplay.h"
 
 #endif /* __OAMLCOMMON_H__ */

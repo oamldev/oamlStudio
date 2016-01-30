@@ -3,20 +3,34 @@
 
 #include <wx/wx.h>
 
+
+extern oamlApi *oaml;
+
+oamlTrackInfo* GetTrackInfo(int trackIndex);
+oamlAudioInfo* GetAudioInfo(int trackIndex, int audioIndex);
+int AddAudioInfo(int trackIndex, oamlAudioInfo& audio);
+
+wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+
+enum {
+	ID_Quit = 1,
+	ID_About,
+	ID_New,
+	ID_Save,
+	ID_SaveAs,
+	ID_Load,
+	ID_Export,
+	ID_AddTrack,
+	ID_RemoveTrack,
+	ID_AddAudio,
+	ID_RemoveAudio,
+	ID_EditTrackName
+};
+
 class oamlStudio : public wxApp {
 public:
 	virtual bool OnInit();
-};
-
-class Listbox : public wxFrame
-{
-public:
-	Listbox(const wxString& title);
-
-	void OnDblClick(wxCommandEvent& event);
-
-	wxListBox *listbox;
-//	MyPanel *btnPanel;
 };
 
 #endif /* __OAMLSTUDIO_H__ */
