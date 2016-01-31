@@ -91,7 +91,7 @@ private:
 
 public:
 	AudioPanel(wxFrame* parent, int index, std::string name) : wxPanel(parent) {
-		wxString texts[5] = { "Intro", "Main loop", "With random chance", "Conditional", "Ending" };
+		wxString texts[4] = { "Intro", "Main loop", "Conditional", "Ending" };
 
 		panelIndex = index;
 		trackName = name;
@@ -155,9 +155,8 @@ public:
 		switch (panelIndex) {
 			case 0: audio.type = 1; break;
 			case 1: audio.type = 2; break;
-			case 2: audio.type = 2; audio.randomChance = 1; break;
-			case 3: audio.type = 4; break;
-			case 4: audio.type = 3; break;
+			case 2: audio.type = 4; break;
+			case 3: audio.type = 3; break;
 		}
 
 		AddAudioInfo(trackName, audio);
@@ -185,7 +184,7 @@ public:
 class ScrolledWidgetsPane : public wxScrolledWindow {
 private:
 	wxBoxSizer* sizer;
-	AudioPanel* audioPanel[5];
+	AudioPanel* audioPanel[4];
 	std::string trackName;
 
 public:
@@ -197,7 +196,7 @@ public:
 
 		sizer = new wxBoxSizer(wxHORIZONTAL);
 
-		for (int i=0; i<5; i++) {
+		for (int i=0; i<4; i++) {
 			audioPanel[i] = new AudioPanel((wxFrame*)this, i, trackName);
 
 			sizer->Add(audioPanel[i], 0, wxALL | wxEXPAND | wxGROW, 0);
@@ -215,10 +214,8 @@ public:
 		if (audio->type == 1) {
 			i = 0;
 		} else if (audio->type == 3) {
-			i = 4;
-		} else if (audio->type == 4) {
 			i = 3;
-		} else if (audio->randomChance > 0) {
+		} else if (audio->type == 4) {
 			i = 2;
 		}
 		return i;
@@ -259,43 +256,94 @@ private:
 	wxTextCtrl *bpmCtrl;
 	wxTextCtrl *bpbCtrl;
 	wxTextCtrl *barsCtrl;
+	wxTextCtrl *randomChanceCtrl;
+	wxTextCtrl *minMovementBarsCtrl;
+	wxTextCtrl *fadeInCtrl;
+	wxTextCtrl *fadeOutCtrl;
+	wxTextCtrl *xfadeInCtrl;
+	wxTextCtrl *xfadeOutCtrl;
 	wxGridSizer *sizer;
 	std::string trackName;
 	std::string audioFile;
 
 public:
 	ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
+		int ctrlWidth = 160;
+		int ctrlHeight = -1;
+
 		trackName = "";
 		audioFile = "";
 
-		sizer = new wxGridSizer(2, 5, 5);
+		sizer = new wxGridSizer(4, 0, 0);
 
 		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
-		sizer->Add(staticText, 0, wxALL, 10);
+		sizer->Add(staticText, 0, wxALL, 5);
 
-		fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(320, -1), wxTE_READONLY);
-		sizer->Add(fileCtrl, 0, wxALL, 10);
+		fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), wxTE_READONLY);
+		sizer->Add(fileCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
-		sizer->Add(staticText, 0, wxALL, 10);
+		sizer->Add(staticText, 0, wxALL, 5);
 
-		bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
 		bpmCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpmChange, this);
-		sizer->Add(bpmCtrl, 0, wxALL, 10);
+		sizer->Add(bpmCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
-		sizer->Add(staticText, 0, wxALL, 10);
+		sizer->Add(staticText, 0, wxALL, 5);
 
-		bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
 		bpbCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpbChange, this);
-		sizer->Add(bpbCtrl, 0, wxALL, 10);
+		sizer->Add(bpbCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
-		sizer->Add(staticText, 0, wxALL, 10);
+		sizer->Add(staticText, 0, wxALL, 5);
 
-		barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(120, -1));
+		barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
 		barsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBarsChange, this);
-		sizer->Add(barsCtrl, 0, wxALL, 10);
+		sizer->Add(barsCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		randomChanceCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		randomChanceCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnRandomChanceChange, this);
+		sizer->Add(randomChanceCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Min movement bars"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		minMovementBarsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		minMovementBarsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnMinMovementBarsChange, this);
+		sizer->Add(minMovementBarsCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		fadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		fadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeInChange, this);
+		sizer->Add(fadeInCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade Out"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		fadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		fadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeOutChange, this);
+		sizer->Add(fadeOutCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade In"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		xfadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		xfadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeInChange, this);
+		sizer->Add(xfadeInCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade Out"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		xfadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		xfadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeOutChange, this);
+		sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
 
 		SetSizer(sizer);
 		SetMinSize(wxSize(-1, 180));
@@ -342,6 +390,84 @@ public:
 		}
 	}
 
+	void OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = randomChanceCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->randomChance = (int)l;
+		}
+	}
+
+	void OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = minMovementBarsCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->minMovementBars = (int)l;
+		}
+	}
+
+	void OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = fadeInCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->fadeIn = (int)l;
+		}
+	}
+
+	void OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = fadeOutCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->fadeOut = (int)l;
+		}
+	}
+
+	void OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = xfadeInCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->xfadeIn = (int)l;
+		}
+	}
+
+	void OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = xfadeOutCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->xfadeOut = (int)l;
+		}
+	}
+
 	void SetTrack(std::string name) {
 		trackName = name;
 	}
@@ -353,6 +479,12 @@ public:
 		bpmCtrl->Clear();
 		bpbCtrl->Clear();
 		barsCtrl->Clear();
+		randomChanceCtrl->Clear();
+		minMovementBarsCtrl->Clear();
+		fadeInCtrl->Clear();
+		fadeOutCtrl->Clear();
+		xfadeInCtrl->Clear();
+		xfadeOutCtrl->Clear();
 
 		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 		if (info) {
@@ -360,6 +492,12 @@ public:
 			*bpmCtrl << info->bpm;
 			*bpbCtrl << info->beatsPerBar;
 			*barsCtrl << info->bars;
+			*randomChanceCtrl << info->randomChance;
+			*minMovementBarsCtrl << info->minMovementBars;
+			*fadeInCtrl << info->fadeIn;
+			*fadeOutCtrl << info->fadeOut;
+			*xfadeInCtrl << info->xfadeIn;
+			*xfadeOutCtrl << info->xfadeOut;
 		}
 	}
 };
