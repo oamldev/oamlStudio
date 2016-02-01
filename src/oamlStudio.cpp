@@ -17,6 +17,7 @@
 #include <wx/sizer.h>
 #include <wx/frame.h>
 #include <wx/textctrl.h>
+#include <wx/filename.h>
 
 
 IMPLEMENT_APP(oamlStudio)
@@ -151,7 +152,10 @@ public:
 
 		oamlAudioInfo audio;
 		memset(&audio, 0, sizeof(oamlAudioInfo));
-		audio.filename = openFileDialog.GetPath();
+		wxFileName filename(openFileDialog.GetPath());
+		wxFileName defsPath(oaml->GetDefsFile());
+		filename.MakeRelativeTo(wxString(defsPath.GetPath()));
+		audio.filename = filename.GetFullPath().ToStdString();
 		switch (panelIndex) {
 			case 0: audio.type = 1; break;
 			case 1: audio.type = 2; break;
@@ -663,6 +667,8 @@ void StudioFrame::SelectTrack(std::string name) {
 	vSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
 
 	oamlTrackInfo *track = GetTrackInfo(name);
+	if (track == NULL)
+		return;
 	for (size_t i=0; i<track->audios.size(); i++) {
 		trackPane->AddDisplay(track->audios[i].filename);
 	}
@@ -705,10 +711,8 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
-	if (tinfo) {
-//		delete tinfo;
-		tinfo = NULL;
-	}
+	tinfo->tracks.clear();
+
 	if (trackPane) {
 		trackPane->Destroy();
 	}
@@ -801,10 +805,6 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
-	if (tinfo == NULL) {
-		tinfo = new oamlTracksInfo;
-	}
-
 	oamlTrackInfo track;
 	memset(&track, 0, sizeof(oamlTrackInfo));
 
