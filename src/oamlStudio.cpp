@@ -574,6 +574,9 @@ private:
 
 	void SelectTrack(std::string name);
 
+	void CreateDefs(tinyxml2::XMLDocument& xmlDoc);
+	void ReloadDefs();
+
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
@@ -611,7 +614,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
 END_EVENT_TABLE()
 
-void audioCallback(void *userdata, Uint8 *stream, int len) {
+void audioCallback(void* WXUNUSED(userdata), Uint8* stream, int len) {
 	oaml->MixToBuffer(stream, len/2);
 }
 
@@ -787,7 +790,7 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
-	oaml->Init(openFileDialog.GetPath());
+	oaml->InitString(openFileDialog.GetPath());
 
 	tinfo = oaml->GetTracksInfo();
 
@@ -809,9 +812,7 @@ void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name
 	node->InsertEndChild(el);
 }
 
-void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
-	tinyxml2::XMLDocument xmlDoc;
-
+void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc) {
 	xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration());
 
 	for (size_t i=0; i<tinfo->tracks.size(); i++) {
@@ -847,7 +848,21 @@ void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
 
 		xmlDoc.InsertEndChild(trackEl);
 	}
+}
 
+void StudioFrame::ReloadDefs() {
+	tinyxml2::XMLDocument xmlDoc;
+	tinyxml2::XMLPrinter printer;
+
+	CreateDefs(xmlDoc);
+	xmlDoc.Accept(&printer);
+	oaml->InitString(printer.CStr());
+}
+
+void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
+	tinyxml2::XMLDocument xmlDoc;
+
+	CreateDefs(xmlDoc);
 	xmlDoc.SaveFile(defsPath.c_str());
 }
 
@@ -897,6 +912,8 @@ void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
 
 void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 	trackPane->AddDisplay(event.GetString().ToStdString());
+
+	ReloadDefs();
 
 	SetSizer(mainSizer);
 	Layout();
