@@ -2,6 +2,7 @@
 #define __OAMLSTUDIO_H__
 
 #include <wx/wx.h>
+#include <sdl/sdl.h>
 
 
 extern oamlApi *oaml;
@@ -27,12 +28,16 @@ enum {
 	ID_RemoveTrack,
 	ID_AddAudio,
 	ID_RemoveAudio,
-	ID_EditTrackName
+	ID_EditTrackName,
+	ID_Play,
+	ID_Pause
 };
 
 class oamlStudio : public wxApp {
 public:
 	virtual bool OnInit();
+
+	int OpenSDL();
 };
 
 #endif /* __OAMLSTUDIO_H__ */

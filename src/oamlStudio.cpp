@@ -20,7 +20,7 @@
 #include <wx/filename.h>
 
 
-IMPLEMENT_APP(oamlStudio)
+wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
 
 wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
@@ -266,6 +266,12 @@ private:
 	wxTextCtrl *fadeOutCtrl;
 	wxTextCtrl *xfadeInCtrl;
 	wxTextCtrl *xfadeOutCtrl;
+
+	wxBitmapButton *playBtn;
+	wxBitmapButton *pauseBtn;
+
+	wxBoxSizer *mSizer;
+	wxBoxSizer *hSizer;
 	wxGridSizer *sizer;
 	std::string trackName;
 	std::string audioFile;
@@ -277,6 +283,21 @@ public:
 
 		trackName = "";
 		audioFile = "";
+
+		mSizer = new wxBoxSizer(wxVERTICAL);
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		wxImage::AddHandler(new wxPNGHandler);
+
+		playBtn = new wxBitmapButton(this, ID_Play, wxBitmap(wxT("images/play.png"), wxBITMAP_TYPE_PNG));
+		playBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPlay, this);
+		hSizer->Add(playBtn, 0, wxALL, 0);
+
+		pauseBtn = new wxBitmapButton(this, ID_Pause, wxBitmap(wxT("images/pause.png"), wxBITMAP_TYPE_PNG));
+		pauseBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPause, this);
+		hSizer->Add(pauseBtn, 0, wxALL, 0);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
 
 		sizer = new wxGridSizer(4, 0, 0);
 
@@ -349,7 +370,9 @@ public:
 		xfadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeOutChange, this);
 		sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
 
-		SetSizer(sizer);
+		mSizer->Add(sizer);
+
+		SetSizer(mSizer);
 		SetMinSize(wxSize(-1, 180));
 
 		Layout();
@@ -472,6 +495,18 @@ public:
 		}
 	}
 
+	void OnPlay(wxCommandEvent& WXUNUSED(event)) {
+		if (oaml->IsPaused()) {
+			oaml->Resume();
+		} else {
+			oaml->PlayTrack(trackName.c_str());
+		}
+	}
+
+	void OnPause(wxCommandEvent& WXUNUSED(event)) {
+		oaml->PauseToggle();
+	}
+
 	void SetTrack(std::string name) {
 		trackName = name;
 	}
@@ -576,9 +611,38 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
 END_EVENT_TABLE()
 
+void audioCallback(void *userdata, Uint8 *stream, int len) {
+	oaml->MixToBuffer(stream, len/2);
+}
+
+int oamlStudio::OpenSDL() {
+	SDL_AudioSpec spec;
+
+	SDL_memset(&spec, 0, sizeof(spec));
+	spec.freq = 44100;
+	spec.format = AUDIO_S16;
+	spec.channels = 2;
+	spec.samples = 4096;
+	spec.callback = audioCallback;
+
+	if (SDL_OpenAudio(&spec, NULL) < 0) {
+		fprintf(stderr, "Failed to open audio: %s\n", SDL_GetError());
+		return -1;
+	}
+
+	oaml->SetAudioFormat(44100, 2, 2);
+
+	SDL_PauseAudio(0);
+
+	return 0;
+}
+
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
 	oaml->Init("oaml.defs");
+
+	if (OpenSDL() == -1)
+		return false;
 
 	StudioFrame *frame = new StudioFrame(_("oamlStudio"), wxPoint(50, 50), wxSize(1024, 768));
 	frame->Show(true);
@@ -843,4 +907,16 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 
 	SetSizer(mainSizer);
 	Layout();
+}
+
+#undef main
+int main(int argc, char** argv) {
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		std::cerr << "Could not initialize SDL.\n";
+		return 1;
+	}
+
+	oamlStudio* app = new oamlStudio();
+	wxApp::SetInstance(app);
+	return wxEntry(argc, argv);
 }

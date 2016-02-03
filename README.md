@@ -14,3 +14,11 @@ Developed by Marcelo Fernandez
 On OSX and Linux steps are easy:
 cmake .
 make
+
+### Credits
+
+oamlStudio uses the following graphics:
+
+Icon: images/play.png images/pause.png
+Designer: Janik Baumgartner (http://kinaj.com/)
+License: Creative Commons Attribution
