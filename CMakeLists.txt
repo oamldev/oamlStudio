@@ -1,7 +1,20 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 
 project (oamlStudio)
-set(CMAKE_BUILD_TYPE Release)
+
+# Configuration types
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_definitions(-DDEBUG)
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	message("Debug mode: Yes (Disable by param -DCMAKE_BUILD_TYPE=Release)")
+else()
+	message("Debug mode: No (Enable by param -DCMAKE_BUILD_TYPE=Debug)")
+endif()
+
 
 find_package(wxWidgets REQUIRED html adv core base net aui xrc qa richtext)
 include(${wxWidgets_USE_FILE})
@@ -37,7 +50,7 @@ endif()
 ##
 # 
 #
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR})
 set(LIBS ${OAML_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/liboaml.a)
 
 ADD_EXECUTABLE(oamlStudio WIN32 ${SRCS} src/audioFile.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp )

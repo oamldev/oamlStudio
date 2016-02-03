@@ -639,7 +639,6 @@ int oamlStudio::OpenSDL() {
 
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
-	oaml->Init("oaml.defs");
 
 	if (OpenSDL() == -1)
 		return false;
@@ -870,11 +869,14 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTrackInfo track;
-	memset(&track, 0, sizeof(oamlTrackInfo));
 
 	char name[1024];
 	snprintf(name, 1024, "Track%ld", tinfo->tracks.size()+1);
 	track.name = name;
+	track.fadeIn = 0;
+	track.fadeOut = 0;
+	track.xfadeIn = 0;
+	track.xfadeOut = 0;
 
 	tinfo->tracks.push_back(track);
 

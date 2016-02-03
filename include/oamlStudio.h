@@ -2,7 +2,7 @@
 #define __OAMLSTUDIO_H__
 
 #include <wx/wx.h>
-#include <sdl/sdl.h>
+#include <SDL/SDL.h>
 
 
 extern oamlApi *oaml;
