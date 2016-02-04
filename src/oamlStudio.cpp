@@ -25,6 +25,7 @@ wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
 wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_PLAY_TRACK, wxCommandEvent);
 
 oamlApi *oaml;
 
@@ -499,7 +500,9 @@ public:
 		if (oaml->IsPaused()) {
 			oaml->Resume();
 		} else {
-			oaml->PlayTrack(trackName.c_str());
+			wxCommandEvent event(EVENT_PLAY_TRACK);
+			event.SetString(wxString(trackName.c_str()));
+			wxPostEvent(GetParent(), event);
 		}
 	}
 
@@ -595,6 +598,7 @@ public:
 	void OnSelectAudio(wxCommandEvent& event);
 	void OnAddAudio(wxCommandEvent& event);
 	void OnRemoveAudio(wxCommandEvent& event);
+	void OnPlayTrack(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE()
 };
@@ -612,6 +616,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
+	EVT_COMMAND(wxID_ANY, EVENT_PLAY_TRACK, StudioFrame::OnPlayTrack)
 END_EVENT_TABLE()
 
 void audioCallback(void* WXUNUSED(userdata), Uint8* stream, int len) {
@@ -790,7 +795,7 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
-	oaml->InitString(openFileDialog.GetPath());
+	oaml->Init(openFileDialog.GetPath());
 
 	tinfo = oaml->GetTracksInfo();
 
@@ -926,6 +931,11 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 
 	SetSizer(mainSizer);
 	Layout();
+}
+
+void StudioFrame::OnPlayTrack(wxCommandEvent& event) {
+	ReloadDefs();
+	oaml->PlayTrack(event.GetString().ToStdString().c_str());
 }
 
 #undef main

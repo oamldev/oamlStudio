@@ -34,7 +34,6 @@ endif()
 # Find VorbisFile lib
 #
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
-#set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib;.a")
 
 find_package(OggVorbis)
 find_package(VorbisFile)
@@ -52,6 +51,13 @@ endif()
 #
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR})
 set(LIBS ${OAML_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/liboaml.a)
+set(SRCS src/audioFile.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
 
-ADD_EXECUTABLE(oamlStudio WIN32 ${SRCS} src/audioFile.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp )
-TARGET_LINK_LIBRARIES(oamlStudio ${wxWidgets_LIBRARIES} ${LIBS})
+if (APPLE)
+	add_executable(oamlStudio MACOSX_BUNDLE ${SRCS} images/play.png images/pause.png)
+	set_source_files_properties(images/play.png images/pause.png PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+else()
+	add_executable(oamlStudio WIN32 ${SRCS})
+endif()
+
+target_link_libraries(oamlStudio ${wxWidgets_LIBRARIES} ${LIBS})

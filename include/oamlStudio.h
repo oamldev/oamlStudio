@@ -15,6 +15,7 @@ void RemoveAudioInfo(std::string trackName, std::string audioFile);
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_RELOAD_DEFS, wxCommandEvent);
 
 enum {
 	ID_Quit = 1,

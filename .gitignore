@@ -6,6 +6,7 @@ cmake_install.cmake
 make.sh
 oaml.defs
 oamlStudio
+oamlStudio.app
 music/
 build/
 vs/
