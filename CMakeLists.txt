@@ -37,14 +37,28 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_P
 
 find_package(OggVorbis)
 find_package(VorbisFile)
-set(SDL_BUILDING_LIBRARY true)
-find_package(SDL)
 
 if (OGGVORBIS_FOUND AND VORBISFILE_FOUND)
 	include_directories(${VORBISFILE_INCLUDE_DIR})
-	set(OAML_LIBS ${OAML_LIBS} ${OGG_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARIES} ${SDL_LIBRARY})
+	set(OAML_LIBS ${OAML_LIBS} ${OGG_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARIES})
 endif()
 
+##
+# Find SDL
+#
+set(SDL_BUILDING_LIBRARY true)
+find_package(SDL)
+set(OAML_LIBS ${OAML_LIBS} ${SDL_LIBRARY})
+
+##
+# Find minizip
+#
+include(FindPkgConfig)
+if(PKG_CONFIG_FOUND)
+	PKG_CHECK_MODULES(UNZIP minizip)
+endif(PKG_CONFIG_FOUND)
+
+set(OAML_LIBS ${OAML_LIBS} ${UNZIP_LIBRARIES})
 
 ##
 # 

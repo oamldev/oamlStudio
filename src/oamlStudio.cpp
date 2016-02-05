@@ -18,6 +18,7 @@
 #include <wx/frame.h>
 #include <wx/textctrl.h>
 #include <wx/filename.h>
+#include <minizip/zip.h>
 
 
 wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
@@ -595,8 +596,12 @@ private:
 
 	void SelectTrack(std::string name);
 
-	void CreateDefs(tinyxml2::XMLDocument& xmlDoc);
+	void CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg = false);
 	void ReloadDefs();
+
+	int WriteDefsToZip(zipFile zf);
+	int WriteFileToZip(zipFile zf, std::string file);
+	int CreateZip(std::string zfile, std::vector<std::string> files);
 
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
@@ -840,7 +845,7 @@ void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name
 	node->InsertEndChild(el);
 }
 
-void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc) {
+void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 	xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration());
 
 	for (size_t i=0; i<tinfo->tracks.size(); i++) {
@@ -859,7 +864,12 @@ void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc) {
 			oamlAudioInfo *audio = &track->audios[j];
 
 			tinyxml2::XMLNode *audioEl = xmlDoc.NewElement("audio");
-			AddSimpleChildToNode(audioEl, "filename", audio->filename.c_str());
+			if (createPkg) {
+				wxFileName fname(audio->filename);
+				AddSimpleChildToNode(audioEl, "filename", fname.GetFullName().ToStdString().c_str());
+			} else {
+				AddSimpleChildToNode(audioEl, "filename", audio->filename.c_str());
+			}
 			if (audio->type) AddSimpleChildToNode(audioEl, "type", audio->type);
 			if (audio->bpm) AddSimpleChildToNode(audioEl, "bpm", audio->bpm);
 			if (audio->beatsPerBar) AddSimpleChildToNode(audioEl, "beatsPerBar", audio->beatsPerBar);
@@ -903,7 +913,103 @@ void StudioFrame::OnSaveAs(wxCommandEvent& event) {
 	OnSave(event);
 }
 
+int StudioFrame::WriteDefsToZip(zipFile zf) {
+	tinyxml2::XMLDocument xmlDoc;
+	tinyxml2::XMLPrinter printer;
+
+	CreateDefs(xmlDoc, true);
+	xmlDoc.Accept(&printer);
+	const char *buffer = printer.CStr();
+
+	zip_fileinfo zfi = { { 0, 0, 0, 0, 0, 0 }, 0, 0, 0 };
+	wxFileName fname(defsPath);
+	if (zipOpenNewFileInZip(zf, fname.GetFullName().ToStdString().c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION) == ZIP_OK) {
+		if (zipWriteInFileInZip(zf, buffer, strlen(buffer)) != ZIP_OK) {
+			return -1;
+		}
+
+		if (zipCloseFileInZip(zf) != ZIP_OK) {
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+int StudioFrame::WriteFileToZip(zipFile zf, std::string file) {
+	const char *filename = file.c_str();
+	FILE *f = fopen(filename, "rb");
+	if (f == NULL) {
+		return -1;
+	}
+
+	fseek(f, 0, SEEK_END);
+	size_t size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	zip_fileinfo zfi = { { 0, 0, 0, 0, 0, 0 }, 0, 0, 0 };
+	wxFileName fname(filename);
+	if (zipOpenNewFileInZip(zf, fname.GetFullName().ToStdString().c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION) == ZIP_OK) {
+		char buffer[4096];
+
+		while (size > 0) {
+			int bytes = fread(buffer, 1, 4096, f);
+			if (bytes == 0) break;
+
+			if (zipWriteInFileInZip(zf, buffer, bytes) != ZIP_OK) {
+				fclose(f);
+				return -1;
+			}
+		}
+
+		if (zipCloseFileInZip(zf) != ZIP_OK) {
+			fclose(f);
+			return -1;
+		}
+	}
+
+	fclose(f);
+	return 0;
+}
+
+int StudioFrame::CreateZip(std::string zfile, std::vector<std::string> files) {
+	zipFile zf = zipOpen(zfile.c_str(), APPEND_STATUS_CREATE);
+	if (zf == NULL)
+		return -1;
+
+	if (WriteDefsToZip(zf)) {
+		zipClose(zf, NULL);
+		return -1;
+	}
+
+	for (size_t i=0; i<files.size(); i++) {
+		if (WriteFileToZip(zf, files[i])) {
+			zipClose(zf, NULL);
+			return -1;
+		}
+	}
+
+	if (zipClose(zf, NULL))
+		return -1;
+
+	return 0;
+}
+
 void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
+	std::vector<std::string> list;
+
+	oamlTracksInfo* info = oaml->GetTracksInfo();
+	for (size_t i=0; i<info->tracks.size(); i++) {
+		for (size_t j=0; j<info->tracks[i].audios.size(); j++) {
+			list.push_back(info->tracks[i].audios[j].filename);
+		}
+	}
+
+	wxFileDialog openFileDialog(this, _("Save oamlPackage.zip"), ".", "oamlPackage.zip", "*.zip", wxFD_SAVE);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	CreateZip(wxString(openFileDialog.GetPath()).ToStdString(), list);
 }
 
 void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
