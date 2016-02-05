@@ -83,6 +83,18 @@ void RemoveAudioInfo(std::string trackName, std::string audioFile) {
 	}
 }
 
+void RenameTrack(std::string trackName, std::string newName) {
+	oamlTracksInfo* info = oaml->GetTracksInfo();
+	if (info == NULL)
+		return;
+
+	for (size_t i=0; i<info->tracks.size(); i++) {
+		if (info->tracks[i].name == trackName) {
+			info->tracks[i].name = newName;
+			break;
+		}
+	}
+}
 
 class AudioPanel : public wxPanel {
 private:
@@ -547,6 +559,10 @@ public:
 class StudioTimer : public wxTimer {
 	wxWindow* pane;
 public:
+	int labelIndex;
+	wxListView* trackList;
+	std::string trackName;
+
 	StudioTimer(wxWindow* pane);
 
 	void Notify();
@@ -557,6 +573,8 @@ StudioTimer::StudioTimer(wxWindow* pane) : wxTimer() {
 }
 
 void StudioTimer::Notify() {
+	wxString str = trackList->GetItemText(labelIndex);
+	RenameTrack(trackName, str.ToStdString().c_str());
 	pane->Layout();
 }
 
@@ -585,7 +603,7 @@ public:
 
 	void OnTrackListActivated(wxListEvent& event);
 	void OnTrackListMenu(wxMouseEvent& event);
-	void OnTrackEndLabelEdit(wxCommandEvent& event);
+	void OnTrackEndLabelEdit(wxListEvent& event);
 	void OnNew(wxCommandEvent& event);
 	void OnLoad(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
@@ -769,11 +787,15 @@ void StudioFrame::OnTrackListMenu(wxMouseEvent& WXUNUSED(event)) {
 	PopupMenu(&menu);
 }
 
-void StudioFrame::OnTrackEndLabelEdit(wxCommandEvent& WXUNUSED(event)) {
+void StudioFrame::OnTrackEndLabelEdit(wxListEvent& event) {
 	if (timer == NULL) {
 		timer = new StudioTimer(this);
 	}
 
+	wxString str = trackList->GetItemText(event.GetIndex());
+	timer->labelIndex = event.GetIndex();
+	timer->trackList = trackList;
+	timer->trackName = str.ToStdString();
 	timer->StartOnce(10);
 }
 
@@ -795,7 +817,8 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
-	oaml->Init(openFileDialog.GetPath());
+	defsPath = openFileDialog.GetPath();
+	oaml->Init(defsPath.c_str());
 
 	tinfo = oaml->GetTracksInfo();
 
