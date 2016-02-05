@@ -280,6 +280,10 @@ private:
 	wxTextCtrl *fadeOutCtrl;
 	wxTextCtrl *xfadeInCtrl;
 	wxTextCtrl *xfadeOutCtrl;
+	wxTextCtrl *condIdCtrl;
+	wxTextCtrl *condTypeCtrl;
+	wxTextCtrl *condValueCtrl;
+	wxTextCtrl *condValue2Ctrl;
 
 	wxBitmapButton *playBtn;
 	wxBitmapButton *pauseBtn;
@@ -384,10 +388,38 @@ public:
 		xfadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeOutChange, this);
 		sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
 
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Id"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		condIdCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		condIdCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondIdChange, this);
+		sizer->Add(condIdCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Type"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		condTypeCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		condTypeCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondTypeChange, this);
+		sizer->Add(condTypeCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		condValueCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		condValueCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValueChange, this);
+		sizer->Add(condValueCtrl, 0, wxALL, 5);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value2"));
+		sizer->Add(staticText, 0, wxALL, 5);
+
+		condValue2Ctrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		condValue2Ctrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValue2Change, this);
+		sizer->Add(condValue2Ctrl, 0, wxALL, 5);
+
 		mSizer->Add(sizer);
 
 		SetSizer(mSizer);
-		SetMinSize(wxSize(-1, 180));
+		SetMinSize(wxSize(-1, 240));
 
 		Layout();
 	}
@@ -509,6 +541,58 @@ public:
 		}
 	}
 
+	void OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = condIdCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->condId = (int)l;
+		}
+	}
+
+	void OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = condTypeCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->condType = (int)l;
+		}
+	}
+
+	void OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = condValueCtrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->condValue = (int)l;
+		}
+	}
+
+	void OnCondValue2Change(wxCommandEvent& WXUNUSED(event)) {
+		wxString str = condValue2Ctrl->GetLineText(0);
+		if (str.IsEmpty())
+			return;
+
+		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+		if (info) {
+			long l = 0;
+			str.ToLong(&l);
+			info->condValue2 = (int)l;
+		}
+	}
+
 	void OnPlay(wxCommandEvent& WXUNUSED(event)) {
 		if (oaml->IsPaused()) {
 			oaml->Resume();
@@ -540,6 +624,10 @@ public:
 		fadeOutCtrl->Clear();
 		xfadeInCtrl->Clear();
 		xfadeOutCtrl->Clear();
+		condIdCtrl->Clear();
+		condTypeCtrl->Clear();
+		condValueCtrl->Clear();
+		condValue2Ctrl->Clear();
 
 		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 		if (info) {
@@ -553,6 +641,10 @@ public:
 			*fadeOutCtrl << info->fadeOut;
 			*xfadeInCtrl << info->xfadeIn;
 			*xfadeOutCtrl << info->xfadeOut;
+			*condIdCtrl << info->condId;
+			*condTypeCtrl << info->condType;
+			*condValueCtrl << info->condValue;
+			*condValue2Ctrl << info->condValue2;
 		}
 	}
 };
@@ -880,6 +972,10 @@ void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 			if (audio->fadeOut) AddSimpleChildToNode(audioEl, "fadeOut", audio->fadeOut);
 			if (audio->xfadeIn) AddSimpleChildToNode(audioEl, "xfadeIn", audio->xfadeIn);
 			if (audio->xfadeOut) AddSimpleChildToNode(audioEl, "xfadeOut", audio->xfadeOut);
+			if (audio->condId) AddSimpleChildToNode(audioEl, "condId", audio->condId);
+			if (audio->condType) AddSimpleChildToNode(audioEl, "condType", audio->condType);
+			if (audio->condValue) AddSimpleChildToNode(audioEl, "condValue", audio->condValue);
+			if (audio->condValue2) AddSimpleChildToNode(audioEl, "condValue2", audio->condValue2);
 
 			trackEl->InsertEndChild(audioEl);
 		}
@@ -1046,8 +1142,6 @@ void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
 
 void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 	trackPane->AddDisplay(event.GetString().ToStdString());
-
-	ReloadDefs();
 
 	SetSizer(mainSizer);
 	Layout();

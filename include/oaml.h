@@ -40,6 +40,10 @@ typedef struct {
 	int fadeOut;
 	int xfadeIn;
 	int xfadeOut;
+	int condId;
+	int condType;
+	int condValue;
+	int condValue2;
 } oamlAudioInfo;
 
 typedef struct {
@@ -95,7 +99,6 @@ public:
 	 *  @return returns 0, or -1 on error
 	 */
 	int PlayTrack(const char *name);
-	int PlayTrackId(int id);
 
 	/** Play a random music track that contains str in the name
 	 *  @return returns 0, or -1 on error
@@ -119,7 +122,6 @@ public:
 
 	/** Check if a track is playing */
 	bool IsTrackPlaying(const char *name);
-	bool IsTrackPlayingId(int id);
 
 	/** Check if any track is playing */
 	bool IsPlaying();
@@ -155,6 +157,9 @@ public:
 
 	/** Returns the 'oaml.defs' filename that was used for initialization */
 	const char* GetDefsFile();
+
+	/** Returns a simple text showing the track and audios being played */
+	const char* GetPlayingInfo();
 };
 
 #endif /* __OAML_H__ */
