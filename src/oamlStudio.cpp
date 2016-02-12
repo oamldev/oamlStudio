@@ -268,6 +268,8 @@ public:
 	}
 };
 
+class ControlTimer;
+
 class ControlPanel : public wxPanel {
 private:
 	wxTextCtrl *fileCtrl;
@@ -285,6 +287,8 @@ private:
 	wxTextCtrl *condValueCtrl;
 	wxTextCtrl *condValue2Ctrl;
 
+	wxTextCtrl *infoText;
+	ControlTimer *timer;
 	wxBitmapButton *playBtn;
 	wxBitmapButton *pauseBtn;
 
@@ -295,359 +299,418 @@ private:
 	std::string audioFile;
 
 public:
-	ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
-		int ctrlWidth = 160;
-		int ctrlHeight = -1;
-
-		trackName = "";
-		audioFile = "";
-
-		mSizer = new wxBoxSizer(wxVERTICAL);
-		hSizer = new wxBoxSizer(wxHORIZONTAL);
-
-		wxImage::AddHandler(new wxPNGHandler);
-
-		playBtn = new wxBitmapButton(this, ID_Play, wxBitmap(wxT("images/play.png"), wxBITMAP_TYPE_PNG));
-		playBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPlay, this);
-		hSizer->Add(playBtn, 0, wxALL, 0);
-
-		pauseBtn = new wxBitmapButton(this, ID_Pause, wxBitmap(wxT("images/pause.png"), wxBITMAP_TYPE_PNG));
-		pauseBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPause, this);
-		hSizer->Add(pauseBtn, 0, wxALL, 0);
-
-		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
-
-		sizer = new wxGridSizer(4, 0, 0);
-
-		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), wxTE_READONLY);
-		sizer->Add(fileCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		bpmCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpmChange, this);
-		sizer->Add(bpmCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		bpbCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpbChange, this);
-		sizer->Add(bpbCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		barsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBarsChange, this);
-		sizer->Add(barsCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		randomChanceCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		randomChanceCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnRandomChanceChange, this);
-		sizer->Add(randomChanceCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Min movement bars"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		minMovementBarsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		minMovementBarsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnMinMovementBarsChange, this);
-		sizer->Add(minMovementBarsCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		fadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		fadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeInChange, this);
-		sizer->Add(fadeInCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade Out"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		fadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		fadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeOutChange, this);
-		sizer->Add(fadeOutCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade In"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		xfadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		xfadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeInChange, this);
-		sizer->Add(xfadeInCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade Out"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		xfadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		xfadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeOutChange, this);
-		sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Id"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		condIdCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		condIdCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondIdChange, this);
-		sizer->Add(condIdCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Type"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		condTypeCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		condTypeCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondTypeChange, this);
-		sizer->Add(condTypeCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		condValueCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		condValueCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValueChange, this);
-		sizer->Add(condValueCtrl, 0, wxALL, 5);
-
-		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value2"));
-		sizer->Add(staticText, 0, wxALL, 5);
-
-		condValue2Ctrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		condValue2Ctrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValue2Change, this);
-		sizer->Add(condValue2Ctrl, 0, wxALL, 5);
-
-		mSizer->Add(sizer);
-
-		SetSizer(mSizer);
-		SetMinSize(wxSize(-1, 240));
-
-		Layout();
-	}
-
-	void OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = bpmCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			double d = 0;
-			str.ToDouble(&d);
-			info->bpm = (float)d;
-		}
-	}
-
-	void OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = bpbCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->beatsPerBar = (int)l;
-		}
-	}
-
-	void OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = barsCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->bars = (int)l;
-		}
-	}
-
-	void OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = randomChanceCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->randomChance = (int)l;
-		}
-	}
-
-	void OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = minMovementBarsCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->minMovementBars = (int)l;
-		}
-	}
-
-	void OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = fadeInCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->fadeIn = (int)l;
-		}
-	}
-
-	void OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = fadeOutCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->fadeOut = (int)l;
-		}
-	}
-
-	void OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = xfadeInCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->xfadeIn = (int)l;
-		}
-	}
-
-	void OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = xfadeOutCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->xfadeOut = (int)l;
-		}
-	}
-
-	void OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = condIdCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->condId = (int)l;
-		}
-	}
-
-	void OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = condTypeCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->condType = (int)l;
-		}
-	}
-
-	void OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = condValueCtrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->condValue = (int)l;
-		}
-	}
-
-	void OnCondValue2Change(wxCommandEvent& WXUNUSED(event)) {
-		wxString str = condValue2Ctrl->GetLineText(0);
-		if (str.IsEmpty())
-			return;
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			long l = 0;
-			str.ToLong(&l);
-			info->condValue2 = (int)l;
-		}
-	}
-
-	void OnPlay(wxCommandEvent& WXUNUSED(event)) {
-		if (oaml->IsPaused()) {
-			oaml->Resume();
-		} else {
-			wxCommandEvent event(EVENT_PLAY_TRACK);
-			event.SetString(wxString(trackName.c_str()));
-			wxPostEvent(GetParent(), event);
-		}
-	}
-
-	void OnPause(wxCommandEvent& WXUNUSED(event)) {
-		oaml->PauseToggle();
-	}
-
-	void SetTrack(std::string name) {
-		trackName = name;
-	}
-
-	void OnSelectAudio(std::string audio) {
-		audioFile = audio;
-
-		fileCtrl->Clear();
-		bpmCtrl->Clear();
-		bpbCtrl->Clear();
-		barsCtrl->Clear();
-		randomChanceCtrl->Clear();
-		minMovementBarsCtrl->Clear();
-		fadeInCtrl->Clear();
-		fadeOutCtrl->Clear();
-		xfadeInCtrl->Clear();
-		xfadeOutCtrl->Clear();
-		condIdCtrl->Clear();
-		condTypeCtrl->Clear();
-		condValueCtrl->Clear();
-		condValue2Ctrl->Clear();
-
-		oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-		if (info) {
-			*fileCtrl << info->filename;
-			*bpmCtrl << info->bpm;
-			*bpbCtrl << info->beatsPerBar;
-			*barsCtrl << info->bars;
-			*randomChanceCtrl << info->randomChance;
-			*minMovementBarsCtrl << info->minMovementBars;
-			*fadeInCtrl << info->fadeIn;
-			*fadeOutCtrl << info->fadeOut;
-			*xfadeInCtrl << info->xfadeIn;
-			*xfadeOutCtrl << info->xfadeOut;
-			*condIdCtrl << info->condId;
-			*condTypeCtrl << info->condType;
-			*condValueCtrl << info->condValue;
-			*condValue2Ctrl << info->condValue2;
-		}
-	}
+	ControlPanel(wxFrame* parent, wxWindowID id);
+	~ControlPanel();
+
+	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
+	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
+	void OnBarsChange(wxCommandEvent& WXUNUSED(event));
+	void OnRandomChanceChange(wxCommandEvent& WXUNUSED(event));
+	void OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event));
+	void OnFadeInChange(wxCommandEvent& WXUNUSED(event));
+	void OnFadeOutChange(wxCommandEvent& WXUNUSED(event));
+	void OnXFadeInChange(wxCommandEvent& WXUNUSED(event));
+	void OnXFadeOutChange(wxCommandEvent& WXUNUSED(event));
+	void OnCondIdChange(wxCommandEvent& WXUNUSED(event));
+	void OnCondTypeChange(wxCommandEvent& WXUNUSED(event));
+	void OnCondValueChange(wxCommandEvent& WXUNUSED(event));
+	void OnCondValue2Change(wxCommandEvent& WXUNUSED(event));
+	void OnPlay(wxCommandEvent& WXUNUSED(event));
+	void OnPause(wxCommandEvent& WXUNUSED(event));
+	void SetTrack(std::string name);
+	void OnSelectAudio(std::string audio);
+
+	void Update();
 };
+
+class ControlTimer : public wxTimer {
+	ControlPanel* pane;
+public:
+	ControlTimer(ControlPanel* pane);
+
+	void Notify();
+};
+
+
+
+ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
+	int ctrlWidth = 160;
+	int ctrlHeight = -1;
+
+	trackName = "";
+	audioFile = "";
+
+	mSizer = new wxBoxSizer(wxVERTICAL);
+	hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+	wxImage::AddHandler(new wxPNGHandler);
+
+	infoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(480, 40), wxTE_READONLY | wxTE_MULTILINE);
+	hSizer->Add(infoText, 0, wxALL, 5);
+
+	playBtn = new wxBitmapButton(this, ID_Play, wxBitmap(wxT("images/play.png"), wxBITMAP_TYPE_PNG));
+	playBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPlay, this);
+	hSizer->Add(playBtn, 0, wxALL, 5);
+
+	pauseBtn = new wxBitmapButton(this, ID_Pause, wxBitmap(wxT("images/pause.png"), wxBITMAP_TYPE_PNG));
+	pauseBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPause, this);
+	hSizer->Add(pauseBtn, 0, wxALL, 5);
+
+	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+	sizer = new wxGridSizer(4, 0, 0);
+
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), wxTE_READONLY);
+	sizer->Add(fileCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	bpmCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpmChange, this);
+	sizer->Add(bpmCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	bpbCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpbChange, this);
+	sizer->Add(bpbCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	barsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBarsChange, this);
+	sizer->Add(barsCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	randomChanceCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	randomChanceCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnRandomChanceChange, this);
+	sizer->Add(randomChanceCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Min movement bars"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	minMovementBarsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	minMovementBarsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnMinMovementBarsChange, this);
+	sizer->Add(minMovementBarsCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	fadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	fadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeInChange, this);
+	sizer->Add(fadeInCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Fade Out"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	fadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	fadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeOutChange, this);
+	sizer->Add(fadeOutCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade In"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	xfadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	xfadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeInChange, this);
+	sizer->Add(xfadeInCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade Out"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	xfadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	xfadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeOutChange, this);
+	sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Id"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	condIdCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	condIdCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondIdChange, this);
+	sizer->Add(condIdCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Type"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	condTypeCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	condTypeCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondTypeChange, this);
+	sizer->Add(condTypeCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	condValueCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	condValueCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValueChange, this);
+	sizer->Add(condValueCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value2"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	condValue2Ctrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	condValue2Ctrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValue2Change, this);
+	sizer->Add(condValue2Ctrl, 0, wxALL, 5);
+
+	mSizer->Add(sizer);
+
+	SetSizer(mSizer);
+	SetMinSize(wxSize(-1, 240));
+
+	Layout();
+
+	timer = new ControlTimer(this);
+	timer->Start(10);
+}
+
+ControlPanel::~ControlPanel() {
+	timer->Stop();
+	delete timer;
+}
+
+
+void ControlPanel::Update() {
+	infoText->Clear();
+	*infoText << oaml->GetPlayingInfo();
+}
+
+void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = bpmCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		double d = 0;
+		str.ToDouble(&d);
+		info->bpm = (float)d;
+	}
+}
+
+void ControlPanel::OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = bpbCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->beatsPerBar = (int)l;
+	}
+}
+
+void ControlPanel::OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = barsCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->bars = (int)l;
+	}
+}
+
+void ControlPanel::OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = randomChanceCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->randomChance = (int)l;
+	}
+}
+
+void ControlPanel::OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = minMovementBarsCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->minMovementBars = (int)l;
+	}
+}
+
+void ControlPanel::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = fadeInCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->fadeIn = (int)l;
+	}
+}
+
+void ControlPanel::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = fadeOutCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->fadeOut = (int)l;
+	}
+}
+
+void ControlPanel::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = xfadeInCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->xfadeIn = (int)l;
+	}
+}
+
+void ControlPanel::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = xfadeOutCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->xfadeOut = (int)l;
+	}
+}
+
+void ControlPanel::OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = condIdCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->condId = (int)l;
+	}
+}
+
+void ControlPanel::OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = condTypeCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->condType = (int)l;
+	}
+}
+
+void ControlPanel::OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = condValueCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->condValue = (int)l;
+	}
+}
+
+void ControlPanel::OnCondValue2Change(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = condValue2Ctrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		long l = 0;
+		str.ToLong(&l);
+		info->condValue2 = (int)l;
+	}
+}
+
+void ControlPanel::OnPlay(wxCommandEvent& WXUNUSED(event)) {
+	if (oaml->IsPaused()) {
+		oaml->Resume();
+	} else {
+		wxCommandEvent event(EVENT_PLAY_TRACK);
+		event.SetString(wxString(trackName.c_str()));
+		wxPostEvent(GetParent(), event);
+	}
+}
+
+void ControlPanel::OnPause(wxCommandEvent& WXUNUSED(event)) {
+	oaml->PauseToggle();
+}
+
+void ControlPanel::SetTrack(std::string name) {
+	trackName = name;
+}
+
+void ControlPanel::OnSelectAudio(std::string audio) {
+	audioFile = audio;
+
+	fileCtrl->Clear();
+	bpmCtrl->Clear();
+	bpbCtrl->Clear();
+	barsCtrl->Clear();
+	randomChanceCtrl->Clear();
+	minMovementBarsCtrl->Clear();
+	fadeInCtrl->Clear();
+	fadeOutCtrl->Clear();
+	xfadeInCtrl->Clear();
+	xfadeOutCtrl->Clear();
+	condIdCtrl->Clear();
+	condTypeCtrl->Clear();
+	condValueCtrl->Clear();
+	condValue2Ctrl->Clear();
+
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		*fileCtrl << info->filename;
+		*bpmCtrl << info->bpm;
+		*bpbCtrl << info->beatsPerBar;
+		*barsCtrl << info->bars;
+		*randomChanceCtrl << info->randomChance;
+		*minMovementBarsCtrl << info->minMovementBars;
+		*fadeInCtrl << info->fadeIn;
+		*fadeOutCtrl << info->fadeOut;
+		*xfadeInCtrl << info->xfadeIn;
+		*xfadeOutCtrl << info->xfadeOut;
+		*condIdCtrl << info->condId;
+		*condTypeCtrl << info->condType;
+		*condValueCtrl << info->condValue;
+		*condValue2Ctrl << info->condValue2;
+	}
+}
+
+ControlTimer::ControlTimer(ControlPanel* pane) : wxTimer() {
+	ControlTimer::pane = pane;
+}
+
+void ControlTimer::Notify() {
+	pane->Update();
+}
+
 
 class StudioTimer : public wxTimer {
 	wxWindow* pane;
