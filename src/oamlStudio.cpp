@@ -673,6 +673,7 @@ void StudioTimer::Notify() {
 
 class StudioFrame: public wxFrame {
 private:
+	std::string prjPath;
 	std::string defsPath;
 	wxListView* trackList;
 	wxBoxSizer* mainSizer;
@@ -915,7 +916,12 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 		return;
 
 	defsPath = openFileDialog.GetPath();
+	wxFileName fname(defsPath);
+	prjPath = fname.GetPathWithSep();
+	InitCallbacks(prjPath);
+
 	oaml->Init(defsPath.c_str());
+	oaml->SetFileCallbacks(&studioCbs);
 
 	tinfo = oaml->GetTracksInfo();
 

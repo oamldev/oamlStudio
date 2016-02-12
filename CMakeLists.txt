@@ -65,7 +65,7 @@ set(OAML_LIBS ${OAML_LIBS} ${UNZIP_LIBRARIES})
 #
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR})
 set(LIBS ${OAML_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/liboaml.a)
-set(SRCS src/audioFile.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
+set(SRCS src/audioFile.cpp src/oamlCallbacks.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
 
 if (APPLE)
 	add_executable(oamlStudio MACOSX_BUNDLE ${SRCS} images/play.png images/pause.png)

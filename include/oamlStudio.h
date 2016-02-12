@@ -4,7 +4,8 @@
 #include <wx/wx.h>
 #include <SDL/SDL.h>
 
-
+extern void InitCallbacks(std::string prjPath);
+extern oamlFileCallbacks studioCbs;
 extern oamlApi *oaml;
 
 oamlTrackInfo* GetTrackInfo(std::string trackName);

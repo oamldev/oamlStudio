@@ -13,6 +13,7 @@ class WaveformDisplay : public wxPanel {
 private:
 	RenderTimer* timer;
 
+	std::string path;
 	std::string filename;
 	audioFile *handle;
 	ByteBuffer buffer;

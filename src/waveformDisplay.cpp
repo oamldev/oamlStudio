@@ -20,36 +20,6 @@
 #include <wx/textctrl.h>
 #include <wx/dcbuffer.h>
 
-static void* oamlOpen(const char *filename) {
-	return fopen(filename, "rb");
-}
-
-static size_t oamlRead(void *ptr, size_t size, size_t nitems, void *fd) {
-	return fread(ptr, size, nitems, (FILE*)fd);
-}
-
-static int oamlSeek(void *fd, long offset, int whence) {
-	return fseek((FILE*)fd, offset, whence);
-}
-
-static long oamlTell(void *fd) {
-	return ftell((FILE*)fd);
-}
-
-static int oamlClose(void *fd) {
-	return fclose((FILE*)fd);
-}
-
-
-static oamlFileCallbacks defCbs = {
-	&oamlOpen,
-	&oamlRead,
-	&oamlSeek,
-	&oamlTell,
-	&oamlClose
-};
-
-
 
 RenderTimer::RenderTimer(wxWindow* pane) : wxTimer() {
 	RenderTimer::pane = pane;
@@ -112,18 +82,18 @@ void WaveformDisplay::SetSource(oamlAudioInfo* audio) {
 
 	std::string ext = filename.substr(filename.find_last_of(".") + 1);
 	if (ext == "ogg") {
-		handle = (audioFile*)new oggFile(&defCbs);
+		handle = (audioFile*)new oggFile(&studioCbs);
 	} else if (ext == "aif" || ext == "aiff") {
-		handle = (audioFile*)new aifFile(&defCbs);
+		handle = (audioFile*)new aifFile(&studioCbs);
 	} else if (ext == "wav" || ext == "wave") {
-		handle = new wavFile(&defCbs);
+		handle = new wavFile(&studioCbs);
 	} else {
-		fprintf(stderr, "liboaml: Unknown audio format: '%s'\n", filename.c_str());
+		fprintf(stderr, "oamlStudio: Unknown audio format: '%s'\n", filename.c_str());
 		return;
 	}
 
 	if (handle->Open(filename.c_str()) == -1) {
-		fprintf(stderr, "liboaml: Error opening: '%s'\n", filename.c_str());
+		fprintf(stderr, "oamlStudio: Error opening: '%s'\n", filename.c_str());
 		return;
 	}
 
