@@ -40,6 +40,7 @@ public:
 	void OnLeftUp(wxMouseEvent& evt);
 	void OnRightUp(wxMouseEvent& evt);
 	void OnMenuEvent(wxCommandEvent& evt);
+	void OnEraseBackground(wxEraseEvent& evt);
 
 	std::string GetAudioFile() { return filename; }
 };

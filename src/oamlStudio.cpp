@@ -1172,3 +1172,9 @@ int main(int argc, char** argv) {
 	wxApp::SetInstance(app);
 	return wxEntry(argc, argv);
 }
+
+#ifdef _MSC_VER
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
+	return main(0, NULL);
+}
+#endif

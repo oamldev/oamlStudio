@@ -18,7 +18,7 @@
 #include <wx/sizer.h>
 #include <wx/frame.h>
 #include <wx/textctrl.h>
-
+#include <wx/dcbuffer.h>
 
 static void* oamlOpen(const char *filename) {
 	return fopen(filename, "rb");
@@ -69,6 +69,7 @@ WaveformDisplay::WaveformDisplay(wxFrame* parent, wxFrame* wnd) : wxPanel(parent
 	Bind(wxEVT_LEFT_UP, &WaveformDisplay::OnLeftUp, this);
 	Bind(wxEVT_RIGHT_UP, &WaveformDisplay::OnRightUp, this);
 	Bind(wxEVT_COMMAND_MENU_SELECTED, &WaveformDisplay::OnMenuEvent, this, ID_RemoveAudio);
+	Bind(wxEVT_ERASE_BACKGROUND, &WaveformDisplay::OnEraseBackground, this);
 }
 
 WaveformDisplay::~WaveformDisplay() {
@@ -157,6 +158,9 @@ void WaveformDisplay::OnRightUp(wxMouseEvent& WXUNUSED(evt)) {
 	PopupMenu(&menu);
 }
 
+void WaveformDisplay::OnEraseBackground(wxEraseEvent& WXUNUSED(evt)) {
+}
+
 void WaveformDisplay::OnMenuEvent(wxCommandEvent& event) {
 	switch (event.GetId()) {
 		case ID_RemoveAudio:
@@ -168,10 +172,10 @@ void WaveformDisplay::OnMenuEvent(wxCommandEvent& event) {
 }
 
 void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
-	wxPaintDC dc(this);
-
 	if (handle == NULL || handle->GetTotalSamples() == 0)
 		return;
+
+	wxBufferedPaintDC dc(this);
 
 	wxSize size = GetSize();
 	samplesPerPixel = (handle->GetTotalSamples() / handle->GetChannels()) / size.GetWidth();
