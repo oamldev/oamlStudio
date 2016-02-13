@@ -22,11 +22,9 @@ On OSX and Linux steps are easy:
 
 oamlStudio uses the following graphics:
 
-Icon: images/play.png images/pause.png
-
-Designer: Janik Baumgartner [http://kinaj.com/](http://kinaj.com/)
-
-License: Creative Commons Attribution
+    Icon: images/play.png images/pause.png
+    Designer: Janik Baumgartner [http://kinaj.com/](http://kinaj.com/)
+    License: Creative Commons Attribution
 
 
 ### About
