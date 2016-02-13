@@ -5,13 +5,17 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 
 ### Requirements
 
+- wxWidgets 3.0
+- SDL
+- minizip
 
 
 ### Compiling
 
 On OSX and Linux steps are easy:
-cmake .
-make
+
+    cmake .
+    make
 
 
 ### Credits
@@ -19,7 +23,9 @@ make
 oamlStudio uses the following graphics:
 
 Icon: images/play.png images/pause.png
+
 Designer: Janik Baumgartner [http://kinaj.com/](http://kinaj.com/)
+
 License: Creative Commons Attribution
 
 
