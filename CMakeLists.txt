@@ -64,7 +64,6 @@ set(LIBS ${LIBS} ${UNZIP_LIBRARIES})
 # Find oaml
 #
 find_package(OAML)
-message(${OAML_LIBRARIES})
 set(LIBS ${LIBS} ${OAML_LIBRARIES})
 
 ##
