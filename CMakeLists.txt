@@ -40,7 +40,7 @@ find_package(VorbisFile)
 
 if (OGGVORBIS_FOUND AND VORBISFILE_FOUND)
 	include_directories(${VORBISFILE_INCLUDE_DIR})
-	set(OAML_LIBS ${OAML_LIBS} ${OGG_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARIES})
+	set(LIBS ${LIBS} ${OGG_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARIES})
 endif()
 
 ##
@@ -48,7 +48,7 @@ endif()
 #
 set(SDL_BUILDING_LIBRARY true)
 find_package(SDL)
-set(OAML_LIBS ${OAML_LIBS} ${SDL_LIBRARY})
+set(LIBS ${LIBS} ${SDL_LIBRARY})
 
 ##
 # Find minizip
@@ -58,13 +58,19 @@ if(PKG_CONFIG_FOUND)
 	PKG_CHECK_MODULES(UNZIP minizip)
 endif(PKG_CONFIG_FOUND)
 
-set(OAML_LIBS ${OAML_LIBS} ${UNZIP_LIBRARIES})
+set(LIBS ${LIBS} ${UNZIP_LIBRARIES})
+
+##
+# Find oaml
+#
+find_package(OAML)
+message(${OAML_LIBRARIES})
+set(LIBS ${LIBS} ${OAML_LIBRARIES})
 
 ##
 # 
 #
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR})
-set(LIBS ${OAML_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/liboaml.a)
 set(SRCS src/audioFile.cpp src/oamlCallbacks.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
 
 if (APPLE)
@@ -75,3 +81,8 @@ else()
 endif()
 
 target_link_libraries(oamlStudio ${wxWidgets_LIBRARIES} ${LIBS})
+
+##
+# Install rules
+#
+install(TARGETS oamlStudio DESTINATION bin)
