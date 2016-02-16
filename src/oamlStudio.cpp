@@ -18,7 +18,8 @@
 #include <wx/frame.h>
 #include <wx/textctrl.h>
 #include <wx/filename.h>
-#include <minizip/zip.h>
+#include <archive.h>
+#include <archive_entry.h>
 
 
 wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
@@ -755,8 +756,8 @@ private:
 	void CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg = false);
 	void ReloadDefs();
 
-	int WriteDefsToZip(zipFile zf);
-	int WriteFileToZip(zipFile zf, std::string file);
+	int WriteDefsToZip(struct archive *zip);
+	int WriteFileToZip(struct archive *zip, std::string file);
 	int CreateZip(std::string zfile, std::vector<std::string> files);
 
 public:
@@ -1078,7 +1079,7 @@ void StudioFrame::OnSaveAs(wxCommandEvent& event) {
 	OnSave(event);
 }
 
-int StudioFrame::WriteDefsToZip(zipFile zf) {
+int StudioFrame::WriteDefsToZip(struct archive *zip) {
 	tinyxml2::XMLDocument xmlDoc;
 	tinyxml2::XMLPrinter printer;
 
@@ -1086,76 +1087,92 @@ int StudioFrame::WriteDefsToZip(zipFile zf) {
 	xmlDoc.Accept(&printer);
 	const char *buffer = printer.CStr();
 
-	zip_fileinfo zfi = { { 0, 0, 0, 0, 0, 0 }, 0, 0, 0 };
 	wxFileName fname(defsPath);
-	if (zipOpenNewFileInZip(zf, fname.GetFullName().ToStdString().c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION) == ZIP_OK) {
-		if (zipWriteInFileInZip(zf, buffer, strlen(buffer)) != ZIP_OK) {
-			return -1;
-		}
 
-		if (zipCloseFileInZip(zf) != ZIP_OK) {
-			return -1;
-		}
+	struct archive_entry *entry = archive_entry_new();
+	if (entry == NULL) {
+		return -1;
 	}
+
+	archive_entry_set_pathname(entry, fname.GetFullName().ToStdString().c_str());
+	archive_entry_set_size(entry, strlen(buffer));
+	archive_entry_set_filetype(entry, AE_IFREG);
+	archive_entry_set_perm(entry, 0644);
+	archive_write_header(zip, entry);
+	if (archive_write_data(zip, buffer, strlen(buffer)) != strlen(buffer)) {
+		return -1;
+	}
+	archive_entry_free(entry);
 
 	return 0;
 }
 
-int StudioFrame::WriteFileToZip(zipFile zf, std::string file) {
+int StudioFrame::WriteFileToZip(struct archive *zip, std::string file) {
 	const char *filename = file.c_str();
-	FILE *f = fopen(filename, "rb");
-	if (f == NULL) {
+	void *fd = studioCbs.open(filename);
+	if (fd == NULL) {
 		return -1;
 	}
 
-	fseek(f, 0, SEEK_END);
-	size_t size = ftell(f);
-	fseek(f, 0, SEEK_SET);
+	studioCbs.seek(fd, 0, SEEK_END);
+	size_t size = studioCbs.tell(fd);
+	studioCbs.seek(fd, 0, SEEK_SET);
 
-	zip_fileinfo zfi = { { 0, 0, 0, 0, 0, 0 }, 0, 0, 0 };
 	wxFileName fname(filename);
-	if (zipOpenNewFileInZip(zf, fname.GetFullName().ToStdString().c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION) == ZIP_OK) {
-		char buffer[4096];
 
-		while (size > 0) {
-			int bytes = fread(buffer, 1, 4096, f);
-			if (bytes == 0) break;
+	struct archive_entry *entry = archive_entry_new();
+	if (entry == NULL) {
+		return -1;
+	}
 
-			if (zipWriteInFileInZip(zf, buffer, bytes) != ZIP_OK) {
-				fclose(f);
-				return -1;
-			}
-		}
+	archive_entry_set_pathname(entry, fname.GetFullName().ToStdString().c_str());
+	archive_entry_set_size(entry, size);
+	archive_entry_set_filetype(entry, AE_IFREG);
+	archive_entry_set_perm(entry, 0644);
+	archive_write_header(zip, entry);
 
-		if (zipCloseFileInZip(zf) != ZIP_OK) {
-			fclose(f);
+	char buffer[4096];
+	while (size > 0) {
+		int bytes = studioCbs.read(buffer, 1, 4096, fd);
+		if (bytes == 0) break;
+
+		if (archive_write_data(zip, buffer, bytes) != bytes) {
+			studioCbs.close(fd);
 			return -1;
 		}
 	}
 
-	fclose(f);
+	studioCbs.close(fd);
+	archive_entry_free(entry);
+
 	return 0;
 }
 
 int StudioFrame::CreateZip(std::string zfile, std::vector<std::string> files) {
-	zipFile zf = zipOpen(zfile.c_str(), APPEND_STATUS_CREATE);
-	if (zf == NULL)
-		return -1;
+	struct archive *zip;
 
-	if (WriteDefsToZip(zf)) {
-		zipClose(zf, NULL);
+	zip = archive_write_new();
+	if (zip == NULL)
+		return -1;
+	archive_write_set_format_zip(zip);
+	archive_write_open_filename(zip, zfile.c_str());
+
+	if (WriteDefsToZip(zip)) {
+		archive_write_close(zip);
+		archive_write_finish(zip);
 		return -1;
 	}
 
 	for (size_t i=0; i<files.size(); i++) {
-		if (WriteFileToZip(zf, files[i])) {
-			zipClose(zf, NULL);
+		if (WriteFileToZip(zip, files[i])) {
+			archive_write_close(zip);
+			archive_write_finish(zip);
 			return -1;
 		}
 	}
 
-	if (zipClose(zf, NULL))
-		return -1;
+	archive_write_close(zip);
+	archive_write_finish(zip);
 
 	return 0;
 }

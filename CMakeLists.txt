@@ -35,8 +35,8 @@ endif()
 #
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 
-find_package(OggVorbis)
-find_package(VorbisFile)
+find_package(OggVorbis REQUIRED)
+find_package(VorbisFile REQUIRED)
 
 if (OGGVORBIS_FOUND AND VORBISFILE_FOUND)
 	include_directories(${VORBISFILE_INCLUDE_DIR})
@@ -47,29 +47,26 @@ endif()
 # Find SDL
 #
 set(SDL_BUILDING_LIBRARY true)
-find_package(SDL)
+find_package(SDL REQUIRED)
 set(LIBS ${LIBS} ${SDL_LIBRARY})
 
 ##
-# Find minizip
+# Find liblzip
 #
-include(FindPkgConfig)
-if(PKG_CONFIG_FOUND)
-	PKG_CHECK_MODULES(UNZIP minizip)
-endif(PKG_CONFIG_FOUND)
-
-set(LIBS ${LIBS} ${UNZIP_LIBRARIES})
+set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+find_package(LibArchive REQUIRED)
+set(LIBS ${LIBS} ${LibArchive_LIBRARIES})
 
 ##
 # Find oaml
 #
-find_package(OAML)
+find_package(OAML REQUIRED)
 set(LIBS ${LIBS} ${OAML_LIBRARIES})
 
 ##
 # 
 #
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR} ${LibArchive_INCLUDE_DIR})
 set(SRCS src/audioFile.cpp src/oamlCallbacks.cpp src/oamlStudio.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
 
 if (APPLE)
