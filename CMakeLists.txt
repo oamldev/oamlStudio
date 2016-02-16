@@ -53,7 +53,9 @@ set(LIBS ${LIBS} ${SDL_LIBRARY})
 ##
 # Find liblzip
 #
-set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+if (APPLE)
+	set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+endif()
 find_package(LibArchive REQUIRED)
 set(LIBS ${LIBS} ${LibArchive_LIBRARIES})
 

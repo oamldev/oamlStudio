@@ -7,7 +7,7 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 
 - wxWidgets 3.0
 - SDL
-- minizip
+- libarchive
 
 
 ### Compiling
