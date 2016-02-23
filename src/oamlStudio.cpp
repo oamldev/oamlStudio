@@ -761,7 +761,7 @@ private:
 	int CreateZip(std::string zfile, std::vector<std::string> files);
 
 public:
-	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style);
 
 	void OnTrackListActivated(wxListEvent& event);
 	void OnTrackListMenu(wxMouseEvent& event);
@@ -831,13 +831,13 @@ bool oamlStudio::OnInit() {
 	if (OpenSDL() == -1)
 		return false;
 
-	StudioFrame *frame = new StudioFrame(_("oamlStudio"), wxPoint(50, 50), wxSize(1024, 768));
+	StudioFrame *frame = new StudioFrame(_("oamlStudio"), wxPoint(0, 0), wxSize(1024, 768), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE);
 	frame->Show(true);
 	SetTopWindow(frame);
 	return true;
 }
 
-StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size) : wxFrame(NULL, -1, title, pos, size) {
+StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(NULL, -1, title, pos, size, style) {
 	timer = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
@@ -1087,14 +1087,12 @@ int StudioFrame::WriteDefsToZip(struct archive *zip) {
 	xmlDoc.Accept(&printer);
 	const char *buffer = printer.CStr();
 
-	wxFileName fname(defsPath);
-
 	struct archive_entry *entry = archive_entry_new();
 	if (entry == NULL) {
 		return -1;
 	}
 
-	archive_entry_set_pathname(entry, fname.GetFullName().ToStdString().c_str());
+	archive_entry_set_pathname(entry, "oaml.defs");
 	archive_entry_set_size(entry, strlen(buffer));
 	archive_entry_set_filetype(entry, AE_IFREG);
 	archive_entry_set_perm(entry, 0644);
@@ -1155,6 +1153,7 @@ int StudioFrame::CreateZip(std::string zfile, std::vector<std::string> files) {
 	if (zip == NULL)
 		return -1;
 	archive_write_set_format_zip(zip);
+//	archive_write_zip_set_compression_store(zip);
 	archive_write_open_filename(zip, zfile.c_str());
 
 	if (WriteDefsToZip(zip)) {
