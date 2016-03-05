@@ -14,8 +14,18 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 
 On OSX and Linux steps are easy:
 
-    cmake .
+    mkdir build
+    cd build
+    cmake ..
     make
+
+
+
+### TODO
+- Possibility to set conditions
+- Export a wav as a preview?
+- Add a small tutorial/guide at start
+- Add controls for missing values for tracks (groups, fades, etc)
 
 
 ### Credits
