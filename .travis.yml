@@ -1,0 +1,24 @@
+before_install:
+- |
+  if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+   brew update
+   brew install libogg
+   brew install libvorbis
+   brew install wxwidgets
+  fi
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+   sudo apt-get -qq update
+   sudo apt-get install -y libogg-dev libvorbis-dev libwxgtk3.0-dev
+  fi
+language: cpp
+script:
+- mkdir build
+- cd build
+- cmake ..
+- make
+compiler:
+- clang
+- gcc
+os:
+- linux
+- osx
