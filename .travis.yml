@@ -5,10 +5,11 @@ before_install:
    brew install libogg
    brew install libvorbis
    brew install wxwidgets
+   brew install libarchive
   fi
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
    sudo apt-get -qq update
-   sudo apt-get install -y libogg-dev libvorbis-dev libwxgtk3.0-dev
+   sudo apt-get install -y libogg-dev libvorbis-dev libwxgtk3.0-dev libarchive-dev
   fi
 language: cpp
 script:

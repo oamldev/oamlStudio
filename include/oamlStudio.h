@@ -32,7 +32,8 @@ enum {
 	ID_RemoveAudio,
 	ID_EditTrackName,
 	ID_Play,
-	ID_Pause
+	ID_Pause,
+	ID_Recent
 };
 
 class oamlStudio : public wxApp {

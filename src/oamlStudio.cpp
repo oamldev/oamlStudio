@@ -18,6 +18,8 @@
 #include <wx/frame.h>
 #include <wx/textctrl.h>
 #include <wx/filename.h>
+#include <wx/filehistory.h>
+#include <wx/config.h>
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -737,14 +739,18 @@ void StudioTimer::Notify() {
 
 class StudioFrame: public wxFrame {
 private:
-	std::string prjPath;
-	std::string defsPath;
+	wxConfig *config;
 	wxListView* trackList;
 	wxBoxSizer* mainSizer;
 	wxBoxSizer* vSizer;
+	wxFileHistory* fileHistory;
+
 	ControlPanel* controlPane;
 	ScrolledWidgetsPane* trackPane;
 	StudioTimer* timer;
+
+	std::string prjPath;
+	std::string defsPath;
 
 	oamlTracksInfo* tinfo;
 
@@ -780,6 +786,7 @@ public:
 	void OnAddAudio(wxCommandEvent& event);
 	void OnRemoveAudio(wxCommandEvent& event);
 	void OnPlayTrack(wxCommandEvent& event);
+	void OnRecentFile(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE()
 };
@@ -794,6 +801,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_About, StudioFrame::OnAbout)
 	EVT_MENU(ID_AddTrack, StudioFrame::OnAddTrack)
 	EVT_MENU(ID_EditTrackName, StudioFrame::OnEditTrackName)
+	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
@@ -839,6 +847,7 @@ bool oamlStudio::OnInit() {
 }
 
 StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(NULL, -1, title, pos, size, style) {
+	config = new wxConfig("oamlStudio");
 	timer = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
@@ -849,6 +858,15 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	menuFile->Append(ID_Save, _("&Save..."));
 	menuFile->Append(ID_SaveAs, _("&Save As..."));
 	menuFile->Append(ID_Export, _("&Export..."));
+	menuFile->AppendSeparator();
+
+	fileHistory = new wxFileHistory();
+
+	wxMenu *recent = new wxMenu(0);
+	menuFile->Append(ID_Recent, "Recent files", recent);
+	fileHistory->UseMenu(recent);
+	fileHistory->Load(*config);
+
 	menuFile->AppendSeparator();
 	menuFile->Append(ID_Quit, _("E&xit"));
 
@@ -963,6 +981,11 @@ void StudioFrame::OnTrackEndLabelEdit(wxListEvent& event) {
 }
 
 void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
+	fileHistory->Save(*config);
+
+	delete config;
+	delete fileHistory;
+
 	Close(TRUE);
 }
 
@@ -997,7 +1020,16 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
-	Load(openFileDialog.GetPath().ToStdString());
+	wxString path = openFileDialog.GetPath();
+	Load(path.ToStdString());
+	fileHistory->AddFileToHistory(path);
+}
+
+void StudioFrame::OnRecentFile(wxCommandEvent& event) {
+	wxString path(fileHistory->GetHistoryFile(event.GetId() - wxID_FILE1));
+	if (path.empty() == false) {
+		Load(path.ToStdString());
+	}
 }
 
 void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value) {
