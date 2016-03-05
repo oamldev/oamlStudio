@@ -760,6 +760,7 @@ private:
 	int WriteFileToZip(struct archive *zip, std::string file);
 	int CreateZip(std::string zfile, std::vector<std::string> files);
 
+	void Load(std::string filename);
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style);
 
@@ -974,12 +975,8 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 	trackList->ClearAll();
 }
 
-void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
-	wxFileDialog openFileDialog(this, _("Open oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_CANCEL)
-		return;
-
-	defsPath = openFileDialog.GetPath();
+void StudioFrame::Load(std::string filename) {
+	defsPath = filename;
 	wxFileName fname(defsPath);
 	prjPath = fname.GetPathWithSep();
 	InitCallbacks(prjPath);
@@ -993,6 +990,14 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 		oamlTrackInfo *track = &tinfo->tracks[i];
 		trackList->InsertItem(i, wxString(track->name));
 	}
+}
+
+void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
+	wxFileDialog openFileDialog(this, _("Open oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	Load(openFileDialog.GetPath().ToStdString());
 }
 
 void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value) {

@@ -57,6 +57,8 @@ WaveformDisplay::~WaveformDisplay() {
 int WaveformDisplay::read32() {
 	int ret = 0;
 
+	ASSERT(handle != NULL);
+
 	if (handle->GetBytesPerSample() == 3) {
 		ret|= ((unsigned int)buffer.get())<<8;
 		ret|= ((unsigned int)buffer.get())<<16;
@@ -71,6 +73,9 @@ int WaveformDisplay::read32() {
 }
 
 void WaveformDisplay::SetSource(oamlAudioInfo* audio) {
+	ASSERT(topWnd != NULL);
+	ASSERT(audio != NULL);
+
 	filename = audio->filename;
 
 	buffer.clear();
@@ -92,7 +97,7 @@ void WaveformDisplay::SetSource(oamlAudioInfo* audio) {
 		return;
 	}
 
-	if (handle->Open(filename.c_str()) == -1) {
+	if (handle == NULL || handle->Open(filename.c_str()) == -1) {
 		fprintf(stderr, "oamlStudio: Error opening: '%s'\n", filename.c_str());
 		return;
 	}
