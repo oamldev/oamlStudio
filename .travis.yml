@@ -6,10 +6,11 @@ before_install:
    brew install libvorbis
    brew install wxwidgets
    brew install libarchive
+   brew install sdl
   fi
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
    sudo apt-get -qq update
-   sudo apt-get install -y libogg-dev libvorbis-dev libwxgtk3.0-dev libarchive-dev
+   sudo apt-get install -y libogg-dev libvorbis-dev libwxgtk3.0-dev libarchive-dev libsdl-dev
   fi
 language: cpp
 script:

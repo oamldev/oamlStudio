@@ -1051,9 +1051,16 @@ void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 		oamlTrackInfo *track = &tinfo->tracks[i];
 
 		tinyxml2::XMLNode *trackEl = xmlDoc.NewElement("track");
+		if (track->sfxTrack) {
+			trackEl->ToElement()->SetAttribute("type", "sfx");
+		} else {
+			trackEl->ToElement()->SetAttribute("type", "music");
+		}
 
 		AddSimpleChildToNode(trackEl, "name", track->name.c_str());
 
+		if (track->group.empty() == false) AddSimpleChildToNode(trackEl, "group", track->group.c_str());
+		if (track->subgroup.empty() == false) AddSimpleChildToNode(trackEl, "subgroup", track->subgroup.c_str());
 		if (track->fadeIn) AddSimpleChildToNode(trackEl, "fadeIn", track->fadeIn);
 		if (track->fadeOut) AddSimpleChildToNode(trackEl, "fadeOut", track->fadeOut);
 		if (track->xfadeIn) AddSimpleChildToNode(trackEl, "xfadeIn", track->xfadeIn);
