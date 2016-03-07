@@ -200,6 +200,10 @@ public:
 		menu.Append(ID_AddAudio, wxT("&Add Audio"));
 		PopupMenu(&menu);
 	}
+
+	void UpdateTrackName(std::string newName) {
+		trackName = newName;
+	}
 };
 
 class ScrolledWidgetsPane : public wxScrolledWindow {
@@ -269,6 +273,17 @@ public:
 		Layout();
 		sizer->Fit(this);
 	}
+
+	void UpdateTrackName(std::string oldName, std::string newName) {
+		if (trackName.compare(oldName) != 0)
+			return;
+
+		trackName = newName;
+
+		for (int i=0; i<4; i++) {
+			audioPanel[i]->UpdateTrackName(trackName);
+		}
+	}
 };
 
 class ControlTimer;
@@ -319,6 +334,8 @@ public:
 	void OnPause(wxCommandEvent& WXUNUSED(event));
 	void SetTrack(std::string name);
 	void OnSelectAudio(std::string audio);
+
+	void UpdateTrackName(std::string oldName, std::string newName);
 };
 
 
@@ -655,28 +672,26 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	}
 }
 
+void ControlPanel::UpdateTrackName(std::string oldName, std::string newName) {
+	if (trackName.compare(oldName) != 0)
+		return;
+
+	trackName = newName;
+}
+
+class StudioFrame;
 
 class StudioTimer : public wxTimer {
-	wxWindow* pane;
+	StudioFrame* pane;
 public:
 	int labelIndex;
 	wxListView* trackList;
 	std::string trackName;
 
-	StudioTimer(wxWindow* pane);
+	StudioTimer(StudioFrame* pane);
 
 	void Notify();
 };
-
-StudioTimer::StudioTimer(wxWindow* pane) : wxTimer() {
-	StudioTimer::pane = pane;
-}
-
-void StudioTimer::Notify() {
-	wxString str = trackList->GetItemText(labelIndex);
-	RenameTrack(trackName, str.ToStdString().c_str());
-	pane->Layout();
-}
 
 class StudioFrame: public wxFrame {
 private:
@@ -729,6 +744,8 @@ public:
 	void OnRemoveAudio(wxCommandEvent& event);
 	void OnPlay(wxCommandEvent& event);
 	void OnRecentFile(wxCommandEvent& event);
+
+	void UpdateTrackName(std::string trackName, std::string newName);
 
 	DECLARE_EVENT_TABLE()
 };
@@ -786,6 +803,25 @@ bool oamlStudio::OnInit() {
 	frame->Show(true);
 	SetTopWindow(frame);
 	return true;
+}
+
+StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
+	StudioTimer::pane = pane;
+}
+
+void StudioTimer::Notify() {
+	wxString str = trackList->GetItemText(labelIndex);
+	RenameTrack(trackName, str.ToStdString());
+	pane->UpdateTrackName(trackName, str.ToStdString());
+}
+
+void StudioFrame::UpdateTrackName(std::string trackName, std::string newName) {
+	if (trackPane) {
+		trackPane->UpdateTrackName(trackName, newName);
+	}
+	controlPane->UpdateTrackName(trackName, newName);
+
+	Layout();
 }
 
 StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(NULL, -1, title, pos, size, style) {
@@ -1050,6 +1086,7 @@ void StudioFrame::ReloadDefs() {
 	CreateDefs(xmlDoc);
 	xmlDoc.Accept(&printer);
 	oaml->InitString(printer.CStr());
+	tinfo = oaml->GetTracksInfo();
 }
 
 void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
@@ -1216,6 +1253,7 @@ void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
 
 void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 	trackPane->AddDisplay(event.GetString().ToStdString());
+	ReloadDefs();
 
 	SetSizer(mainSizer);
 	Layout();
