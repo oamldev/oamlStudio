@@ -13,6 +13,15 @@ before_install:
    sudo apt-get install -y libogg-dev libvorbis-dev libwxgtk3.0-dev libarchive-dev libsdl-dev
   fi
 language: cpp
+before_script:
+- cd ..
+- git clone https://github.com/marcelofg55/oaml.git
+- cd oaml
+- mkdir build
+- cd build
+- cmake ..
+- make
+- sudo make install
 script:
 - mkdir build
 - cd build
@@ -24,3 +33,5 @@ compiler:
 os:
 - linux
 - osx
+notifications:
+  irc: "irc.freenode.org#oaml"

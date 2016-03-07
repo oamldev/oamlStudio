@@ -29,7 +29,7 @@ wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
 wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_PLAY_TRACK, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
 
 oamlApi *oaml;
 
@@ -290,11 +290,6 @@ private:
 	wxTextCtrl *condValueCtrl;
 	wxTextCtrl *condValue2Ctrl;
 
-	wxTextCtrl *infoText;
-	ControlTimer *timer;
-	wxBitmapButton *playBtn;
-	wxBitmapButton *pauseBtn;
-
 	wxBoxSizer *mSizer;
 	wxBoxSizer *hSizer;
 	wxGridSizer *sizer;
@@ -304,6 +299,8 @@ private:
 public:
 	ControlPanel(wxFrame* parent, wxWindowID id);
 	~ControlPanel();
+
+	const char *GetTrack() const { return trackName.c_str(); }
 
 	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
 	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
@@ -322,18 +319,7 @@ public:
 	void OnPause(wxCommandEvent& WXUNUSED(event));
 	void SetTrack(std::string name);
 	void OnSelectAudio(std::string audio);
-
-	void Update();
 };
-
-class ControlTimer : public wxTimer {
-	ControlPanel* pane;
-public:
-	ControlTimer(ControlPanel* pane);
-
-	void Notify();
-};
-
 
 
 ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
@@ -345,19 +331,6 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 
 	mSizer = new wxBoxSizer(wxVERTICAL);
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
-
-	wxImage::AddHandler(new wxPNGHandler);
-
-	infoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(480, 40), wxTE_READONLY | wxTE_MULTILINE);
-	hSizer->Add(infoText, 0, wxALL, 5);
-
-	playBtn = new wxBitmapButton(this, ID_Play, wxBitmap(wxT("images/play.png"), wxBITMAP_TYPE_PNG));
-	playBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPlay, this);
-	hSizer->Add(playBtn, 0, wxALL, 5);
-
-	pauseBtn = new wxBitmapButton(this, ID_Pause, wxBitmap(wxT("images/pause.png"), wxBITMAP_TYPE_PNG));
-	pauseBtn->Bind(wxEVT_BUTTON, &ControlPanel::OnPause, this);
-	hSizer->Add(pauseBtn, 0, wxALL, 5);
 
 	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
 
@@ -466,21 +439,11 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	SetMinSize(wxSize(-1, 240));
 
 	Layout();
-
-	timer = new ControlTimer(this);
-	timer->Start(10);
 }
 
 ControlPanel::~ControlPanel() {
-	timer->Stop();
-	delete timer;
 }
 
-
-void ControlPanel::Update() {
-	infoText->Clear();
-	*infoText << oaml->GetPlayingInfo();
-}
 
 void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
 	wxString str = bpmCtrl->GetLineText(0);
@@ -651,20 +614,6 @@ void ControlPanel::OnCondValue2Change(wxCommandEvent& WXUNUSED(event)) {
 	}
 }
 
-void ControlPanel::OnPlay(wxCommandEvent& WXUNUSED(event)) {
-	if (oaml->IsPaused()) {
-		oaml->Resume();
-	} else {
-		wxCommandEvent event(EVENT_PLAY_TRACK);
-		event.SetString(wxString(trackName.c_str()));
-		wxPostEvent(GetParent(), event);
-	}
-}
-
-void ControlPanel::OnPause(wxCommandEvent& WXUNUSED(event)) {
-	oaml->PauseToggle();
-}
-
 void ControlPanel::SetTrack(std::string name) {
 	trackName = name;
 }
@@ -706,14 +655,6 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	}
 }
 
-ControlTimer::ControlTimer(ControlPanel* pane) : wxTimer() {
-	ControlTimer::pane = pane;
-}
-
-void ControlTimer::Notify() {
-	pane->Update();
-}
-
 
 class StudioTimer : public wxTimer {
 	wxWindow* pane;
@@ -748,6 +689,7 @@ private:
 	ControlPanel* controlPane;
 	ScrolledWidgetsPane* trackPane;
 	StudioTimer* timer;
+	PlaybackFrame* playFrame;
 
 	std::string prjPath;
 	std::string defsPath;
@@ -785,7 +727,7 @@ public:
 	void OnSelectAudio(wxCommandEvent& event);
 	void OnAddAudio(wxCommandEvent& event);
 	void OnRemoveAudio(wxCommandEvent& event);
-	void OnPlayTrack(wxCommandEvent& event);
+	void OnPlay(wxCommandEvent& event);
 	void OnRecentFile(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE()
@@ -805,7 +747,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
-	EVT_COMMAND(wxID_ANY, EVENT_PLAY_TRACK, StudioFrame::OnPlayTrack)
+	EVT_COMMAND(wxID_ANY, EVENT_PLAY, StudioFrame::OnPlay)
 END_EVENT_TABLE()
 
 void audioCallback(void* WXUNUSED(userdata), Uint8* stream, int len) {
@@ -926,6 +868,9 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	Layout();
 
 	Centre(wxBOTH);
+
+	playFrame = new PlaybackFrame(this, wxID_ANY);
+	playFrame->Show(true);
 }
 
 void StudioFrame::SelectTrack(std::string name) {
@@ -1285,9 +1230,9 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 	Layout();
 }
 
-void StudioFrame::OnPlayTrack(wxCommandEvent& event) {
+void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 	ReloadDefs();
-	oaml->PlayTrack(event.GetString().ToStdString().c_str());
+	oaml->PlayTrack(controlPane->GetTrack());
 }
 
 #undef main

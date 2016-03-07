@@ -39,5 +39,6 @@
 #include "wav.h"
 #include "oamlStudio.h"
 #include "waveformDisplay.h"
+#include "playbackFrame.h"
 
 #endif /* __OAMLCOMMON_H__ */
