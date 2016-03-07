@@ -23,11 +23,31 @@ PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, 
 
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+	wxGridSizer *sizer = new wxGridSizer(2, 0, 0);
+
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Id:"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	condIdCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1));
+	sizer->Add(condIdCtrl, 0, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value:"));
+	sizer->Add(staticText, 0, wxALL, 5);
+
+	condValueCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1));
+	sizer->Add(condValueCtrl, 0, wxALL, 5);
+
+	hSizer->Add(sizer, 0, wxALL);
+
+	condBtn = new wxButton(this, ID_Condition, wxT("Set condition"));
+	condBtn->Bind(wxEVT_BUTTON, &PlaybackFrame::OnCondition, this);
+	hSizer->Add(condBtn, 0, wxALL, 5);
+
+	mSizer->Add(hSizer, 0, wxALL);
 
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	infoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(360, 40), wxTE_READONLY | wxTE_MULTILINE);
+	infoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(360, 80), wxTE_READONLY | wxTE_MULTILINE);
 	hSizer->Add(infoText, 0, wxEXPAND | wxGROW | wxALL, 5);
 
 	mSizer->Add(hSizer, 0, wxEXPAND | wxGROW | wxALL);
@@ -60,6 +80,18 @@ void PlaybackFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 
 void PlaybackFrame::OnPause(wxCommandEvent& WXUNUSED(event)) {
 	oaml->PauseToggle();
+}
+
+void PlaybackFrame::OnCondition(wxCommandEvent& WXUNUSED(event)) {
+	wxString condIdStr = condIdCtrl->GetLineText(0);
+	wxString condValueStr = condValueCtrl->GetLineText(0);
+	long condId = 0;
+	long condValue = 0;
+
+	condIdStr.ToLong(&condId);
+	condValueStr.ToLong(&condValue);
+
+	oaml->SetCondition(condId, condValue);
 }
 
 void PlaybackFrame::Update() {

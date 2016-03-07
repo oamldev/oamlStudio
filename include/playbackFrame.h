@@ -5,10 +5,13 @@ class PlaybackTimer;
 
 class PlaybackFrame: public wxFrame {
 private:
+	wxTextCtrl *condIdCtrl;
+	wxTextCtrl *condValueCtrl;
 	wxTextCtrl *infoText;
 	PlaybackTimer *timer;
 	wxBitmapButton *playBtn;
 	wxBitmapButton *pauseBtn;
+	wxButton *condBtn;
 
 	wxBoxSizer *mSizer;
 	wxBoxSizer *hSizer;
@@ -19,6 +22,7 @@ public:
 
 	void OnPlay(wxCommandEvent& WXUNUSED(event));
 	void OnPause(wxCommandEvent& WXUNUSED(event));
+	void OnCondition(wxCommandEvent& WXUNUSED(event));
 
 	void Update();
 };

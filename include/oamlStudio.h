@@ -34,7 +34,8 @@ enum {
 	ID_EditTrackName,
 	ID_Play,
 	ID_Pause,
-	ID_Recent
+	ID_Recent,
+	ID_Condition
 };
 
 class oamlStudio : public wxApp {
