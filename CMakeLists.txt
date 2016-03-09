@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 
-project (oamlStudio)
+project (oamlStudio CXX)
 
 # Configuration types
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -78,6 +78,7 @@ else()
 	add_executable(oamlStudio WIN32 ${SRCS})
 endif()
 
+target_compile_features(oamlStudio PRIVATE cxx_range_for)
 target_link_libraries(oamlStudio ${wxWidgets_LIBRARIES} ${LIBS})
 
 ##
