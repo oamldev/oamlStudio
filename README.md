@@ -1,4 +1,4 @@
-### oamlStudio
+### oamlStudio [![Build Status](https://travis-ci.org/marcelofg55/oamlStudio.svg)](https://travis-ci.org/marcelofg55/oamlStudio.svg?branch=master)
 
 oamlStudio is the graphical user interface (GUI) to configure and export the music package to be used by a game that implements adaptive music using the [Open Adative Music Library](https://github.com/marcelofg55/oaml).
 
@@ -8,6 +8,9 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 - wxWidgets 3.0
 - SDL
 - libarchive
+- libogg
+- libvorbis
+- oaml
 
 
 ### Compiling
@@ -22,10 +25,10 @@ On OSX and Linux steps are easy:
 
 
 ### TODO
-- Possibility to set conditions
 - Export a wav as a preview?
 - Add a small tutorial/guide at start
 - Add controls for missing values for tracks (groups, fades, etc)
+- Implement a knob control for some values
 
 
 ### Credits
