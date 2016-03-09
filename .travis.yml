@@ -14,7 +14,6 @@ before_install:
   fi
 language: cpp
 before_script:
-- cd ..
 - git clone https://github.com/marcelofg55/oaml.git
 - cd oaml
 - mkdir build
@@ -22,6 +21,7 @@ before_script:
 - cmake ..
 - make
 - sudo make install
+- cd ../..
 script:
 - mkdir build
 - cd build
