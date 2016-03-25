@@ -150,6 +150,7 @@ void WaveformDisplay::OnLeftUp(wxMouseEvent& WXUNUSED(evt)) {
 
 void WaveformDisplay::OnRightUp(wxMouseEvent& WXUNUSED(evt)) {
 	wxMenu menu(wxT(""));
+//	menu.Append(ID_AddLayer, wxT("&Add Layer"));
 	menu.Append(ID_RemoveAudio, wxT("&Remove Audio"));
 	PopupMenu(&menu);
 }

@@ -65,5 +65,7 @@
 #include "audioPanel.h"
 #include "playbackFrame.h"
 #include "controlPanel.h"
+#include "trackPanel.h"
+#include "studioFrame.h"
 
 #endif /* __OAMLCOMMON_H__ */

@@ -20,55 +20,24 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __OAMLSTUDIO_H__
-#define __OAMLSTUDIO_H__
 
-#include <wx/wx.h>
-#include <SDL/SDL.h>
+#ifndef __TRACKPANEL_H__
+#define __TRACKPANEL_H__
 
-extern void InitCallbacks(std::string prjPath);
-extern oamlFileCallbacks studioCbs;
-extern oamlApi *oaml;
 
-oamlTrackInfo* GetTrackInfo(std::string trackName);
-oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile);
-oamlLayerInfo* GetLayerInfo(std::string trackName, std::string audioFile);
-void AddAudioInfo(std::string trackName, oamlAudioInfo& audio);
-void RemoveAudioInfo(std::string trackName, std::string audioFile);
-void RenameTrack(std::string trackName, std::string newName);
+class TrackPanel : public wxScrolledWindow {
+private:
+	wxBoxSizer* sizer;
+	AudioPanel* audioPanel[4];
+	std::string trackName;
 
-wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_RELOAD_DEFS, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_PLAY, wxCommandEvent);
-
-enum {
-	ID_Quit = 1,
-	ID_About,
-	ID_New,
-	ID_Save,
-	ID_SaveAs,
-	ID_Load,
-	ID_Export,
-	ID_AddTrack,
-	ID_RemoveTrack,
-	ID_AddAudio,
-	ID_RemoveAudio,
-	ID_EditTrackName,
-	ID_Play,
-	ID_Pause,
-	ID_Recent,
-	ID_Condition,
-	ID_AddLayer,
-	ID_RemveLayer
-};
-
-class oamlStudio : public wxApp {
 public:
-	virtual bool OnInit();
+	TrackPanel(wxWindow* parent, wxWindowID id, std::string name);
 
-	int OpenSDL();
+	int GetPanelIndex(oamlAudioInfo *audio);
+	void AddAudio(oamlAudioInfo *audio);
+	void RemoveAudio(std::string audioFile);
+	void UpdateTrackName(std::string oldName, std::string newName);
 };
 
-#endif /* __OAMLSTUDIO_H__ */
+#endif
