@@ -32,6 +32,7 @@ extern oamlApi *oaml;
 
 oamlTrackInfo* GetTrackInfo(std::string trackName);
 oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile);
+oamlLayerInfo* GetLayerInfo(std::string trackName, std::string audioFile);
 void AddAudioInfo(std::string trackName, oamlAudioInfo& audio);
 void RemoveAudioInfo(std::string trackName, std::string audioFile);
 

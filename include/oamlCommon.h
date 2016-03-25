@@ -64,5 +64,6 @@
 #include "layerPanel.h"
 #include "audioPanel.h"
 #include "playbackFrame.h"
+#include "controlPanel.h"
 
 #endif /* __OAMLCOMMON_H__ */
