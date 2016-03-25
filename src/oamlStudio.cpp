@@ -815,11 +815,15 @@ void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
 }
 
 void StudioFrame::OnAddAudio(wxCommandEvent& event) {
-/*	trackPane->AddDisplay(event.GetString().ToStdString());
+	oamlAudioInfo* audio = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString());
+	if (audio == NULL)
+		return;
+
+	trackPane->AddAudio(audio);
 	ReloadDefs();
 
 	SetSizer(mainSizer);
-	Layout();*/
+	Layout();
 }
 
 void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
@@ -832,7 +836,7 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 }
 
 void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
-//	ReloadDefs();
+	ReloadDefs();
 	oaml->PlayTrack(controlPane->GetTrack());
 }
 

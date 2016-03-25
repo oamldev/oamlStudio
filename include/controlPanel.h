@@ -72,6 +72,7 @@ public:
 	void SetTrack(std::string name);
 	void OnSelectAudio(std::string audio);
 
+	std::string GetTrackName() const { return trackName; }
 	void UpdateTrackName(std::string oldName, std::string newName);
 };
 

@@ -116,6 +116,7 @@ void AudioPanel::AddAudioDialog() {
 	std::string fname = filename.GetFullPath().ToStdString();
 
 	oamlLayerInfo layer;
+	memset(&layer, 0, sizeof(oamlLayerInfo));
 	layer.filename = fname;
 	audio.layers.push_back(layer);
 	switch (panelIndex) {
