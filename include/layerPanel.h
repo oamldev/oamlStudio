@@ -20,52 +20,25 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __WAVEFORMDISPLAY_H__
-#define __WAVEFORMDISPLAY_H__
+#ifndef __LAYERPANEL_H__
+#define __LAYERPANEL_H__
 
-class RenderTimer : public wxTimer {
-	wxWindow* pane;
-public:
-	RenderTimer(wxWindow* pane);
-
-	void Notify();
-};
-
-class WaveformDisplay : public wxPanel {
+class LayerPanel : public wxPanel {
 private:
-	RenderTimer* timer;
-
-	std::string path;
-	std::string filename;
-	audioFile *handle;
-	ByteBuffer buffer;
-
-	int peakl;
-	int peakr;
-	int count;
-
-	std::vector<int> peaksL;
-	std::vector<int> peaksR;
-
-	int bytesPerSec;
-	int samplesPerPixel;
-
-	wxFrame* topWnd;
+	wxBoxSizer *sizer;
+	std::vector<WaveformDisplay*> waveDisplays;
 
 public:
-	WaveformDisplay(wxFrame* parent, wxFrame* wnd);
-	~WaveformDisplay();
+	LayerPanel(wxFrame* parent);
 
-	int read32();
-	void SetSource(std::string _filename);
+	bool IsEmpty();
 
-	void OnPaint(wxPaintEvent& evt);
-	void OnLeftUp(wxMouseEvent& evt);
-	void OnRightUp(wxMouseEvent& evt);
-	void OnMenuEvent(wxCommandEvent& evt);
-	void OnEraseBackground(wxEraseEvent& evt);
+	void AddWaveform(std::string filename, wxFrame *topWnd);
+	void RemoveWaveform(std::string filename);
 
-	std::string GetFilename() { return filename; }
+	void OnPaint(wxPaintEvent& WXUNUSED(evt));
+
+	void AddLayerDialog();
 };
 
 #endif

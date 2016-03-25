@@ -20,52 +20,27 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __WAVEFORMDISPLAY_H__
-#define __WAVEFORMDISPLAY_H__
+#ifndef __AUDIOPANEL_H__
+#define __AUDIOPANEL_H__
 
-class RenderTimer : public wxTimer {
-	wxWindow* pane;
-public:
-	RenderTimer(wxWindow* pane);
-
-	void Notify();
-};
-
-class WaveformDisplay : public wxPanel {
+class AudioPanel : public wxPanel {
 private:
-	RenderTimer* timer;
-
-	std::string path;
-	std::string filename;
-	audioFile *handle;
-	ByteBuffer buffer;
-
-	int peakl;
-	int peakr;
-	int count;
-
-	std::vector<int> peaksL;
-	std::vector<int> peaksR;
-
-	int bytesPerSec;
-	int samplesPerPixel;
-
-	wxFrame* topWnd;
+	wxBoxSizer *sizer;
+	std::vector<LayerPanel*> layerPanels;
+	std::string trackName;
+	int panelIndex;
 
 public:
-	WaveformDisplay(wxFrame* parent, wxFrame* wnd);
-	~WaveformDisplay();
+	AudioPanel(wxFrame* parent, int index, std::string name);
 
-	int read32();
-	void SetSource(std::string _filename);
+	void OnPaint(wxPaintEvent& WXUNUSED(evt));
+	void OnMenuEvent(wxCommandEvent& event);
+	void OnRightUp(wxMouseEvent& WXUNUSED(event));
 
-	void OnPaint(wxPaintEvent& evt);
-	void OnLeftUp(wxMouseEvent& evt);
-	void OnRightUp(wxMouseEvent& evt);
-	void OnMenuEvent(wxCommandEvent& evt);
-	void OnEraseBackground(wxEraseEvent& evt);
-
-	std::string GetFilename() { return filename; }
+	void AddAudio(oamlAudioInfo *audio, wxFrame *topWnd);
+	void RemoveAudio(std::string filename);
+	void AddAudioDialog();
+	void UpdateTrackName(std::string newName);
 };
 
 #endif

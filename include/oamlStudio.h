@@ -57,7 +57,9 @@ enum {
 	ID_Play,
 	ID_Pause,
 	ID_Recent,
-	ID_Condition
+	ID_Condition,
+	ID_AddLayer,
+	ID_RemveLayer
 };
 
 class oamlStudio : public wxApp {

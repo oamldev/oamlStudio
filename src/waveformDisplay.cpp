@@ -94,11 +94,10 @@ int WaveformDisplay::read32() {
 	return ret;
 }
 
-void WaveformDisplay::SetSource(oamlAudioInfo* audio) {
+void WaveformDisplay::SetSource(std::string _filename) {
 	ASSERT(topWnd != NULL);
-	ASSERT(audio != NULL);
 
-	filename = audio->filename;
+	filename = _filename;
 
 	buffer.clear();
 	peaksL.clear();

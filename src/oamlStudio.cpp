@@ -70,16 +70,30 @@ oamlTrackInfo* GetTrackInfo(std::string trackName) {
 }
 
 oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile) {
-	oamlTracksInfo* info = oaml->GetTracksInfo();
-	for (size_t i=0; i<info->tracks.size(); i++) {
-		if (info->tracks[i].name == trackName) {
-			for (size_t j=0; j<info->tracks[i].audios.size(); j++) {
-				if (info->tracks[i].audios[j].filename == audioFile) {
-					return &info->tracks[i].audios[j];
-				}
-			}
+	oamlTrackInfo* track = GetTrackInfo(trackName);
+	if (track == NULL)
+		return NULL;
 
-			return NULL;
+	for (size_t i=0; i<track->audios.size(); i++) {
+		for (size_t j=0; j<track->audios[i].layers.size(); j++) {
+			if (track->audios[i].layers[j].filename == audioFile) {
+				return &track->audios[i];
+			}
+		}
+	}
+	return NULL;
+}
+
+oamlLayerInfo* GetLayerInfo(std::string trackName, std::string audioFile) {
+	oamlTrackInfo* track = GetTrackInfo(trackName);
+	if (track == NULL)
+		return NULL;
+
+	for (size_t i=0; i<track->audios.size(); i++) {
+		for (size_t j=0; j<track->audios[i].layers.size(); j++) {
+			if (track->audios[i].layers[j].filename == audioFile) {
+				return &track->audios[i].layers[j];
+			}
 		}
 	}
 	return NULL;
@@ -94,17 +108,19 @@ void AddAudioInfo(std::string trackName, oamlAudioInfo& audio) {
 }
 
 void RemoveAudioInfo(std::string trackName, std::string audioFile) {
-	oamlTracksInfo* info = oaml->GetTracksInfo();
-	for (size_t i=0; i<info->tracks.size(); i++) {
-		if (info->tracks[i].name == trackName) {
-			for (size_t j=0; j<info->tracks[i].audios.size(); j++) {
-				if (info->tracks[i].audios[j].filename == audioFile) {
-					info->tracks[i].audios.erase(info->tracks[i].audios.begin()+j);
-					return;
-				}
-			}
+	oamlTrackInfo* track = GetTrackInfo(trackName);
+	if (track == NULL)
+		return;
 
-			return;
+	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
+		for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
+			if (layer->filename == audioFile) {
+				audio->layers.erase(layer);
+				if (audio->layers.size() == 0) {
+					track->audios.erase(audio);
+				}
+				return;
+			}
 		}
 	}
 }
@@ -121,112 +137,6 @@ void RenameTrack(std::string trackName, std::string newName) {
 		}
 	}
 }
-
-class AudioPanel : public wxPanel {
-private:
-	wxBoxSizer *sizer;
-	std::vector<WaveformDisplay*> waveDisplays;
-	std::string trackName;
-	int panelIndex;
-
-public:
-	AudioPanel(wxFrame* parent, int index, std::string name) : wxPanel(parent) {
-		wxString texts[4] = { "Intro", "Main loop", "Conditional", "Ending" };
-
-		panelIndex = index;
-		trackName = name;
-
-		sizer = new wxBoxSizer(wxVERTICAL);
-		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, texts[index], wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
-		staticText->SetBackgroundColour(wxColour(0xD0, 0xD0, 0xD0));
-		sizer->Add(staticText, 0, wxALL | wxEXPAND | wxGROW, 5);
-		SetSizer(sizer);
-
-		Bind(wxEVT_PAINT, &AudioPanel::OnPaint, this);
-		Bind(wxEVT_RIGHT_UP, &AudioPanel::OnRightUp, this);
-		Bind(wxEVT_COMMAND_MENU_SELECTED, &AudioPanel::OnMenuEvent, this, ID_AddAudio);
-	}
-
-	void OnPaint(wxPaintEvent& WXUNUSED(evt)) {
-		wxPaintDC dc(this);
-
-		wxSize size = GetSize();
-		int x2 = size.GetWidth();
-		int y2 = size.GetHeight();
-
-		dc.SetPen(wxPen(wxColour(0, 0, 0), 4));
-		dc.DrawLine(0,  0,  0,  y2);
-		dc.DrawLine(x2, 0,  x2, y2);
-		dc.DrawLine(0,  0,  x2, 0);
-		dc.DrawLine(0,  y2, x2, y2);
-	}
-
-	void AddWaveform(oamlAudioInfo *audio, wxFrame *topWnd) {
-		WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
-		waveDisplay->SetSource(audio);
-
-		waveDisplays.push_back(waveDisplay);
-
-		sizer->Add(waveDisplay, 0, wxALL, 5);
-		Layout();
-	}
-
-	void RemoveWaveform(std::string audioFile) {
-		for (size_t i=0; i<waveDisplays.size(); i++) {
-			WaveformDisplay *waveDisplay = waveDisplays[i];
-			if (waveDisplay->GetAudioFile() == audioFile) {
-				waveDisplays.erase(waveDisplays.begin()+i);
-				waveDisplay->Destroy();
-				break;
-			}
-		}
-
-		Layout();
-	}
-
-	void AddAudio() {
-		wxFileDialog openFileDialog(this, _("Open audio file"), ".", "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-		if (openFileDialog.ShowModal() == wxID_CANCEL)
-			return;
-
-		oamlAudioInfo audio;
-		memset(&audio, 0, sizeof(oamlAudioInfo));
-		wxFileName filename(openFileDialog.GetPath());
-		wxFileName defsPath(oaml->GetDefsFile());
-		filename.MakeRelativeTo(wxString(defsPath.GetPath()));
-		audio.filename = filename.GetFullPath().ToStdString();
-		switch (panelIndex) {
-			case 0: audio.type = 1; break;
-			case 1: audio.type = 2; break;
-			case 2: audio.type = 4; break;
-			case 3: audio.type = 3; break;
-		}
-
-		AddAudioInfo(trackName, audio);
-
-		wxCommandEvent event(EVENT_ADD_AUDIO);
-		event.SetString(audio.filename);
-		wxPostEvent(GetParent(), event);
-	}
-
-	void OnMenuEvent(wxCommandEvent& event) {
-		switch (event.GetId()) {
-			case ID_AddAudio:
-				AddAudio();
-				break;
-		}
-	}
-
-	void OnRightUp(wxMouseEvent& WXUNUSED(event)) {
-		wxMenu menu(wxT(""));
-		menu.Append(ID_AddAudio, wxT("&Add Audio"));
-		PopupMenu(&menu);
-	}
-
-	void UpdateTrackName(std::string newName) {
-		trackName = newName;
-	}
-};
 
 class ScrolledWidgetsPane : public wxScrolledWindow {
 private:
@@ -268,26 +178,22 @@ public:
 		return i;
 	}
 
-	void AddDisplay(std::string audioFile) {
-		oamlAudioInfo *audio = GetAudioInfo(trackName, audioFile);
-		if (audio == NULL)
-			return;
-
+	void AddAudio(oamlAudioInfo *audio) {
 		int i = GetPanelIndex(audio);
-		audioPanel[i]->AddWaveform(audio, (wxFrame*)GetParent());
+		audioPanel[i]->AddAudio(audio, (wxFrame*)GetParent());
 
 		SetSizer(sizer);
 		Layout();
 		sizer->Fit(this);
 	}
 
-	void RemoveDisplay(std::string audioFile) {
+	void RemoveAudio(std::string audioFile) {
 		oamlAudioInfo *audio = GetAudioInfo(trackName, audioFile);
 		if (audio == NULL)
 			return;
 
 		int i = GetPanelIndex(audio);
-		audioPanel[i]->RemoveWaveform(audioFile);
+		audioPanel[i]->RemoveAudio(audioFile);
 
 		RemoveAudioInfo(trackName, audioFile);
 
@@ -676,8 +582,9 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	condValue2Ctrl->Clear();
 
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		*fileCtrl << info->filename;
+	oamlLayerInfo *layer = GetLayerInfo(trackName, audioFile);
+	if (info && layer) {
+		*fileCtrl << layer->filename;
 		*bpmCtrl << info->bpm;
 		*bpbCtrl << info->beatsPerBar;
 		*barsCtrl << info->bars;
@@ -749,6 +656,9 @@ private:
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style);
 
+	tinyxml2::XMLNode* CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg);
+	void CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg);
+
 	void OnTrackListActivated(wxListEvent& event);
 	void OnTrackListMenu(wxMouseEvent& event);
 	void OnTrackEndLabelEdit(wxListEvent& event);
@@ -817,6 +727,8 @@ int oamlStudio::OpenSDL() {
 
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
+	oaml->SetFileCallbacks(&studioCbs);
+	oaml->EnableTracksInfo(true);
 
 	if (OpenSDL() == -1)
 		return false;
@@ -932,6 +844,10 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 }
 
 void StudioFrame::SelectTrack(std::string name) {
+	oamlTrackInfo *track = GetTrackInfo(name);
+	if (track == NULL)
+		return;
+
 	if (trackPane) {
 		trackPane->Destroy();
 	}
@@ -939,11 +855,8 @@ void StudioFrame::SelectTrack(std::string name) {
 	trackPane = new ScrolledWidgetsPane(this, wxID_ANY, name);
 	vSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
 
-	oamlTrackInfo *track = GetTrackInfo(name);
-	if (track == NULL)
-		return;
 	for (size_t i=0; i<track->audios.size(); i++) {
-		trackPane->AddDisplay(track->audios[i].filename);
+		trackPane->AddAudio(&track->audios[i]);
 	}
 
 	SetSizer(mainSizer);
@@ -1007,8 +920,7 @@ void StudioFrame::Load(std::string filename) {
 	prjPath = fname.GetPathWithSep();
 	InitCallbacks(prjPath);
 
-	oaml->Init(defsPath.c_str());
-	oaml->SetFileCallbacks(&studioCbs);
+	oaml->Init(fname.GetFullName().ToStdString().c_str());
 
 	tinfo = oaml->GetTracksInfo();
 
@@ -1047,57 +959,78 @@ void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name
 	node->InsertEndChild(el);
 }
 
+tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg) {
+	tinyxml2::XMLNode *audioEl = xmlDoc.NewElement("audio");
+	if (audioEl == NULL)
+		return NULL;
+
+	for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
+		if (createPkg) {
+			wxFileName fname(layer->filename);
+			AddSimpleChildToNode(audioEl, "filename", fname.GetFullName().ToStdString().c_str());
+		} else {
+			AddSimpleChildToNode(audioEl, "filename", layer->filename.c_str());
+		}
+	}
+
+	if (audio->type) AddSimpleChildToNode(audioEl, "type", audio->type);
+	if (audio->bpm) AddSimpleChildToNode(audioEl, "bpm", audio->bpm);
+	if (audio->beatsPerBar) AddSimpleChildToNode(audioEl, "beatsPerBar", audio->beatsPerBar);
+	if (audio->bars) AddSimpleChildToNode(audioEl, "bars", audio->bars);
+	if (audio->minMovementBars) AddSimpleChildToNode(audioEl, "minMovementBars", audio->minMovementBars);
+	if (audio->randomChance) AddSimpleChildToNode(audioEl, "randomChance", audio->randomChance);
+	if (audio->fadeIn) AddSimpleChildToNode(audioEl, "fadeIn", audio->fadeIn);
+	if (audio->fadeOut) AddSimpleChildToNode(audioEl, "fadeOut", audio->fadeOut);
+	if (audio->xfadeIn) AddSimpleChildToNode(audioEl, "xfadeIn", audio->xfadeIn);
+	if (audio->xfadeOut) AddSimpleChildToNode(audioEl, "xfadeOut", audio->xfadeOut);
+	if (audio->condId) AddSimpleChildToNode(audioEl, "condId", audio->condId);
+	if (audio->condType) AddSimpleChildToNode(audioEl, "condType", audio->condType);
+	if (audio->condValue) AddSimpleChildToNode(audioEl, "condValue", audio->condValue);
+	if (audio->condValue2) AddSimpleChildToNode(audioEl, "condValue2", audio->condValue2);
+
+	return audioEl;
+}
+
+void StudioFrame::CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg) {
+	tinyxml2::XMLNode *trackEl = xmlDoc.NewElement("track");
+	if (track->sfxTrack) {
+		trackEl->ToElement()->SetAttribute("type", "sfx");
+	} else {
+		trackEl->ToElement()->SetAttribute("type", "music");
+	}
+
+	AddSimpleChildToNode(trackEl, "name", track->name.c_str());
+
+	if (track->groups.size() > 0) {
+		for (std::vector<std::string>::iterator it=track->groups.begin(); it<track->groups.end(); ++it) {
+			AddSimpleChildToNode(trackEl, "group", it->c_str());
+		}
+	}
+	if (track->subgroups.size() > 0) {
+		for (std::vector<std::string>::iterator it=track->subgroups.begin(); it<track->subgroups.end(); ++it) {
+			AddSimpleChildToNode(trackEl, "subgroup", it->c_str());
+		}
+	}
+	if (track->fadeIn) AddSimpleChildToNode(trackEl, "fadeIn", track->fadeIn);
+	if (track->fadeOut) AddSimpleChildToNode(trackEl, "fadeOut", track->fadeOut);
+	if (track->xfadeIn) AddSimpleChildToNode(trackEl, "xfadeIn", track->xfadeIn);
+	if (track->xfadeOut) AddSimpleChildToNode(trackEl, "xfadeOut", track->xfadeOut);
+
+	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
+		tinyxml2::XMLNode *el = CreateAudioDefs(xmlDoc, &(*audio), createPkg);
+		if (el != NULL) {
+			trackEl->InsertEndChild(el);
+		}
+	}
+
+	xmlDoc.InsertEndChild(trackEl);
+}
+
 void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 	xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration());
 
-	for (size_t i=0; i<tinfo->tracks.size(); i++) {
-		oamlTrackInfo *track = &tinfo->tracks[i];
-
-		tinyxml2::XMLNode *trackEl = xmlDoc.NewElement("track");
-		if (track->sfxTrack) {
-			trackEl->ToElement()->SetAttribute("type", "sfx");
-		} else {
-			trackEl->ToElement()->SetAttribute("type", "music");
-		}
-
-		AddSimpleChildToNode(trackEl, "name", track->name.c_str());
-
-		if (track->group.empty() == false) AddSimpleChildToNode(trackEl, "group", track->group.c_str());
-		if (track->subgroup.empty() == false) AddSimpleChildToNode(trackEl, "subgroup", track->subgroup.c_str());
-		if (track->fadeIn) AddSimpleChildToNode(trackEl, "fadeIn", track->fadeIn);
-		if (track->fadeOut) AddSimpleChildToNode(trackEl, "fadeOut", track->fadeOut);
-		if (track->xfadeIn) AddSimpleChildToNode(trackEl, "xfadeIn", track->xfadeIn);
-		if (track->xfadeOut) AddSimpleChildToNode(trackEl, "xfadeOut", track->xfadeOut);
-
-		for (size_t j=0; j<track->audios.size(); j++) {
-			oamlAudioInfo *audio = &track->audios[j];
-
-			tinyxml2::XMLNode *audioEl = xmlDoc.NewElement("audio");
-			if (createPkg) {
-				wxFileName fname(audio->filename);
-				AddSimpleChildToNode(audioEl, "filename", fname.GetFullName().ToStdString().c_str());
-			} else {
-				AddSimpleChildToNode(audioEl, "filename", audio->filename.c_str());
-			}
-			if (audio->type) AddSimpleChildToNode(audioEl, "type", audio->type);
-			if (audio->bpm) AddSimpleChildToNode(audioEl, "bpm", audio->bpm);
-			if (audio->beatsPerBar) AddSimpleChildToNode(audioEl, "beatsPerBar", audio->beatsPerBar);
-			if (audio->bars) AddSimpleChildToNode(audioEl, "bars", audio->bars);
-			if (audio->minMovementBars) AddSimpleChildToNode(audioEl, "minMovementBars", audio->minMovementBars);
-			if (audio->randomChance) AddSimpleChildToNode(audioEl, "randomChance", audio->randomChance);
-			if (audio->fadeIn) AddSimpleChildToNode(audioEl, "fadeIn", audio->fadeIn);
-			if (audio->fadeOut) AddSimpleChildToNode(audioEl, "fadeOut", audio->fadeOut);
-			if (audio->xfadeIn) AddSimpleChildToNode(audioEl, "xfadeIn", audio->xfadeIn);
-			if (audio->xfadeOut) AddSimpleChildToNode(audioEl, "xfadeOut", audio->xfadeOut);
-			if (audio->condId) AddSimpleChildToNode(audioEl, "condId", audio->condId);
-			if (audio->condType) AddSimpleChildToNode(audioEl, "condType", audio->condType);
-			if (audio->condValue) AddSimpleChildToNode(audioEl, "condValue", audio->condValue);
-			if (audio->condValue2) AddSimpleChildToNode(audioEl, "condValue2", audio->condValue2);
-
-			trackEl->InsertEndChild(audioEl);
-		}
-
-		xmlDoc.InsertEndChild(trackEl);
+	for (std::vector<oamlTrackInfo>::iterator track=tinfo->tracks.begin(); track<tinfo->tracks.end(); ++track) {
+		CreateTrackDefs(xmlDoc, &(*track), createPkg);
 	}
 }
 
@@ -1230,7 +1163,9 @@ void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
 	oamlTracksInfo* info = oaml->GetTracksInfo();
 	for (size_t i=0; i<info->tracks.size(); i++) {
 		for (size_t j=0; j<info->tracks[i].audios.size(); j++) {
-			list.push_back(info->tracks[i].audios[j].filename);
+			for (size_t k=0; k<info->tracks[i].audios[j].layers.size(); k++) {
+				list.push_back(info->tracks[i].audios[j].layers[k].filename);
+			}
 		}
 	}
 
@@ -1274,24 +1209,24 @@ void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
 }
 
 void StudioFrame::OnAddAudio(wxCommandEvent& event) {
-	trackPane->AddDisplay(event.GetString().ToStdString());
+/*	trackPane->AddDisplay(event.GetString().ToStdString());
 	ReloadDefs();
 
 	SetSizer(mainSizer);
-	Layout();
+	Layout();*/
 }
 
 void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 	controlPane->OnSelectAudio("");
 
-	trackPane->RemoveDisplay(event.GetString().ToStdString());
+	trackPane->RemoveAudio(event.GetString().ToStdString());
 
 	SetSizer(mainSizer);
 	Layout();
 }
 
 void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
-	ReloadDefs();
+//	ReloadDefs();
 	oaml->PlayTrack(controlPane->GetTrack());
 }
 
