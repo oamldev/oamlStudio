@@ -20,53 +20,37 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __OAMLCOMMON_H__
-#define __OAMLCOMMON_H__
+#ifndef __TRACKCONTROL_H__
+#define __TRACKCONTROL_H__
 
-#include <assert.h>
+class TrackControl : public wxPanel {
+private:
+	wxTextCtrl *volumeCtrl;
+	wxTextCtrl *fadeInCtrl;
+	wxTextCtrl *fadeOutCtrl;
+	wxTextCtrl *xfadeInCtrl;
+	wxTextCtrl *xfadeOutCtrl;
 
-//
-// Definitions
-//
+	wxBoxSizer *mSizer;
+	wxBoxSizer *hSizer;
+	wxGridSizer *sizer;
+	std::string trackName;
 
+public:
+	TrackControl(wxFrame* parent, wxWindowID id);
+	~TrackControl();
 
-// Visual Studio specific stuff
-#ifdef _MSC_VER
+	const char *GetTrack() const { return trackName.c_str(); }
 
-#define snprintf	sprintf_s
+	void OnVolumeChange(wxCommandEvent& WXUNUSED(event));
+	void OnFadeInChange(wxCommandEvent& WXUNUSED(event));
+	void OnFadeOutChange(wxCommandEvent& WXUNUSED(event));
+	void OnXFadeInChange(wxCommandEvent& WXUNUSED(event));
+	void OnXFadeOutChange(wxCommandEvent& WXUNUSED(event));
+	void SetTrack(std::string name);
+
+	std::string GetTrackName() const { return trackName; }
+	void UpdateTrackName(std::string oldName, std::string newName);
+};
 
 #endif
-
-
-#ifdef DEBUG
-
-#ifdef _MSC_VER
-#define ASSERT(e)
-#else
-#define ASSERT(e)  \
-    ((void) ((e) ? ((void)0) : __assert (#e, __FILE__, __LINE__)))
-#endif
-
-#else
-
-#define ASSERT(e)
-
-#endif
-
-#include <oaml.h>
-#include "ByteBuffer.h"
-#include "audioFile.h"
-#include "aif.h"
-#include "ogg.h"
-#include "wav.h"
-#include "oamlStudio.h"
-#include "waveformDisplay.h"
-#include "layerPanel.h"
-#include "audioPanel.h"
-#include "playbackFrame.h"
-#include "controlPanel.h"
-#include "trackPanel.h"
-#include "trackControl.h"
-#include "studioFrame.h"
-
-#endif /* __OAMLCOMMON_H__ */

@@ -77,7 +77,7 @@ set(LIBS ${LIBS} ${OAML_LIBRARIES})
 # 
 #
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR} ${LibArchive_INCLUDE_DIR})
-set(SRCS src/audioFile.cpp src/audioPanel.cpp src/oamlCallbacks.cpp src/controlPanel.cpp src/layerPanel.cpp src/oamlStudio.cpp src/playbackFrame.cpp src/studioFrame.cpp src/trackPanel.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
+set(SRCS src/audioFile.cpp src/audioPanel.cpp src/oamlCallbacks.cpp src/controlPanel.cpp src/layerPanel.cpp src/oamlStudio.cpp src/playbackFrame.cpp src/studioFrame.cpp src/trackControl.cpp src/trackPanel.cpp src/waveformDisplay.cpp src/aif.cpp src/ogg.cpp src/wav.cpp)
 
 if (APPLE)
 	add_executable(oamlStudio MACOSX_BUNDLE ${SRCS} images/play.png images/pause.png)

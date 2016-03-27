@@ -160,11 +160,17 @@ void WaveformDisplay::OnEraseBackground(wxEraseEvent& WXUNUSED(evt)) {
 
 void WaveformDisplay::OnMenuEvent(wxCommandEvent& event) {
 	switch (event.GetId()) {
-		case ID_RemoveAudio:
-			wxCommandEvent event(EVENT_REMOVE_AUDIO);
+		case ID_AddLayer:
+			{ wxCommandEvent event(EVENT_ADD_LAYER);
 			event.SetString(wxString(filename));
 			wxPostEvent(GetParent(), event);
-			break;
+			} break;
+
+		case ID_RemoveAudio:
+			{ wxCommandEvent event(EVENT_REMOVE_AUDIO);
+			event.SetString(wxString(filename));
+			wxPostEvent(GetParent(), event);
+			} break;
 	}
 }
 

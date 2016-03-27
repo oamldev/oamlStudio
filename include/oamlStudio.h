@@ -40,6 +40,7 @@ void RenameTrack(std::string trackName, std::string newName);
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_RELOAD_DEFS, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_PLAY, wxCommandEvent);
 

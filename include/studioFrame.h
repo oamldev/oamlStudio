@@ -66,6 +66,7 @@ private:
 
 	ControlPanel* controlPane;
 	TrackPanel* trackPane;
+	TrackControl* trackControl;
 	StudioTimer* timer;
 	PlaybackFrame* playFrame;
 
@@ -108,6 +109,7 @@ public:
 	void OnSelectAudio(wxCommandEvent& event);
 	void OnAddAudio(wxCommandEvent& event);
 	void OnRemoveAudio(wxCommandEvent& event);
+	void OnAddLayer(wxCommandEvent& event);
 	void OnPlay(wxCommandEvent& event);
 	void OnRecentFile(wxCommandEvent& event);
 

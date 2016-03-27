@@ -42,6 +42,7 @@
 #include <wx/filename.h>
 #include <wx/filehistory.h>
 #include <wx/config.h>
+#include <wx/statline.h>
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -49,6 +50,7 @@
 wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
 
 
@@ -66,6 +68,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
+	EVT_COMMAND(wxID_ANY, EVENT_ADD_LAYER, StudioFrame::OnAddLayer)
 	EVT_COMMAND(wxID_ANY, EVENT_PLAY, StudioFrame::OnPlay)
 END_EVENT_TABLE()
 
@@ -84,6 +87,7 @@ void StudioFrame::UpdateTrackName(std::string trackName, std::string newName) {
 		trackPane->UpdateTrackName(trackName, newName);
 	}
 	controlPane->UpdateTrackName(trackName, newName);
+	trackControl->UpdateTrackName(trackName, newName);
 
 	Layout();
 }
@@ -91,6 +95,7 @@ void StudioFrame::UpdateTrackName(std::string trackName, std::string newName) {
 StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(NULL, -1, title, pos, size, style) {
 	config = new wxConfig("oamlStudio");
 	timer = NULL;
+	trackPane = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
@@ -141,26 +146,42 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	SetBackgroundColour(wxColour(0x40, 0x40, 0x40));
 
-	tinfo = oaml->GetTracksInfo();
+	// Left panel
+	vSizer = new wxBoxSizer(wxVERTICAL);
 
 	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
 	trackList->SetBackgroundColour(wxColour(0x80, 0x80, 0x80));
 	trackList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnTrackListActivated, this);
 	trackList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnTrackListMenu, this);
 	trackList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnTrackEndLabelEdit, this);
+
+	tinfo = oaml->GetTracksInfo();
 	for (size_t i=0; i<tinfo->tracks.size(); i++) {
 		oamlTrackInfo *track = &tinfo->tracks[i];
 		trackList->InsertItem(i, wxString(track->name));
 	}
 
-	trackPane = NULL;
+	vSizer->Add(trackList, 1, wxALL, 5);
 
-	mainSizer->Add(trackList, 0, wxEXPAND | wxALL, 5);
+	wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
+	vSizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
 
+	trackControl = new TrackControl(this, wxID_ANY);
+	vSizer->Add(trackControl, 0, wxALL, 5);
+
+	mainSizer->Add(vSizer, 0, wxEXPAND | wxALL, 0);
+
+	staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL);
+	mainSizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
+
+	// Right panel
 	vSizer = new wxBoxSizer(wxVERTICAL);
 
 	controlPane = new ControlPanel(this, wxID_ANY);
 	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
+
+	staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
+	vSizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
 
 	mainSizer->Add(vSizer, 1, wxEXPAND | wxALL, 0);
 
@@ -194,6 +215,8 @@ void StudioFrame::SelectTrack(std::string name) {
 
 	controlPane->SetTrack(name);
 	controlPane->OnSelectAudio("");
+
+	trackControl->SetTrack(name);
 }
 
 void StudioFrame::OnTrackListActivated(wxListEvent& event) {
@@ -548,6 +571,18 @@ void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 
 	SetSizer(mainSizer);
 	Layout();
+}
+
+void StudioFrame::OnAddLayer(wxCommandEvent& event) {
+/*	oamlAudioInfo* audio = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString());
+	if (audio == NULL)
+		return;
+
+	trackPane->AddAudio(audio);
+	ReloadDefs();
+
+	SetSizer(mainSizer);
+	Layout();*/
 }
 
 void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
