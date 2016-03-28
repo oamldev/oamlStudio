@@ -109,7 +109,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	fileHistory = new wxFileHistory();
 
-	wxMenu *recent = new wxMenu(0);
+	wxMenu *recent = new wxMenu(long(0));
 	menuFile->Append(ID_Recent, "Recent files", recent);
 	fileHistory->UseMenu(recent);
 	fileHistory->Load(*config);
