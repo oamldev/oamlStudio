@@ -75,8 +75,7 @@ void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 }
 
 void AudioPanel::AddAudio(oamlAudioInfo *audio, wxFrame *topWnd) {
-	for (int i=0; i<audio->layers.size(); i++) {
-		oamlLayerInfo *layer = &audio->layers[i];
+	for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
 		LayerPanel *lp = new LayerPanel((wxFrame*)this);
 		layerPanels.push_back(lp);
 		lp->AddWaveform(layer->filename, topWnd);
