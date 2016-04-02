@@ -546,7 +546,7 @@ void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTrackInfo track;
 
 	char name[1024];
-	snprintf(name, 1024, "Track%ld", tinfo->tracks.size()+1);
+	snprintf(name, 1024, "Track%d", int(tinfo->tracks.size()+1));
 	track.name = name;
 	track.fadeIn = 0;
 	track.fadeOut = 0;

@@ -135,12 +135,13 @@ int oggFile::Read(ByteBuffer *buffer, int size) {
 	return bytesRead;
 }
 
-void oggFile::WriteToFile(const char *filename, ByteBuffer *buffer, int channels, unsigned int sampleRate, int bytesPerSample) {
+void oggFile::WriteToFile(const char *, ByteBuffer *, int, unsigned int, int) {
 }
 
 void oggFile::Close() {
 	if (vf != NULL) {
 		OggVorbis_File *ovf = (OggVorbis_File *)vf;
+		ov_clear(ovf);
 		delete ovf;
 		vf = NULL;
 	}
