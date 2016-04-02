@@ -29,6 +29,7 @@
 #include <wx/filehistory.h>
 #include <wx/listctrl.h>
 #include <wx/popupwin.h>
+#include <wx/stattext.h>
 
 #include "oamlCommon.h"
 
@@ -41,6 +42,9 @@ StartupFrame::StartupFrame(wxWindow *parent) : wxFrame(parent, wxID_ANY, wxT("St
 
 	mainSizer = new wxBoxSizer(wxVERTICAL);
 
+	wxStaticText *text = new wxStaticText(this, wxID_ANY, wxString("Welcome to oamlStudio!\n\nHere you can load one of the latest projects used or start a new project from scratch."), wxDefaultPosition, wxSize(-1, -1), wxALIGN_CENTRE_HORIZONTAL);
+	mainSizer->Add(text, 0, wxEXPAND | wxALL, 15);
+
 	wxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	prjList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(-1, -1), wxLC_LIST | wxLC_SINGLE_SEL);
@@ -50,7 +54,7 @@ StartupFrame::StartupFrame(wxWindow *parent) : wxFrame(parent, wxID_ANY, wxT("St
 		prjList->InsertItem(0, fileHistory->GetHistoryFile(i));
 	}
 
-	sizer->Add(prjList, 1, wxEXPAND | wxGROW | wxALL, 5);
+	sizer->Add(prjList, 1, wxEXPAND | wxGROW | wxALL, 15);
 	mainSizer->Add(sizer, 1, wxEXPAND | wxGROW | wxALL, 0);
 
 	sizer = new wxBoxSizer(wxHORIZONTAL);
