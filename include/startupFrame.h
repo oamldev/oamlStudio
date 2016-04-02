@@ -20,54 +20,27 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __OAMLCOMMON_H__
-#define __OAMLCOMMON_H__
+#ifndef __STARTUPFRAME_H__
+#define __STARTUPFRAME_H__
 
-#include <assert.h>
+#include <wx/config.h>
+#include <wx/filehistory.h>
+#include <wx/listctrl.h>
 
-//
-// Definitions
-//
+class StartupFrame : public wxFrame {
+private:
+	wxBoxSizer* mainSizer;
+	wxListView* prjList;
+	wxConfig *config;
+	wxFileHistory* fileHistory;
 
+public:
+	StartupFrame(wxWindow *parent);
 
-// Visual Studio specific stuff
-#ifdef _MSC_VER
-
-#define snprintf	sprintf_s
-
-#endif
-
-
-#ifdef DEBUG
-
-#ifdef _MSC_VER
-#define ASSERT(e)
-#else
-#define ASSERT(e)  \
-    ((void) ((e) ? ((void)0) : __assert (#e, __FILE__, __LINE__)))
-#endif
-
-#else
-
-#define ASSERT(e)
+	void OnPrjListActivated(wxListEvent& event);
+	void OnNewProject(wxCommandEvent& WXUNUSED(event));
+	void OnLoadProject(wxCommandEvent& WXUNUSED(event));
+	void OnExit(wxCommandEvent& WXUNUSED(event));
+};
 
 #endif
-
-#include <oaml.h>
-#include "ByteBuffer.h"
-#include "audioFile.h"
-#include "aif.h"
-#include "ogg.h"
-#include "wav.h"
-#include "oamlStudio.h"
-#include "waveformDisplay.h"
-#include "layerPanel.h"
-#include "audioPanel.h"
-#include "playbackFrame.h"
-#include "controlPanel.h"
-#include "trackPanel.h"
-#include "trackControl.h"
-#include "startupFrame.h"
-#include "studioFrame.h"
-
-#endif /* __OAMLCOMMON_H__ */

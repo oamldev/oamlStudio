@@ -112,6 +112,7 @@ public:
 	void OnAddLayer(wxCommandEvent& event);
 	void OnPlay(wxCommandEvent& event);
 	void OnRecentFile(wxCommandEvent& event);
+	void OnLoadProject(wxCommandEvent& event);
 
 	void UpdateTrackName(std::string trackName, std::string newName);
 

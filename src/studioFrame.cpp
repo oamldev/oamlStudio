@@ -52,6 +52,9 @@ wxDEFINE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_QUIT, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
@@ -70,6 +73,9 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_LAYER, StudioFrame::OnAddLayer)
 	EVT_COMMAND(wxID_ANY, EVENT_PLAY, StudioFrame::OnPlay)
+	EVT_COMMAND(wxID_ANY, EVENT_QUIT, StudioFrame::OnQuit)
+	EVT_COMMAND(wxID_ANY, EVENT_NEW_PROJECT, StudioFrame::OnNew)
+	EVT_COMMAND(wxID_ANY, EVENT_LOAD_PROJECT, StudioFrame::OnLoadProject)
 END_EVENT_TABLE()
 
 StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
@@ -155,12 +161,6 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	trackList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnTrackListMenu, this);
 	trackList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnTrackEndLabelEdit, this);
 
-	tinfo = oaml->GetTracksInfo();
-	for (size_t i=0; i<tinfo->tracks.size(); i++) {
-		oamlTrackInfo *track = &tinfo->tracks[i];
-		trackList->InsertItem(i, wxString(track->name));
-	}
-
 	vSizer->Add(trackList, 1, wxALL, 5);
 
 	wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
@@ -192,6 +192,9 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	playFrame = new PlaybackFrame(this, wxID_ANY);
 	playFrame->Show(true);
+
+	StartupFrame *startupFrame = new StartupFrame(this);
+	startupFrame->Show(true);
 }
 
 void StudioFrame::SelectTrack(std::string name) {
@@ -259,7 +262,9 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
-	tinfo->tracks.clear();
+	if (tinfo) {
+		tinfo->tracks.clear();
+	}
 
 	if (trackPane) {
 		trackPane->Destroy();
@@ -281,6 +286,10 @@ void StudioFrame::Load(std::string filename) {
 		oamlTrackInfo *track = &tinfo->tracks[i];
 		trackList->InsertItem(i, wxString(track->name));
 	}
+}
+
+void StudioFrame::OnLoadProject(wxCommandEvent& event) {
+	Load(event.GetString().ToStdString());
 }
 
 void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
