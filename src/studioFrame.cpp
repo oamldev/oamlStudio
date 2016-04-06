@@ -67,6 +67,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_About, StudioFrame::OnAbout)
 	EVT_MENU(ID_AddTrack, StudioFrame::OnAddTrack)
 	EVT_MENU(ID_EditTrackName, StudioFrame::OnEditTrackName)
+	EVT_MENU(ID_PlaybackPanel, StudioFrame::OnPlaybackPanel)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
@@ -137,6 +138,12 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	menuBar->Append(menuFile, _("&Audios"));*/
 
+	viewMenu = new wxMenu;
+	viewMenu->AppendCheckItem(ID_PlaybackPanel, _("&Playback Panel"));
+	viewMenu->AppendSeparator();
+
+	menuBar->Append(viewMenu, _("&View"));
+
 	menuFile = new wxMenu;
 	menuFile->Append(ID_About, _("A&bout..."));
 	menuFile->AppendSeparator();
@@ -192,6 +199,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	playFrame = new PlaybackFrame(this, wxID_ANY);
 	playFrame->Show(true);
+	viewMenu->Check(ID_PlaybackPanel, playFrame->IsShown());
 
 	StartupFrame *startupFrame = new StartupFrame(this);
 	startupFrame->Show(true);
@@ -606,4 +614,10 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 	ReloadDefs();
 	oaml->PlayTrack(controlPane->GetTrack());
+}
+
+void StudioFrame::OnPlaybackPanel(wxCommandEvent& WXUNUSED(event)) {
+	bool show = playFrame->IsShown() ? false : true;
+	playFrame->Show(show);
+	viewMenu->Check(ID_PlaybackPanel, show);
 }

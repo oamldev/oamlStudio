@@ -70,6 +70,8 @@ private:
 	StudioTimer* timer;
 	PlaybackFrame* playFrame;
 
+	wxMenu* viewMenu;
+
 	std::string prjPath;
 	std::string defsPath;
 
@@ -113,6 +115,7 @@ public:
 	void OnPlay(wxCommandEvent& event);
 	void OnRecentFile(wxCommandEvent& event);
 	void OnLoadProject(wxCommandEvent& event);
+	void OnPlaybackPanel(wxCommandEvent& event);
 
 	void UpdateTrackName(std::string trackName, std::string newName);
 
