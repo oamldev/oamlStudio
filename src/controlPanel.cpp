@@ -55,26 +55,41 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	audioFile = "";
 
 	mSizer = new wxBoxSizer(wxVERTICAL);
+
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Audio Controls --"));
+
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+	hSizer->Add(staticText, 1, wxEXPAND | wxALL, 0);
 
 	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
 
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Audio Controls --"));
-	hSizer->Add(staticText, 1, wxEXPAND | wxALL, 5);
+	hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+	hSizer->Add(staticText, 0, wxALL, 5);
+
+	fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(320, -1), wxTE_READONLY);
+	hSizer->Add(fileCtrl, 0, wxALL, 5);
+
+	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
 
 	sizer = new wxGridSizer(4, 0, 0);
 
-	staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Volume"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), wxTE_READONLY);
-	sizer->Add(fileCtrl, 0, wxALL, 5);
+	volumeCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	volumeCtrl->SetRange(0.0, 1.0);
+	volumeCtrl->SetIncrement(0.1);
+	volumeCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnVolumeChange, this);
+	sizer->Add(volumeCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
 	bpmCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
-	bpmCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpmChange, this);
+	bpmCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBpmChange, this);
 	sizer->Add(bpmCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
@@ -95,14 +110,14 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	sizer->Add(staticText, 0, wxALL, 5);
 
 	randomChanceCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
-	randomChanceCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnRandomChanceChange, this);
+	randomChanceCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnRandomChanceChange, this);
 	sizer->Add(randomChanceCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Min movement bars"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
 	minMovementBarsCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
-	minMovementBarsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnMinMovementBarsChange, this);
+	minMovementBarsCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnMinMovementBarsChange, this);
 	sizer->Add(minMovementBarsCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
@@ -172,6 +187,12 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 ControlPanel::~ControlPanel() {
 }
 
+void ControlPanel::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
+	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
+	if (info) {
+		info->volume = (float)volumeCtrl->GetValue();
+	}
+}
 
 void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
@@ -335,6 +356,7 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	oamlLayerInfo *layer = GetLayerInfo(trackName, audioFile);
 	if (info && layer) {
 		*fileCtrl << layer->filename;
+		volumeCtrl->SetValue(info->volume);
 		bpmCtrl->SetValue(info->bpm);
 		bpbCtrl->SetValue(info->beatsPerBar);
 		barsCtrl->SetValue(info->bars);
@@ -351,6 +373,7 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 
 		enable = true;
 	} else {
+		volumeCtrl->SetValue(0.0);
 		bpmCtrl->SetValue(0.0);
 		bpbCtrl->SetValue(0.0);
 		barsCtrl->SetValue(0.0);
@@ -360,6 +383,7 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 		enable = false;
 	}
 
+	volumeCtrl->Enable(enable);
 	bpmCtrl->Enable(enable);
 	bpbCtrl->Enable(enable);
 	barsCtrl->Enable(enable);

@@ -30,6 +30,7 @@ class ControlTimer;
 class ControlPanel : public wxPanel {
 private:
 	wxTextCtrl *fileCtrl;
+	wxSpinCtrlDouble *volumeCtrl;
 	wxSpinCtrlDouble *bpmCtrl;
 	wxSpinCtrlDouble *bpbCtrl;
 	wxSpinCtrlDouble *barsCtrl;
@@ -56,6 +57,7 @@ public:
 
 	const char *GetTrack() const { return trackName.c_str(); }
 
+	void OnVolumeChange(wxCommandEvent& WXUNUSED(event));
 	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
 	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
 	void OnBarsChange(wxCommandEvent& WXUNUSED(event));
