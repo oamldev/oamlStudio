@@ -42,6 +42,7 @@
 #include <wx/filename.h>
 #include <wx/filehistory.h>
 #include <wx/config.h>
+#include <wx/spinctrl.h>
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -76,15 +77,15 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	bpbCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	bpbCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpbChange, this);
+	bpbCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	bpbCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBpbChange, this);
 	sizer->Add(bpbCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	barsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	barsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBarsChange, this);
+	barsCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	barsCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBarsChange, this);
 	sizer->Add(barsCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
@@ -183,28 +184,16 @@ void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void ControlPanel::OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = bpbCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->beatsPerBar = (int)l;
+		info->beatsPerBar = (int)bpbCtrl->GetValue();
 	}
 }
 
 void ControlPanel::OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = barsCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->bars = (int)l;
+		info->bars = (int)barsCtrl->GetValue();
 	}
 }
 
@@ -347,8 +336,8 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 
 	fileCtrl->Clear();
 	bpmCtrl->Clear();
-	bpbCtrl->Clear();
-	barsCtrl->Clear();
+	bpbCtrl->SetValue(0.0);
+	barsCtrl->SetValue(0.0);
 	randomChanceCtrl->Clear();
 	minMovementBarsCtrl->Clear();
 	fadeInCtrl->Clear();
@@ -365,8 +354,8 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	if (info && layer) {
 		*fileCtrl << layer->filename;
 		*bpmCtrl << info->bpm;
-		*bpbCtrl << info->beatsPerBar;
-		*barsCtrl << info->bars;
+		bpbCtrl->SetValue(info->beatsPerBar);
+		barsCtrl->SetValue(info->bars);
 		*randomChanceCtrl << info->randomChance;
 		*minMovementBarsCtrl << info->minMovementBars;
 		*fadeInCtrl << info->fadeIn;

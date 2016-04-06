@@ -23,14 +23,16 @@
 #ifndef __CONTROLPANEL_H__
 #define __CONTROLPANEL_H__
 
+#include <wx/spinctrl.h>
+
 class ControlTimer;
 
 class ControlPanel : public wxPanel {
 private:
 	wxTextCtrl *fileCtrl;
 	wxTextCtrl *bpmCtrl;
-	wxTextCtrl *bpbCtrl;
-	wxTextCtrl *barsCtrl;
+	wxSpinCtrlDouble *bpbCtrl;
+	wxSpinCtrlDouble *barsCtrl;
 	wxTextCtrl *randomChanceCtrl;
 	wxTextCtrl *minMovementBarsCtrl;
 	wxTextCtrl *fadeInCtrl;
