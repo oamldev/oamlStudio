@@ -185,6 +185,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	vSizer = new wxBoxSizer(wxVERTICAL);
 
 	controlPane = new ControlPanel(this, wxID_ANY);
+	controlPane->OnSelectAudio("");
 	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
 
 	staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);

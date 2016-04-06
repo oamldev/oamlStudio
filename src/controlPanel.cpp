@@ -161,7 +161,7 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	condValue2Ctrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValue2Change, this);
 	sizer->Add(condValue2Ctrl, 0, wxALL, 5);
 
-	mSizer->Add(sizer, 1, wxEXPAND|wxALL, 0);
+	mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
 
 	SetSizer(mSizer);
 	SetMinSize(wxSize(-1, 240));
@@ -317,14 +317,11 @@ void ControlPanel::SetTrack(std::string name) {
 }
 
 void ControlPanel::OnSelectAudio(std::string audio) {
+	bool enable;
+
 	audioFile = audio;
 
 	fileCtrl->Clear();
-	bpmCtrl->SetValue(0.0);
-	bpbCtrl->SetValue(0.0);
-	barsCtrl->SetValue(0.0);
-	randomChanceCtrl->SetValue(0.0);
-	minMovementBarsCtrl->SetValue(0.0);
 	fadeInCtrl->Clear();
 	fadeOutCtrl->Clear();
 	xfadeInCtrl->Clear();
@@ -351,7 +348,31 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 		*condTypeCtrl << info->condType;
 		*condValueCtrl << info->condValue;
 		*condValue2Ctrl << info->condValue2;
+
+		enable = true;
+	} else {
+		bpmCtrl->SetValue(0.0);
+		bpbCtrl->SetValue(0.0);
+		barsCtrl->SetValue(0.0);
+		randomChanceCtrl->SetValue(0.0);
+		minMovementBarsCtrl->SetValue(0.0);
+
+		enable = false;
 	}
+
+	bpmCtrl->Enable(enable);
+	bpbCtrl->Enable(enable);
+	barsCtrl->Enable(enable);
+	randomChanceCtrl->Enable(enable);
+	minMovementBarsCtrl->Enable(enable);
+	fadeInCtrl->Enable(enable);
+	fadeOutCtrl->Enable(enable);
+	xfadeInCtrl->Enable(enable);
+	xfadeOutCtrl->Enable(enable);
+	condIdCtrl->Enable(enable);
+	condTypeCtrl->Enable(enable);
+	condValueCtrl->Enable(enable);
+	condValue2Ctrl->Enable(enable);
 }
 
 void ControlPanel::UpdateTrackName(std::string oldName, std::string newName) {
