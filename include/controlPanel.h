@@ -30,11 +30,11 @@ class ControlTimer;
 class ControlPanel : public wxPanel {
 private:
 	wxTextCtrl *fileCtrl;
-	wxTextCtrl *bpmCtrl;
+	wxSpinCtrlDouble *bpmCtrl;
 	wxSpinCtrlDouble *bpbCtrl;
 	wxSpinCtrlDouble *barsCtrl;
-	wxTextCtrl *randomChanceCtrl;
-	wxTextCtrl *minMovementBarsCtrl;
+	wxSpinCtrlDouble *randomChanceCtrl;
+	wxSpinCtrlDouble *minMovementBarsCtrl;
 	wxTextCtrl *fadeInCtrl;
 	wxTextCtrl *fadeOutCtrl;
 	wxTextCtrl *xfadeInCtrl;

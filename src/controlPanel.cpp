@@ -59,9 +59,12 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 
 	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
 
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Audio Controls --"));
+	hSizer->Add(staticText, 1, wxEXPAND | wxALL, 5);
+
 	sizer = new wxGridSizer(4, 0, 0);
 
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
 	fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), wxTE_READONLY);
@@ -70,7 +73,7 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	bpmCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	bpmCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 	bpmCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnBpmChange, this);
 	sizer->Add(bpmCtrl, 0, wxALL, 5);
 
@@ -91,14 +94,14 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	randomChanceCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	randomChanceCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 	randomChanceCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnRandomChanceChange, this);
 	sizer->Add(randomChanceCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Min movement bars"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	minMovementBarsCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+	minMovementBarsCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 	minMovementBarsCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnMinMovementBarsChange, this);
 	sizer->Add(minMovementBarsCtrl, 0, wxALL, 5);
 
@@ -158,7 +161,7 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	condValue2Ctrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValue2Change, this);
 	sizer->Add(condValue2Ctrl, 0, wxALL, 5);
 
-	mSizer->Add(sizer);
+	mSizer->Add(sizer, 1, wxEXPAND|wxALL, 0);
 
 	SetSizer(mSizer);
 	SetMinSize(wxSize(-1, 240));
@@ -171,15 +174,9 @@ ControlPanel::~ControlPanel() {
 
 
 void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = bpmCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 	if (info) {
-		double d = 0;
-		str.ToDouble(&d);
-		info->bpm = (float)d;
+		info->bpm = (float)bpmCtrl->GetValue();
 	}
 }
 
@@ -198,28 +195,16 @@ void ControlPanel::OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void ControlPanel::OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = randomChanceCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->randomChance = (int)l;
+		info->randomChance = (int)randomChanceCtrl->GetValue();
 	}
 }
 
 void ControlPanel::OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = minMovementBarsCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
 	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
 	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->minMovementBars = (int)l;
+		info->minMovementBars = (int)minMovementBarsCtrl->GetValue();
 	}
 }
 
@@ -335,11 +320,11 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	audioFile = audio;
 
 	fileCtrl->Clear();
-	bpmCtrl->Clear();
+	bpmCtrl->SetValue(0.0);
 	bpbCtrl->SetValue(0.0);
 	barsCtrl->SetValue(0.0);
-	randomChanceCtrl->Clear();
-	minMovementBarsCtrl->Clear();
+	randomChanceCtrl->SetValue(0.0);
+	minMovementBarsCtrl->SetValue(0.0);
 	fadeInCtrl->Clear();
 	fadeOutCtrl->Clear();
 	xfadeInCtrl->Clear();
@@ -353,11 +338,11 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 	oamlLayerInfo *layer = GetLayerInfo(trackName, audioFile);
 	if (info && layer) {
 		*fileCtrl << layer->filename;
-		*bpmCtrl << info->bpm;
+		bpmCtrl->SetValue(info->bpm);
 		bpbCtrl->SetValue(info->beatsPerBar);
 		barsCtrl->SetValue(info->bars);
-		*randomChanceCtrl << info->randomChance;
-		*minMovementBarsCtrl << info->minMovementBars;
+		randomChanceCtrl->SetValue(info->randomChance);
+		minMovementBarsCtrl->SetValue(info->minMovementBars);
 		*fadeInCtrl << info->fadeIn;
 		*fadeOutCtrl << info->fadeOut;
 		*xfadeInCtrl << info->xfadeIn;
