@@ -556,6 +556,8 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTrackInfo track;
 
+	tinfo = oaml->GetTracksInfo();
+
 	char name[1024];
 	snprintf(name, 1024, "Track%d", int(tinfo->tracks.size()+1));
 	track.name = name;
