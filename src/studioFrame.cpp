@@ -103,6 +103,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	config = new wxConfig("oamlStudio");
 	timer = NULL;
 	trackPane = NULL;
+	tinfo = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
@@ -278,6 +279,7 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 	if (trackPane) {
 		trackPane->Destroy();
 	}
+
 	trackList->ClearAll();
 }
 

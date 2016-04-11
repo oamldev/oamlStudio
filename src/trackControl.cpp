@@ -54,15 +54,20 @@ TrackControl::TrackControl(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	mSizer = new wxBoxSizer(wxVERTICAL);
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Track Controls --"));
+	hSizer->Add(staticText, 0, wxEXPAND | wxALL, 5);
+
 	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
 
 	sizer = new wxGridSizer(2, 0, 0);
 
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Volume"));
+	staticText = new wxStaticText(this, wxID_ANY, wxString("Volume"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	volumeCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	volumeCtrl->Bind(wxEVT_TEXT, &TrackControl::OnVolumeChange, this);
+	volumeCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	volumeCtrl->SetRange(0.0, 1.0);
+	volumeCtrl->SetIncrement(0.1);
+	volumeCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &TrackControl::OnVolumeChange, this);
 	sizer->Add(volumeCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
@@ -99,6 +104,8 @@ TrackControl::TrackControl(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	SetMinSize(wxSize(-1, 240));
 
 	Layout();
+
+	SetTrack("");
 }
 
 TrackControl::~TrackControl() {
@@ -106,15 +113,9 @@ TrackControl::~TrackControl() {
 
 
 void TrackControl::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = volumeCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
 	oamlTrackInfo *info = GetTrackInfo(trackName);
 	if (info) {
-		double d = 0;
-		str.ToDouble(&d);
-		info->volume = (float)d;
+		info->volume = (float)volumeCtrl->GetValue();
 	}
 }
 
@@ -171,9 +172,10 @@ void TrackControl::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void TrackControl::SetTrack(std::string name) {
+	bool enable;
+
 	trackName = name;
 
-	volumeCtrl->Clear();
 	fadeInCtrl->Clear();
 	fadeOutCtrl->Clear();
 	xfadeInCtrl->Clear();
@@ -181,12 +183,24 @@ void TrackControl::SetTrack(std::string name) {
 
 	oamlTrackInfo *info = GetTrackInfo(trackName);
 	if (info) {
-		*volumeCtrl << info->volume;
+		volumeCtrl->SetValue(info->volume);
 		*fadeInCtrl << info->fadeIn;
 		*fadeOutCtrl << info->fadeOut;
 		*xfadeInCtrl << info->xfadeIn;
 		*xfadeOutCtrl << info->xfadeOut;
+
+		enable = true;
+	} else {
+		volumeCtrl->SetValue(0.0);
+
+		enable = false;
 	}
+
+	volumeCtrl->Enable(enable);
+	fadeInCtrl->Enable(enable);
+	fadeOutCtrl->Enable(enable);
+	xfadeInCtrl->Enable(enable);
+	xfadeOutCtrl->Enable(enable);
 }
 
 void TrackControl::UpdateTrackName(std::string oldName, std::string newName) {
