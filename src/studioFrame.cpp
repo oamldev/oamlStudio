@@ -103,7 +103,6 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	config = new wxConfig("oamlStudio");
 	timer = NULL;
 	trackPane = NULL;
-	tinfo = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
@@ -272,8 +271,9 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
-	if (tinfo) {
-		tinfo->tracks.clear();
+	oamlTracksInfo *info = oaml->GetTracksInfo();
+	if (info) {
+		info->tracks.clear();
 	}
 
 	if (trackPane) {
@@ -291,10 +291,10 @@ void StudioFrame::Load(std::string filename) {
 
 	oaml->Init(fname.GetFullName().ToStdString().c_str());
 
-	tinfo = oaml->GetTracksInfo();
+	oamlTracksInfo *info = oaml->GetTracksInfo();
 
-	for (size_t i=0; i<tinfo->tracks.size(); i++) {
-		oamlTrackInfo *track = &tinfo->tracks[i];
+	for (size_t i=0; i<info->tracks.size(); i++) {
+		oamlTrackInfo *track = &info->tracks[i];
 		trackList->InsertItem(i, wxString(track->name));
 	}
 }
@@ -402,7 +402,8 @@ void StudioFrame::CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *
 void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 	xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration());
 
-	for (std::vector<oamlTrackInfo>::iterator track=tinfo->tracks.begin(); track<tinfo->tracks.end(); ++track) {
+	oamlTracksInfo *info = oaml->GetTracksInfo();
+	for (std::vector<oamlTrackInfo>::iterator track=info->tracks.begin(); track<info->tracks.end(); ++track) {
 		CreateTrackDefs(xmlDoc, &(*track), createPkg);
 	}
 }
@@ -414,7 +415,6 @@ void StudioFrame::ReloadDefs() {
 	CreateDefs(xmlDoc);
 	xmlDoc.Accept(&printer);
 	oaml->InitString(printer.CStr());
-	tinfo = oaml->GetTracksInfo();
 }
 
 void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
@@ -556,19 +556,20 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTrackInfo track;
 
-	tinfo = oaml->GetTracksInfo();
+	oamlTracksInfo *info = oaml->GetTracksInfo();
 
 	char name[1024];
-	snprintf(name, 1024, "Track%d", int(tinfo->tracks.size()+1));
+	snprintf(name, 1024, "Track%d", int(info->tracks.size()+1));
 	track.name = name;
+	track.volume = 1.f;
 	track.fadeIn = 0;
 	track.fadeOut = 0;
 	track.xfadeIn = 0;
 	track.xfadeOut = 0;
 
-	tinfo->tracks.push_back(track);
+	info->tracks.push_back(track);
 
-	int index = tinfo->tracks.size()-1;
+	int index = info->tracks.size()-1;
 	trackList->InsertItem(index, wxString(track.name));
 	SelectTrack(track.name);
 
