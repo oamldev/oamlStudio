@@ -54,7 +54,7 @@ TrackPanel::TrackPanel(wxWindow* parent, wxWindowID id, std::string name) : wxSc
 
 	sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	for (int i=0; i<4; i++) {
+	for (int i=0; i<3; i++) {
 		audioPanel[i] = new AudioPanel((wxFrame*)this, i, trackName);
 
 		sizer->Add(audioPanel[i], 0, wxALL | wxEXPAND | wxGROW, 0);
@@ -71,8 +71,6 @@ int TrackPanel::GetPanelIndex(oamlAudioInfo *audio) {
 
 	if (audio->type == 1) {
 		i = 0;
-	} else if (audio->type == 3) {
-		i = 3;
 	} else if (audio->type == 4) {
 		i = 2;
 	}
@@ -109,7 +107,7 @@ void TrackPanel::UpdateTrackName(std::string oldName, std::string newName) {
 
 	trackName = newName;
 
-	for (int i=0; i<4; i++) {
+	for (int i=0; i<3; i++) {
 		audioPanel[i]->UpdateTrackName(trackName);
 	}
 }

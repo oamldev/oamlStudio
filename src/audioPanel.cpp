@@ -44,7 +44,7 @@
 
 
 AudioPanel::AudioPanel(wxFrame* parent, int index, std::string name) : wxPanel(parent) {
-	wxString texts[4] = { "Intro", "Main loop", "Conditional", "Ending" };
+	wxString texts[3] = { "Intros", "Main loops", "Conditional loops" };
 
 	panelIndex = index;
 	trackName = name;
@@ -122,7 +122,6 @@ void AudioPanel::AddAudioDialog() {
 		case 0: audio.type = 1; break;
 		case 1: audio.type = 2; break;
 		case 2: audio.type = 4; break;
-		case 3: audio.type = 3; break;
 	}
 
 	AddAudioInfo(trackName, audio);

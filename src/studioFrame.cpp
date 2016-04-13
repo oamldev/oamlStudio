@@ -162,6 +162,9 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	// Left panel
 	vSizer = new wxBoxSizer(wxVERTICAL);
 
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Track List --"));
+	vSizer->Add(staticText, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 2);
+
 	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
 	trackList->SetBackgroundColour(wxColour(0x80, 0x80, 0x80));
 	trackList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnTrackListActivated, this);
