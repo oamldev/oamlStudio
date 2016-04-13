@@ -58,6 +58,8 @@ AudioPanel::AudioPanel(wxFrame* parent, int index, std::string name) : wxPanel(p
 	Bind(wxEVT_PAINT, &AudioPanel::OnPaint, this);
 	Bind(wxEVT_RIGHT_UP, &AudioPanel::OnRightUp, this);
 	Bind(wxEVT_COMMAND_MENU_SELECTED, &AudioPanel::OnMenuEvent, this, ID_AddAudio);
+
+	SetMinSize(wxSize(240, -1));
 }
 
 void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {

@@ -237,7 +237,7 @@ void StudioFrame::SelectTrack(std::string name) {
 void StudioFrame::OnTrackListActivated(wxListEvent& event) {
 	int index = event.GetIndex();
 	if (index == -1) {
-//		WxUtils::ShowErrorDialog(_("You must choose a track!"));
+		wxMessageBox(_("You must choose a track!"));
 		return;
 	}
 
@@ -446,6 +446,7 @@ int StudioFrame::WriteDefsToZip(struct archive *zip) {
 
 	struct archive_entry *entry = archive_entry_new();
 	if (entry == NULL) {
+		wxMessageBox(_("archive_entry_new error"));
 		return -1;
 	}
 
@@ -455,6 +456,7 @@ int StudioFrame::WriteDefsToZip(struct archive *zip) {
 	archive_entry_set_perm(entry, 0644);
 	archive_write_header(zip, entry);
 	if (archive_write_data(zip, buffer, strlen(buffer)) != strlen(buffer)) {
+		wxMessageBox(_("archive_write_data error"));
 		return -1;
 	}
 	archive_entry_free(entry);
@@ -466,6 +468,10 @@ int StudioFrame::WriteFileToZip(struct archive *zip, std::string file) {
 	const char *filename = file.c_str();
 	void *fd = studioCbs.open(filename);
 	if (fd == NULL) {
+		wxString str;
+		str.Printf(wxT("Error creating file %s"), filename);
+		wxMessageBox(str);
+
 		return -1;
 	}
 
@@ -477,6 +483,7 @@ int StudioFrame::WriteFileToZip(struct archive *zip, std::string file) {
 
 	struct archive_entry *entry = archive_entry_new();
 	if (entry == NULL) {
+		wxMessageBox(_("archive_entry_new error"));
 		return -1;
 	}
 
@@ -493,6 +500,7 @@ int StudioFrame::WriteFileToZip(struct archive *zip, std::string file) {
 
 		if (archive_write_data(zip, buffer, bytes) != bytes) {
 			studioCbs.close(fd);
+			wxMessageBox(_("archive_write_data error"));
 			return -1;
 		}
 	}
@@ -507,8 +515,10 @@ int StudioFrame::CreateZip(std::string zfile, std::vector<std::string> files) {
 	struct archive *zip;
 
 	zip = archive_write_new();
-	if (zip == NULL)
+	if (zip == NULL) {
+		wxMessageBox(_("archive_write_new error"));
 		return -1;
+	}
 	archive_write_set_format_zip(zip);
 //	archive_write_zip_set_compression_store(zip);
 	archive_write_open_filename(zip, zfile.c_str());
@@ -553,7 +563,18 @@ void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
-	wxMessageBox(_("oamlStudio"), _("About oamlStudio"), wxOK | wxICON_INFORMATION, this);
+	wxString str;
+
+	// TODO - Make a nice custom dialog
+
+	str.Printf("oamlStudio - Studio for Open Adaptive Music Library\r\n"
+		   "oaml and oamlStudio are both licensed under the MIT license.\r\n"
+		   "\r\n"
+		   "https://github.com/marcelofg55/oaml\r\n"
+		   "ttps://github.com/marcelofg55/oamlStudio\r\n"
+		   "Copyright (c) 2015-2016 Marcelo Fernandez");
+
+	wxMessageBox(str, _("About oamlStudio"), wxOK | wxICON_INFORMATION, this);
 }
 
 void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
