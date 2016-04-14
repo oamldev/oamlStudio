@@ -81,6 +81,7 @@
     <ClCompile Include="..\src\oamlStudio.cpp" />
     <ClCompile Include="..\src\ogg.cpp" />
     <ClCompile Include="..\src\playbackFrame.cpp" />
+    <ClCompile Include="..\src\startupFrame.cpp" />
     <ClCompile Include="..\src\studioFrame.cpp" />
     <ClCompile Include="..\src\tinyxml2.cpp" />
     <ClCompile Include="..\src\trackControl.cpp" />
