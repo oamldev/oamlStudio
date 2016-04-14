@@ -335,6 +335,12 @@ void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name
 	node->InsertEndChild(el);
 }
 
+void StudioFrame::AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, float value) {
+	tinyxml2::XMLElement *el = node->GetDocument()->NewElement(name);
+	el->SetText(value);
+	node->InsertEndChild(el);
+}
+
 tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg) {
 	tinyxml2::XMLNode *audioEl = xmlDoc.NewElement("audio");
 	if (audioEl == NULL)
@@ -350,6 +356,7 @@ tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, o
 	}
 
 	if (audio->type) AddSimpleChildToNode(audioEl, "type", audio->type);
+	if (audio->volume) AddSimpleChildToNode(audioEl, "volume", audio->volume);
 	if (audio->bpm) AddSimpleChildToNode(audioEl, "bpm", audio->bpm);
 	if (audio->beatsPerBar) AddSimpleChildToNode(audioEl, "beatsPerBar", audio->beatsPerBar);
 	if (audio->bars) AddSimpleChildToNode(audioEl, "bars", audio->bars);
@@ -387,6 +394,7 @@ void StudioFrame::CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *
 			AddSimpleChildToNode(trackEl, "subgroup", it->c_str());
 		}
 	}
+	if (track->volume) AddSimpleChildToNode(trackEl, "volume", track->volume);
 	if (track->fadeIn) AddSimpleChildToNode(trackEl, "fadeIn", track->fadeIn);
 	if (track->fadeOut) AddSimpleChildToNode(trackEl, "fadeOut", track->fadeOut);
 	if (track->xfadeIn) AddSimpleChildToNode(trackEl, "xfadeIn", track->xfadeIn);

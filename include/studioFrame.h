@@ -77,6 +77,7 @@ private:
 
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value);
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value);
+	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, float value);
 
 	void SelectTrack(std::string name);
 
