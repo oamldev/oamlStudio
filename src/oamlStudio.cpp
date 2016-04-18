@@ -162,7 +162,6 @@ int oamlStudio::OpenSDL() {
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
 	oaml->SetFileCallbacks(&studioCbs);
-	oaml->EnableTracksInfo(true);
 
 	if (OpenSDL() == -1)
 		return false;
