@@ -48,17 +48,13 @@
 
 TrackPanel::TrackPanel(wxWindow* parent, wxWindowID id, std::string name) : wxScrolledWindow(parent, id, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL) {
 	trackName = name;
+	musicMode = true;
+	panelCount = 3;
 
 	SetBackgroundColour(wxColour(0x40, 0x40, 0x40));
 	SetScrollRate(50, 50);
 
 	sizer = new wxBoxSizer(wxHORIZONTAL);
-
-	for (int i=0; i<3; i++) {
-		audioPanel[i] = new AudioPanel((wxFrame*)this, i, trackName);
-
-		sizer->Add(audioPanel[i], 0, wxALL | wxEXPAND | wxGROW, 0);
-	}
 
 	SetSizer(sizer);
 	Layout();
@@ -66,9 +62,28 @@ TrackPanel::TrackPanel(wxWindow* parent, wxWindowID id, std::string name) : wxSc
 	sizer->Fit(this);
 }
 
-int TrackPanel::GetPanelIndex(oamlAudioInfo *audio) {
-	int i = 1;
+void TrackPanel::SetTrackMode(bool mode) {
+	wxString musicTexts[3] = { "Intros", "Main loops", "Conditional loops" };
+	wxString sfxTexts[1] = { "Sfxs" };
 
+	musicMode = mode;
+	panelCount = musicMode ? 3 : 1;
+
+	for (int i=0; i<panelCount; i++) {
+		audioPanel[i] = new AudioPanel((wxFrame*)this, i, trackName, musicMode ? musicTexts[i] : sfxTexts[i], !musicMode);
+
+		sizer->Add(audioPanel[i], 0, wxALL | wxEXPAND | wxGROW, 0);
+	}
+
+	Layout();
+}
+
+int TrackPanel::GetPanelIndex(oamlAudioInfo *audio) {
+	if (musicMode == false) {
+		return 0;
+	}
+
+	int i = 1;
 	if (audio->type == 1) {
 		i = 0;
 	} else if (audio->type == 4) {
@@ -107,7 +122,7 @@ void TrackPanel::UpdateTrackName(std::string oldName, std::string newName) {
 
 	trackName = newName;
 
-	for (int i=0; i<3; i++) {
+	for (int i=0; i<panelCount; i++) {
 		audioPanel[i]->UpdateTrackName(trackName);
 	}
 }

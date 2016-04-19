@@ -50,11 +50,15 @@ private:
 	wxGridSizer *sizer;
 	std::string trackName;
 	std::string audioFile;
+	std::string selectedAudioName;
+
+	bool musicMode;
 
 public:
 	ControlPanel(wxFrame* parent, wxWindowID id);
 	~ControlPanel();
 
+	const char *GetSelectedAudioName() const { return selectedAudioName.c_str(); }
 	const char *GetTrack() const { return trackName.c_str(); }
 
 	void OnVolumeChange(wxCommandEvent& WXUNUSED(event));
@@ -78,6 +82,10 @@ public:
 
 	std::string GetTrackName() const { return trackName; }
 	void UpdateTrackName(std::string oldName, std::string newName);
+
+	void SetTrackMode(bool mode);
+
+	bool IsMusicMode() const { return musicMode; }
 };
 
 #endif

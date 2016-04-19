@@ -39,6 +39,7 @@
 #include <wx/filename.h>
 #include <wx/filehistory.h>
 #include <wx/config.h>
+#include <wx/statline.h>
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -48,7 +49,8 @@ class StudioTimer : public wxTimer {
 	StudioFrame* pane;
 public:
 	int labelIndex;
-	wxListView* trackList;
+	wxListView* musicList;
+	wxListView* sfxList;
 	std::string trackName;
 
 	StudioTimer(StudioFrame* pane);
@@ -59,9 +61,11 @@ public:
 class StudioFrame: public wxFrame {
 private:
 	wxConfig *config;
-	wxListView* trackList;
+	wxListView* musicList;
+	wxListView* sfxList;
 	wxBoxSizer* mainSizer;
 	wxBoxSizer* vSizer;
+	wxStaticLine* rightLine;
 	wxFileHistory* fileHistory;
 
 	ControlPanel* controlPane;
@@ -95,9 +99,12 @@ public:
 	tinyxml2::XMLNode* CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg);
 	void CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg);
 
-	void OnTrackListActivated(wxListEvent& event);
-	void OnTrackListMenu(wxMouseEvent& event);
-	void OnTrackEndLabelEdit(wxListEvent& event);
+	void OnMusicListActivated(wxListEvent& event);
+	void OnMusicListMenu(wxMouseEvent& event);
+	void OnMusicEndLabelEdit(wxListEvent& event);
+	void OnSfxListActivated(wxListEvent& event);
+	void OnSfxListMenu(wxMouseEvent& event);
+	void OnSfxEndLabelEdit(wxListEvent& event);
 	void OnNew(wxCommandEvent& event);
 	void OnLoad(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);

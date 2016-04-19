@@ -94,7 +94,7 @@ int WaveformDisplay::read32() {
 	return ret;
 }
 
-void WaveformDisplay::SetSource(std::string _filename) {
+void WaveformDisplay::SetSource(std::string _filename, bool sfxMode) {
 	ASSERT(topWnd != NULL);
 
 	filename = _filename;
@@ -123,7 +123,12 @@ void WaveformDisplay::SetSource(std::string _filename) {
 		return;
 	}
 
-	int w = (handle->GetTotalSamples() / handle->GetChannels()) / (handle->GetSamplesPerSec() / 10);
+	int w = 1;
+	if (sfxMode) {
+		w = (handle->GetTotalSamples() / handle->GetChannels()) / (handle->GetSamplesPerSec() / 1000);
+	} else {
+		w = (handle->GetTotalSamples() / handle->GetChannels()) / (handle->GetSamplesPerSec() / 10);
+	}
 	wxSize size(w, 100);
 	SetSize(size);
 	SetMinSize(size);

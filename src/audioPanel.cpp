@@ -43,14 +43,13 @@
 #include <wx/config.h>
 
 
-AudioPanel::AudioPanel(wxFrame* parent, int index, std::string name) : wxPanel(parent) {
-	wxString texts[3] = { "Intros", "Main loops", "Conditional loops" };
-
+AudioPanel::AudioPanel(wxFrame* parent, int index, std::string name, wxString labelStr, bool mode) : wxPanel(parent) {
 	panelIndex = index;
 	trackName = name;
+	sfxMode = mode;
 
 	sizer = new wxBoxSizer(wxVERTICAL);
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, texts[index], wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, labelStr, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
 	staticText->SetBackgroundColour(wxColour(0xD0, 0xD0, 0xD0));
 	sizer->Add(staticText, 0, wxALL | wxEXPAND | wxGROW, 5);
 	SetSizer(sizer);
@@ -80,7 +79,7 @@ void AudioPanel::AddAudio(oamlAudioInfo *audio, wxFrame *topWnd) {
 	for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
 		LayerPanel *lp = new LayerPanel((wxFrame*)this);
 		layerPanels.push_back(lp);
-		lp->AddWaveform(layer->filename, topWnd);
+		lp->AddWaveform(layer->filename, sfxMode, topWnd);
 
 		sizer->Add(lp, 0, wxALL, 5);
 	}

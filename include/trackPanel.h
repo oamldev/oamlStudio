@@ -31,6 +31,9 @@ private:
 	AudioPanel* audioPanel[4];
 	std::string trackName;
 
+	bool musicMode;
+	int panelCount;
+
 public:
 	TrackPanel(wxWindow* parent, wxWindowID id, std::string name);
 
@@ -38,6 +41,8 @@ public:
 	void AddAudio(oamlAudioInfo *audio);
 	void RemoveAudio(std::string audioFile);
 	void UpdateTrackName(std::string oldName, std::string newName);
+
+	void SetTrackMode(bool mode);
 };
 
 #endif

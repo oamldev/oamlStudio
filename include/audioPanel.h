@@ -29,9 +29,10 @@ private:
 	std::vector<LayerPanel*> layerPanels;
 	std::string trackName;
 	int panelIndex;
+	bool sfxMode;
 
 public:
-	AudioPanel(wxFrame* parent, int index, std::string name);
+	AudioPanel(wxFrame* parent, int index, std::string name, wxString labelStr, bool mode);
 
 	void OnPaint(wxPaintEvent& WXUNUSED(evt));
 	void OnMenuEvent(wxCommandEvent& event);

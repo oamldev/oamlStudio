@@ -50,9 +50,9 @@ LayerPanel::LayerPanel(wxFrame* parent) : wxPanel(parent) {
 	Bind(wxEVT_PAINT, &LayerPanel::OnPaint, this);
 }
 
-void LayerPanel::AddWaveform(std::string filename, wxFrame *topWnd) {
+void LayerPanel::AddWaveform(std::string filename, bool sfxMode, wxFrame *topWnd) {
 	WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
-	waveDisplay->SetSource(filename);
+	waveDisplay->SetSource(filename, sfxMode);
 
 	waveDisplays.push_back(waveDisplay);
 

@@ -84,7 +84,7 @@ StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
 }
 
 void StudioTimer::Notify() {
-	wxString str = trackList->GetItemText(labelIndex);
+	wxString str = musicList->GetItemText(labelIndex);
 	RenameTrack(trackName, str.ToStdString());
 	pane->UpdateTrackName(trackName, str.ToStdString());
 }
@@ -103,6 +103,8 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	config = new wxConfig("oamlStudio");
 	timer = NULL;
 	trackPane = NULL;
+	controlPane = NULL;
+	rightLine = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
@@ -162,16 +164,27 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	// Left panel
 	vSizer = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Track List --"));
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Music Tracks --"));
 	vSizer->Add(staticText, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 2);
 
-	trackList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
-	trackList->SetBackgroundColour(wxColour(0x80, 0x80, 0x80));
-	trackList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnTrackListActivated, this);
-	trackList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnTrackListMenu, this);
-	trackList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnTrackEndLabelEdit, this);
+	musicList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
+	musicList->SetBackgroundColour(wxColour(0x80, 0x80, 0x80));
+	musicList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnMusicListActivated, this);
+	musicList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnMusicListMenu, this);
+	musicList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnMusicEndLabelEdit, this);
 
-	vSizer->Add(trackList, 1, wxALL, 5);
+	vSizer->Add(musicList, 1, wxALL, 5);
+
+	staticText = new wxStaticText(this, wxID_ANY, wxString("-- Sfx Tracks --"));
+	vSizer->Add(staticText, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 2);
+
+	sfxList = new wxListView(this, wxID_ANY, wxDefaultPosition, wxSize(240, -1), wxLC_LIST | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
+	sfxList->SetBackgroundColour(wxColour(0x80, 0x80, 0x80));
+	sfxList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StudioFrame::OnSfxListActivated, this);
+	sfxList->Bind(wxEVT_RIGHT_UP, &StudioFrame::OnSfxListMenu, this);
+	sfxList->Bind(wxEVT_LIST_END_LABEL_EDIT, &StudioFrame::OnSfxEndLabelEdit, this);
+
+	vSizer->Add(sfxList, 1, wxALL, 5);
 
 	wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
 	vSizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
@@ -186,14 +199,6 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	// Right panel
 	vSizer = new wxBoxSizer(wxVERTICAL);
-
-	controlPane = new ControlPanel(this, wxID_ANY);
-	controlPane->OnSelectAudio("");
-	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
-
-	staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-	vSizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
-
 	mainSizer->Add(vSizer, 1, wxEXPAND | wxALL, 0);
 
 	SetSizer(mainSizer);
@@ -214,11 +219,20 @@ void StudioFrame::SelectTrack(std::string name) {
 	if (track == NULL)
 		return;
 
-	if (trackPane) {
-		trackPane->Destroy();
-	}
+	if (controlPane) controlPane->Destroy();
+	if (rightLine) rightLine->Destroy();
+	if (trackPane) trackPane->Destroy();
+
+	controlPane = new ControlPanel(this, wxID_ANY);
+	controlPane->SetTrackMode(track->musicTrack);
+	controlPane->OnSelectAudio("");
+	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
+
+	rightLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
+	vSizer->Add(rightLine, 0, wxEXPAND | wxALL, 0);
 
 	trackPane = new TrackPanel(this, wxID_ANY, name);
+	trackPane->SetTrackMode(track->musicTrack);
 	vSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
 
 	for (size_t i=0; i<track->audios.size(); i++) {
@@ -234,32 +248,62 @@ void StudioFrame::SelectTrack(std::string name) {
 	trackControl->SetTrack(name);
 }
 
-void StudioFrame::OnTrackListActivated(wxListEvent& event) {
+void StudioFrame::OnMusicListActivated(wxListEvent& event) {
 	int index = event.GetIndex();
 	if (index == -1) {
 		wxMessageBox(_("You must choose a track!"));
 		return;
 	}
 
-	wxString str = trackList->GetItemText(index);
+	wxString str = musicList->GetItemText(index);
 	SelectTrack(str.ToStdString());
 }
 
-void StudioFrame::OnTrackListMenu(wxMouseEvent& WXUNUSED(event)) {
+void StudioFrame::OnMusicListMenu(wxMouseEvent& WXUNUSED(event)) {
 	wxMenu menu(wxT(""));
 	menu.Append(ID_AddTrack, wxT("&Add Track"));
 	menu.Append(ID_EditTrackName, wxT("Edit Track &Name"));
 	PopupMenu(&menu);
 }
 
-void StudioFrame::OnTrackEndLabelEdit(wxListEvent& event) {
+void StudioFrame::OnMusicEndLabelEdit(wxListEvent& event) {
 	if (timer == NULL) {
 		timer = new StudioTimer(this);
 	}
 
-	wxString str = trackList->GetItemText(event.GetIndex());
+	wxString str = musicList->GetItemText(event.GetIndex());
 	timer->labelIndex = event.GetIndex();
-	timer->trackList = trackList;
+	timer->musicList = musicList;
+	timer->trackName = str.ToStdString();
+	timer->StartOnce(10);
+}
+
+void StudioFrame::OnSfxListActivated(wxListEvent& event) {
+	int index = event.GetIndex();
+	if (index == -1) {
+		wxMessageBox(_("You must choose a track!"));
+		return;
+	}
+
+	wxString str = sfxList->GetItemText(index);
+	SelectTrack(str.ToStdString());
+}
+
+void StudioFrame::OnSfxListMenu(wxMouseEvent& WXUNUSED(event)) {
+	wxMenu menu(wxT(""));
+	menu.Append(ID_AddTrack, wxT("&Add Track"));
+	menu.Append(ID_EditTrackName, wxT("Edit Track &Name"));
+	PopupMenu(&menu);
+}
+
+void StudioFrame::OnSfxEndLabelEdit(wxListEvent& event) {
+	if (timer == NULL) {
+		timer = new StudioTimer(this);
+	}
+
+	wxString str = sfxList->GetItemText(event.GetIndex());
+	timer->labelIndex = event.GetIndex();
+	timer->sfxList = sfxList;
 	timer->trackName = str.ToStdString();
 	timer->StartOnce(10);
 }
@@ -283,7 +327,8 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 		trackPane->Destroy();
 	}
 
-	trackList->ClearAll();
+	musicList->ClearAll();
+	sfxList->ClearAll();
 }
 
 void StudioFrame::Load(std::string filename) {
@@ -298,7 +343,11 @@ void StudioFrame::Load(std::string filename) {
 
 	for (size_t i=0; i<info->tracks.size(); i++) {
 		oamlTrackInfo *track = &info->tracks[i];
-		trackList->InsertItem(i, wxString(track->name));
+		if (track->musicTrack) {
+			musicList->InsertItem(musicList->GetItemCount(), wxString(track->name));
+		} else if (track->sfxTrack) {
+			sfxList->InsertItem(sfxList->GetItemCount(), wxString(track->name));
+		}
 	}
 }
 
@@ -602,14 +651,14 @@ void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
 	info->tracks.push_back(track);
 
 	int index = info->tracks.size()-1;
-	trackList->InsertItem(index, wxString(track.name));
+	musicList->InsertItem(index, wxString(track.name));
 	SelectTrack(track.name);
 
-	trackList->EditLabel(index);
+	musicList->EditLabel(index);
 }
 
 void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
-	trackList->EditLabel(trackList->GetFirstSelected());
+	musicList->EditLabel(musicList->GetFirstSelected());
 }
 
 void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
@@ -651,7 +700,12 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 
 void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 	ReloadDefs();
-	oaml->PlayTrack(controlPane->GetTrack());
+
+	if (controlPane->IsMusicMode()) {
+		oaml->PlayTrack(controlPane->GetTrack());
+	} else {
+		oaml->PlaySfx(controlPane->GetSelectedAudioName());
+	}
 }
 
 void StudioFrame::OnPlaybackPanel(wxCommandEvent& WXUNUSED(event)) {

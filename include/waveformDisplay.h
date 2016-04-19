@@ -57,7 +57,7 @@ public:
 	~WaveformDisplay();
 
 	int read32();
-	void SetSource(std::string _filename);
+	void SetSource(std::string _filename, bool sfxMode);
 
 	void OnPaint(wxPaintEvent& evt);
 	void OnLeftUp(wxMouseEvent& evt);
