@@ -93,7 +93,9 @@ void StudioFrame::UpdateTrackName(std::string trackName, std::string newName) {
 	if (trackPane) {
 		trackPane->UpdateTrackName(trackName, newName);
 	}
-	controlPane->UpdateTrackName(trackName, newName);
+	if (controlPane) {
+		controlPane->UpdateTrackName(trackName, newName);
+	}
 	trackControl->UpdateTrackName(trackName, newName);
 
 	Layout();
@@ -337,7 +339,9 @@ void StudioFrame::Load(std::string filename) {
 	prjPath = fname.GetPathWithSep();
 	InitCallbacks(prjPath);
 
-	oaml->Init(fname.GetFullName().ToStdString().c_str());
+	if (oaml->Init(fname.GetFullName().ToStdString().c_str()) != OAML_OK) {
+		wxMessageBox(_("Error loading project"));
+	}
 
 	oamlTracksInfo *info = oaml->GetTracksInfo();
 
@@ -662,10 +666,15 @@ void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
-	controlPane->OnSelectAudio(event.GetString().ToStdString());
+	if (controlPane) {
+		controlPane->OnSelectAudio(event.GetString().ToStdString());
+	}
 }
 
 void StudioFrame::OnAddAudio(wxCommandEvent& event) {
+	if (controlPane == NULL)
+		return;
+
 	oamlAudioInfo* audio = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString());
 	if (audio == NULL)
 		return;
@@ -690,7 +699,9 @@ void StudioFrame::OnAddLayer(wxCommandEvent& event) {
 }
 
 void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
-	controlPane->OnSelectAudio("");
+	if (controlPane) {
+		controlPane->OnSelectAudio("");
+	}
 
 	trackPane->RemoveAudio(event.GetString().ToStdString());
 
@@ -699,6 +710,9 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 }
 
 void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
+	if (controlPane == NULL)
+		return;
+
 	ReloadDefs();
 
 	if (controlPane->IsMusicMode()) {
