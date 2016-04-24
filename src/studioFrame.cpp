@@ -323,11 +323,6 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
-	oamlTracksInfo *info = oaml->GetTracksInfo();
-	if (info) {
-		info->tracks.clear();
-	}
-
 	if (trackPane) {
 		trackPane->Destroy();
 	}
@@ -345,6 +340,9 @@ void StudioFrame::Load(std::string filename) {
 	if (oaml->Init(fname.GetFullName().ToStdString().c_str()) != OAML_OK) {
 		wxMessageBox(_("Error loading project"));
 	}
+
+	musicList->ClearAll();
+	sfxList->ClearAll();
 
 	oamlTracksInfo *info = oaml->GetTracksInfo();
 
@@ -476,12 +474,12 @@ void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 }
 
 void StudioFrame::ReloadDefs() {
-	tinyxml2::XMLDocument xmlDoc;
+/*	tinyxml2::XMLDocument xmlDoc;
 	tinyxml2::XMLPrinter printer;
 
 	CreateDefs(xmlDoc);
 	xmlDoc.Accept(&printer);
-	oaml->InitString(printer.CStr());
+	oaml->InitString(printer.CStr());*/
 }
 
 void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
@@ -691,11 +689,14 @@ void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 	if (controlPane == NULL)
 		return;
 
-	oamlAudioInfo* audio = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString());
-	if (audio == NULL)
+	ReloadDefs();
+
+	oamlAudioInfo info;
+	oamlRC rc = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString(), &info);
+	if (rc != OAML_OK)
 		return;
 
-	trackPane->AddAudio(audio);
+	trackPane->AddAudio(&info);
 	ReloadDefs();
 
 	SetSizer(mainSizer);
@@ -728,8 +729,6 @@ void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 	if (controlPane == NULL)
 		return;
-
-	ReloadDefs();
 
 	if (controlPane->IsMusicMode()) {
 		oaml->PlayTrack(controlPane->GetTrack());

@@ -65,34 +65,38 @@ oamlTrackInfo* GetTrackInfo(std::string trackName) {
 	return NULL;
 }
 
-oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile) {
+oamlRC GetAudioInfo(std::string trackName, std::string audioFile, oamlAudioInfo *info) {
 	oamlTrackInfo* track = GetTrackInfo(trackName);
 	if (track == NULL)
-		return NULL;
+		return OAML_NOT_FOUND;
 
-	for (size_t i=0; i<track->audios.size(); i++) {
-		for (size_t j=0; j<track->audios[i].layers.size(); j++) {
-			if (track->audios[i].layers[j].filename == audioFile) {
-				return &track->audios[i];
+	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
+		for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
+			if (layer->filename == audioFile) {
+				*info = *audio;
+				return OAML_OK;
 			}
 		}
 	}
-	return NULL;
+
+	return OAML_NOT_FOUND;
 }
 
-oamlLayerInfo* GetLayerInfo(std::string trackName, std::string audioFile) {
+oamlRC GetLayerInfo(std::string trackName, std::string audioFile, oamlLayerInfo *info) {
 	oamlTrackInfo* track = GetTrackInfo(trackName);
 	if (track == NULL)
-		return NULL;
+		return OAML_NOT_FOUND;
 
-	for (size_t i=0; i<track->audios.size(); i++) {
-		for (size_t j=0; j<track->audios[i].layers.size(); j++) {
-			if (track->audios[i].layers[j].filename == audioFile) {
-				return &track->audios[i].layers[j];
+	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
+		for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
+			if (layer->filename == audioFile) {
+				*info = *layer;
+				return OAML_OK;
 			}
 		}
 	}
-	return NULL;
+
+	return OAML_NOT_FOUND;
 }
 
 void AddAudioInfo(std::string trackName, oamlAudioInfo& audio) {

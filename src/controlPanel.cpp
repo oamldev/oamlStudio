@@ -197,45 +197,27 @@ void ControlPanel::SetTrackMode(bool mode) {
 }
 
 void ControlPanel::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		info->volume = (float)volumeCtrl->GetValue();
-	}
+	studioApi->AudioSetVolume(trackName, audioFile, (float)volumeCtrl->GetValue());
 }
 
 void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		info->bpm = (float)bpmCtrl->GetValue();
-	}
+	studioApi->AudioSetBPM(trackName, audioFile, (float)bpmCtrl->GetValue());
 }
 
 void ControlPanel::OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		info->beatsPerBar = (int)bpbCtrl->GetValue();
-	}
+	studioApi->AudioSetBeatsPerBar(trackName, audioFile, (int)bpbCtrl->GetValue());
 }
 
 void ControlPanel::OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		info->bars = (int)barsCtrl->GetValue();
-	}
+	studioApi->AudioSetBars(trackName, audioFile, (int)barsCtrl->GetValue());
 }
 
 void ControlPanel::OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		info->randomChance = (int)randomChanceCtrl->GetValue();
-	}
+	studioApi->AudioSetRandomChance(trackName, audioFile, (int)randomChanceCtrl->GetValue());
 }
 
 void ControlPanel::OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		info->minMovementBars = (int)minMovementBarsCtrl->GetValue();
-	}
+	studioApi->AudioSetMinMovementBars(trackName, audioFile, (int)minMovementBarsCtrl->GetValue());
 }
 
 void ControlPanel::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
@@ -243,12 +225,9 @@ void ControlPanel::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->fadeIn = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetFadeIn(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
@@ -256,12 +235,9 @@ void ControlPanel::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->fadeOut = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetFadeOut(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
@@ -269,12 +245,9 @@ void ControlPanel::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->xfadeIn = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetXFadeIn(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
@@ -282,12 +255,9 @@ void ControlPanel::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->xfadeOut = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetXFadeOut(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
@@ -295,12 +265,9 @@ void ControlPanel::OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->condId = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetCondId(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
@@ -308,12 +275,9 @@ void ControlPanel::OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->condType = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetCondType(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
@@ -321,12 +285,9 @@ void ControlPanel::OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->condValue = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetCondValue(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::OnCondValue2Change(wxCommandEvent& WXUNUSED(event)) {
@@ -334,12 +295,9 @@ void ControlPanel::OnCondValue2Change(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->condValue2 = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->AudioSetCondValue2(trackName, audioFile, (int)l);
 }
 
 void ControlPanel::SetTrack(std::string name) {
@@ -371,26 +329,28 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 		condValue2Ctrl->Clear();
 	}
 
-	oamlAudioInfo *info = GetAudioInfo(trackName, audioFile);
-	oamlLayerInfo *layer = GetLayerInfo(trackName, audioFile);
-	if (info && layer) {
-		*fileCtrl << layer->filename;
-		volumeCtrl->SetValue(info->volume);
+	oamlAudioInfo info;
+	oamlLayerInfo layer;
+	oamlRC rc = GetAudioInfo(trackName, audioFile, &info);
+	oamlRC rc2 = GetLayerInfo(trackName, audioFile, &layer);
+	if (rc == OAML_OK && rc2 == OAML_OK) {
+		*fileCtrl << layer.filename;
+		volumeCtrl->SetValue(info.volume);
 
 		if (musicMode) {
-			bpmCtrl->SetValue(info->bpm);
-			bpbCtrl->SetValue(info->beatsPerBar);
-			barsCtrl->SetValue(info->bars);
-			randomChanceCtrl->SetValue(info->randomChance);
-			minMovementBarsCtrl->SetValue(info->minMovementBars);
-			*fadeInCtrl << info->fadeIn;
-			*fadeOutCtrl << info->fadeOut;
-			*xfadeInCtrl << info->xfadeIn;
-			*xfadeOutCtrl << info->xfadeOut;
-			*condIdCtrl << info->condId;
-			*condTypeCtrl << info->condType;
-			*condValueCtrl << info->condValue;
-			*condValue2Ctrl << info->condValue2;
+			bpmCtrl->SetValue(info.bpm);
+			bpbCtrl->SetValue(info.beatsPerBar);
+			barsCtrl->SetValue(info.bars);
+			randomChanceCtrl->SetValue(info.randomChance);
+			minMovementBarsCtrl->SetValue(info.minMovementBars);
+			*fadeInCtrl << info.fadeIn;
+			*fadeOutCtrl << info.fadeOut;
+			*xfadeInCtrl << info.xfadeIn;
+			*xfadeOutCtrl << info.xfadeOut;
+			*condIdCtrl << info.condId;
+			*condTypeCtrl << info.condType;
+			*condValueCtrl << info.condValue;
+			*condValue2Ctrl << info.condValue2;
 		}
 
 		enable = true;

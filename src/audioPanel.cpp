@@ -108,24 +108,18 @@ void AudioPanel::AddAudioDialog() {
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
-	oamlAudioInfo audio;
-	memset(&audio, 0, sizeof(oamlAudioInfo));
 	wxFileName filename(openFileDialog.GetPath());
 	wxFileName defsPath(oaml->GetDefsFile());
 	filename.MakeRelativeTo(wxString(defsPath.GetPath()));
 	std::string fname = filename.GetFullPath().ToStdString();
 
-	oamlLayerInfo layer;
-	memset(&layer, 0, sizeof(oamlLayerInfo));
-	layer.filename = fname;
-	audio.layers.push_back(layer);
+	int type = 2;
 	switch (panelIndex) {
-		case 0: audio.type = 1; break;
-		case 1: audio.type = 2; break;
-		case 2: audio.type = 4; break;
+		case 0: type = 1; break;
+		case 1: type = 2; break;
+		case 2: type = 4; break;
 	}
-
-	AddAudioInfo(trackName, audio);
+	studioApi->AudioNew(trackName, fname, type);
 
 	wxCommandEvent event(EVENT_ADD_AUDIO);
 	event.SetString(fname);

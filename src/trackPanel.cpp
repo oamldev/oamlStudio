@@ -102,11 +102,12 @@ void TrackPanel::AddAudio(oamlAudioInfo *audio) {
 }
 
 void TrackPanel::RemoveAudio(std::string audioFile) {
-	oamlAudioInfo *audio = GetAudioInfo(trackName, audioFile);
-	if (audio == NULL)
+	oamlAudioInfo audio;
+	oamlRC rc = GetAudioInfo(trackName, audioFile, &audio);
+	if (rc != OAML_OK)
 		return;
 
-	int i = GetPanelIndex(audio);
+	int i = GetPanelIndex(&audio);
 	audioPanel[i]->RemoveAudio(audioFile);
 
 	RemoveAudioInfo(trackName, audioFile);

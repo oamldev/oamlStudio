@@ -32,8 +32,8 @@ extern oamlApi *oaml;
 extern oamlStudioApi *studioApi;
 
 oamlTrackInfo* GetTrackInfo(std::string trackName);
-oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile);
-oamlLayerInfo* GetLayerInfo(std::string trackName, std::string audioFile);
+oamlRC GetAudioInfo(std::string trackName, std::string audioFile, oamlAudioInfo *info);
+oamlRC GetLayerInfo(std::string trackName, std::string audioFile, oamlLayerInfo *info);
 void AddAudioInfo(std::string trackName, oamlAudioInfo& audio);
 void RemoveAudioInfo(std::string trackName, std::string audioFile);
 
