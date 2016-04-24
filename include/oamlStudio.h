@@ -29,13 +29,13 @@
 extern void InitCallbacks(std::string prjPath);
 extern oamlFileCallbacks studioCbs;
 extern oamlApi *oaml;
+extern oamlStudioApi *studioApi;
 
 oamlTrackInfo* GetTrackInfo(std::string trackName);
 oamlAudioInfo* GetAudioInfo(std::string trackName, std::string audioFile);
 oamlLayerInfo* GetLayerInfo(std::string trackName, std::string audioFile);
 void AddAudioInfo(std::string trackName, oamlAudioInfo& audio);
 void RemoveAudioInfo(std::string trackName, std::string audioFile);
-void RenameTrack(std::string trackName, std::string newName);
 
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
@@ -55,11 +55,13 @@ enum {
 	ID_SaveAs,
 	ID_Load,
 	ID_Export,
-	ID_AddTrack,
+	ID_AddMusicTrack,
+	ID_AddSfxTrack,
 	ID_RemoveTrack,
 	ID_AddAudio,
 	ID_RemoveAudio,
-	ID_EditTrackName,
+	ID_EditMusicTrackName,
+	ID_EditSfxTrackName,
 	ID_Play,
 	ID_Pause,
 	ID_Recent,

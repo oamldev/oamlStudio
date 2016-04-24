@@ -83,6 +83,7 @@ private:
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value);
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, float value);
 
+	void AddTrack(std::string name);
 	void SelectTrack(std::string name);
 
 	void CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg = false);
@@ -112,8 +113,10 @@ public:
 	void OnExport(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
-	void OnAddTrack(wxCommandEvent& event);
-	void OnEditTrackName(wxCommandEvent& event);
+	void OnAddMusicTrack(wxCommandEvent& event);
+	void OnEditMusicTrackName(wxCommandEvent& event);
+	void OnAddSfxTrack(wxCommandEvent& event);
+	void OnEditSfxTrackName(wxCommandEvent& event);
 	void OnSelectAudio(wxCommandEvent& event);
 	void OnAddAudio(wxCommandEvent& event);
 	void OnRemoveAudio(wxCommandEvent& event);

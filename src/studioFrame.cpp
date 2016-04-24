@@ -65,8 +65,10 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_Export, StudioFrame::OnExport)
 	EVT_MENU(ID_Quit, StudioFrame::OnQuit)
 	EVT_MENU(ID_About, StudioFrame::OnAbout)
-	EVT_MENU(ID_AddTrack, StudioFrame::OnAddTrack)
-	EVT_MENU(ID_EditTrackName, StudioFrame::OnEditTrackName)
+	EVT_MENU(ID_AddMusicTrack, StudioFrame::OnAddMusicTrack)
+	EVT_MENU(ID_AddSfxTrack, StudioFrame::OnAddSfxTrack)
+	EVT_MENU(ID_EditMusicTrackName, StudioFrame::OnEditMusicTrackName)
+	EVT_MENU(ID_EditSfxTrackName, StudioFrame::OnEditSfxTrackName)
 	EVT_MENU(ID_PlaybackPanel, StudioFrame::OnPlaybackPanel)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
@@ -85,7 +87,7 @@ StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
 
 void StudioTimer::Notify() {
 	wxString str = musicList->GetItemText(labelIndex);
-	RenameTrack(trackName, str.ToStdString());
+	studioApi->TrackRename(trackName, str.ToStdString());
 	pane->UpdateTrackName(trackName, str.ToStdString());
 }
 
@@ -131,7 +133,8 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	menuBar->Append(menuFile, _("&File"));
 
 	menuFile = new wxMenu;
-	menuFile->Append(ID_AddTrack, _("&Add track"));
+	menuFile->Append(ID_AddMusicTrack, _("Add &music track"));
+	menuFile->Append(ID_AddSfxTrack, _("Add &sfx track"));
 	menuFile->AppendSeparator();
 
 	menuBar->Append(menuFile, _("&Tracks"));
@@ -263,8 +266,8 @@ void StudioFrame::OnMusicListActivated(wxListEvent& event) {
 
 void StudioFrame::OnMusicListMenu(wxMouseEvent& WXUNUSED(event)) {
 	wxMenu menu(wxT(""));
-	menu.Append(ID_AddTrack, wxT("&Add Track"));
-	menu.Append(ID_EditTrackName, wxT("Edit Track &Name"));
+	menu.Append(ID_AddMusicTrack, wxT("&Add Track"));
+	menu.Append(ID_EditMusicTrackName, wxT("Edit Track &Name"));
 	PopupMenu(&menu);
 }
 
@@ -293,8 +296,8 @@ void StudioFrame::OnSfxListActivated(wxListEvent& event) {
 
 void StudioFrame::OnSfxListMenu(wxMouseEvent& WXUNUSED(event)) {
 	wxMenu menu(wxT(""));
-	menu.Append(ID_AddTrack, wxT("&Add Track"));
-	menu.Append(ID_EditTrackName, wxT("Edit Track &Name"));
+	menu.Append(ID_AddSfxTrack, wxT("&Add Track"));
+	menu.Append(ID_EditSfxTrackName, wxT("Edit Track &Name"));
 	PopupMenu(&menu);
 }
 
@@ -638,31 +641,44 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 	wxMessageBox(str, _("About oamlStudio"), wxOK | wxICON_INFORMATION, this);
 }
 
-void StudioFrame::OnAddTrack(wxCommandEvent& WXUNUSED(event)) {
-	oamlTrackInfo track;
+void StudioFrame::AddTrack(std::string name) {
+	studioApi->TrackNew(name);
+}
 
+void StudioFrame::OnAddMusicTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTracksInfo *info = oaml->GetTracksInfo();
+	int index = info ? info->tracks.size() : 0;
 
 	char name[1024];
-	snprintf(name, 1024, "Track%d", int(info->tracks.size()+1));
-	track.name = name;
-	track.volume = 1.f;
-	track.fadeIn = 0;
-	track.fadeOut = 0;
-	track.xfadeIn = 0;
-	track.xfadeOut = 0;
+	snprintf(name, 1024, "Track%d", index);
+	AddTrack(std::string(name));
 
-	info->tracks.push_back(track);
-
-	int index = info->tracks.size()-1;
-	musicList->InsertItem(index, wxString(track.name));
-	SelectTrack(track.name);
+	musicList->InsertItem(index, wxString(name));
+	SelectTrack(name);
 
 	musicList->EditLabel(index);
 }
 
-void StudioFrame::OnEditTrackName(wxCommandEvent& WXUNUSED(event)) {
+void StudioFrame::OnAddSfxTrack(wxCommandEvent& WXUNUSED(event)) {
+	oamlTracksInfo *info = oaml->GetTracksInfo();
+	int index = info ? info->tracks.size() : 0;
+
+	char name[1024];
+	snprintf(name, 1024, "Track%d", index);
+	AddTrack(std::string(name));
+
+	sfxList->InsertItem(index, wxString(name));
+	SelectTrack(name);
+
+	sfxList->EditLabel(index);
+}
+
+void StudioFrame::OnEditMusicTrackName(wxCommandEvent& WXUNUSED(event)) {
 	musicList->EditLabel(musicList->GetFirstSelected());
+}
+
+void StudioFrame::OnEditSfxTrackName(wxCommandEvent& WXUNUSED(event)) {
+	sfxList->EditLabel(sfxList->GetFirstSelected());
 }
 
 void StudioFrame::OnSelectAudio(wxCommandEvent& event) {

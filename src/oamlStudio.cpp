@@ -49,6 +49,7 @@
 wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
 
 oamlApi *oaml;
+oamlStudioApi *studioApi;
 
 oamlTrackInfo* GetTrackInfo(std::string trackName) {
 	oamlTracksInfo* info = oaml->GetTracksInfo();
@@ -120,19 +121,6 @@ void RemoveAudioInfo(std::string trackName, std::string audioFile) {
 	}
 }
 
-void RenameTrack(std::string trackName, std::string newName) {
-	oamlTracksInfo* info = oaml->GetTracksInfo();
-	if (info == NULL)
-		return;
-
-	for (size_t i=0; i<info->tracks.size(); i++) {
-		if (info->tracks[i].name == trackName) {
-			info->tracks[i].name = newName;
-			break;
-		}
-	}
-}
-
 void audioCallback(void* WXUNUSED(userdata), Uint8* stream, int len) {
 	oaml->MixToBuffer(stream, len/2);
 }
@@ -161,6 +149,7 @@ int oamlStudio::OpenSDL() {
 
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
+	studioApi = oaml->GetStudioApi();
 	oaml->SetFileCallbacks(&studioCbs);
 
 	if (OpenSDL() == -1)

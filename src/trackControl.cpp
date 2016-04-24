@@ -113,10 +113,7 @@ TrackControl::~TrackControl() {
 
 
 void TrackControl::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
-	oamlTrackInfo *info = GetTrackInfo(trackName);
-	if (info) {
-		info->volume = (float)volumeCtrl->GetValue();
-	}
+	studioApi->TrackSetVolume(trackName, (float)volumeCtrl->GetValue());
 }
 
 void TrackControl::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
@@ -124,12 +121,9 @@ void TrackControl::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlTrackInfo *info = GetTrackInfo(trackName);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->fadeIn = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->TrackSetFadeIn(trackName, (int)l);
 }
 
 void TrackControl::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
@@ -137,12 +131,9 @@ void TrackControl::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlTrackInfo *info = GetTrackInfo(trackName);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->fadeOut = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->TrackSetFadeOut(trackName, (int)l);
 }
 
 void TrackControl::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
@@ -150,12 +141,9 @@ void TrackControl::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlTrackInfo *info = GetTrackInfo(trackName);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->xfadeIn = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->TrackSetXFadeIn(trackName, (int)l);
 }
 
 void TrackControl::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
@@ -163,12 +151,9 @@ void TrackControl::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 	if (str.IsEmpty())
 		return;
 
-	oamlTrackInfo *info = GetTrackInfo(trackName);
-	if (info) {
-		long l = 0;
-		str.ToLong(&l);
-		info->xfadeOut = (int)l;
-	}
+	long l = 0;
+	str.ToLong(&l);
+	studioApi->TrackSetXFadeOut(trackName, (int)l);
 }
 
 void TrackControl::SetTrack(std::string name) {
