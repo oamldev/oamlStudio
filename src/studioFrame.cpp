@@ -55,6 +55,7 @@ wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_QUIT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
 
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
@@ -79,6 +80,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_QUIT, StudioFrame::OnQuit)
 	EVT_COMMAND(wxID_ANY, EVENT_NEW_PROJECT, StudioFrame::OnNew)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_PROJECT, StudioFrame::OnLoadProject)
+	EVT_COMMAND(wxID_ANY, EVENT_LOAD_OTHER, StudioFrame::OnLoad)
 END_EVENT_TABLE()
 
 StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {

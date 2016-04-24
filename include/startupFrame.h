@@ -40,6 +40,7 @@ public:
 	void OnPrjListActivated(wxListEvent& event);
 	void OnNewProject(wxCommandEvent& WXUNUSED(event));
 	void OnLoadProject(wxCommandEvent& WXUNUSED(event));
+	void OnLoadOther(wxCommandEvent& WXUNUSED(event));
 	void OnExit(wxCommandEvent& WXUNUSED(event));
 };
 

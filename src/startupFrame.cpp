@@ -59,15 +59,19 @@ StartupFrame::StartupFrame(wxWindow *parent) : wxFrame(parent, wxID_ANY, wxT("St
 
 	sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxButton *newBtn = new wxButton(this, wxID_ANY, wxString("New project"));
+	wxButton *newBtn = new wxButton(this, wxID_ANY, wxString("&New project"));
 	newBtn->Bind(wxEVT_BUTTON, &StartupFrame::OnNewProject, this);
 	sizer->Add(newBtn, 1, wxALL, 5);
 
-	wxButton *loadBtn = new wxButton(this, wxID_ANY, wxString("Load project"));
+	wxButton *loadBtn = new wxButton(this, wxID_ANY, wxString("&Load project"));
 	loadBtn->Bind(wxEVT_BUTTON, &StartupFrame::OnLoadProject, this);
 	sizer->Add(loadBtn, 1, wxALL, 5);
 
-	wxButton *exitBtn = new wxButton(this, wxID_ANY, wxString("Exit"));
+	wxButton *loadOtherBtn = new wxButton(this, wxID_ANY, wxString("Load &other..."));
+	loadOtherBtn->Bind(wxEVT_BUTTON, &StartupFrame::OnLoadOther, this);
+	sizer->Add(loadOtherBtn, 1, wxALL, 5);
+
+	wxButton *exitBtn = new wxButton(this, wxID_ANY, wxString("&Exit"));
 	exitBtn->Bind(wxEVT_BUTTON, &StartupFrame::OnExit, this);
 	sizer->Add(exitBtn, 1, wxALL, 5);
 
@@ -120,10 +124,16 @@ void StartupFrame::OnLoadProject(wxCommandEvent& WXUNUSED(event)) {
 	Show(false);
 }
 
+void StartupFrame::OnLoadOther(wxCommandEvent& WXUNUSED(event)) {
+	wxCommandEvent event(EVENT_LOAD_OTHER);
+	wxPostEvent(GetParent(), event);
+
+	Show(false);
+}
+
 void StartupFrame::OnExit(wxCommandEvent& WXUNUSED(event)) {
 	wxCommandEvent event(EVENT_QUIT);
 	wxPostEvent(GetParent(), event);
 
 	Show(false);
 }
-
