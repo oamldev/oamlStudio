@@ -341,6 +341,14 @@ void StudioFrame::Load(std::string filename) {
 
 	if (oaml->Init(fname.GetFullName().ToStdString().c_str()) != OAML_OK) {
 		wxMessageBox(_("Error loading project"));
+
+		for (size_t i=0; i<fileHistory->GetCount(); i++) {
+			if (fileHistory->GetHistoryFile(i) == fname.GetFullPath()) {
+				fileHistory->RemoveFileFromHistory(i);
+				break;
+			}
+		}
+		return;
 	}
 
 	musicList->ClearAll();
