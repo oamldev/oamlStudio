@@ -174,7 +174,8 @@ void ControlPanel::SetTrackMode(bool mode) {
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Type"));
 		sizer->Add(staticText, 0, wxALL, 5);
 
-		condTypeCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		wxString condTypeStrings[4] = { "Equal", "Greater", "Less", "Range" };
+		condTypeCtrl = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), 4, condTypeStrings, wxCB_READONLY);
 		condTypeCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondTypeChange, this);
 		sizer->Add(condTypeCtrl, 0, wxALL, 5);
 
@@ -271,13 +272,7 @@ void ControlPanel::OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void ControlPanel::OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = condTypeCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
-
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->AudioSetCondType(trackName, audioFile, (int)l);
+	studioApi->AudioSetCondType(trackName, audioFile, condTypeCtrl->GetCurrentSelection());
 }
 
 void ControlPanel::OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
@@ -324,7 +319,6 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 		xfadeInCtrl->Clear();
 		xfadeOutCtrl->Clear();
 		condIdCtrl->Clear();
-		condTypeCtrl->Clear();
 		condValueCtrl->Clear();
 		condValue2Ctrl->Clear();
 	}
@@ -348,7 +342,7 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 			*xfadeInCtrl << info.xfadeIn;
 			*xfadeOutCtrl << info.xfadeOut;
 			*condIdCtrl << info.condId;
-			*condTypeCtrl << info.condType;
+			condTypeCtrl->SetSelection(info.condType);
 			*condValueCtrl << info.condValue;
 			*condValue2Ctrl << info.condValue2;
 		}

@@ -41,7 +41,7 @@ private:
 	wxTextCtrl *xfadeInCtrl;
 	wxTextCtrl *xfadeOutCtrl;
 	wxTextCtrl *condIdCtrl;
-	wxTextCtrl *condTypeCtrl;
+	wxComboBox *condTypeCtrl;
 	wxTextCtrl *condValueCtrl;
 	wxTextCtrl *condValue2Ctrl;
 
