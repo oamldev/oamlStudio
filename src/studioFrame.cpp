@@ -114,12 +114,12 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
-	menuFile->Append(ID_New, _("&New..."));
+	menuFile->Append(ID_New, _("&New...\tCtrl-N"));
 	menuFile->AppendSeparator();
-	menuFile->Append(ID_Load, _("&Load..."));
-	menuFile->Append(ID_Save, _("&Save..."));
+	menuFile->Append(ID_Load, _("&Load...\tCtrl-L"));
+	menuFile->Append(ID_Save, _("&Save...\tCtrl-S"));
 	menuFile->Append(ID_SaveAs, _("&Save As..."));
-	menuFile->Append(ID_Export, _("&Export..."));
+	menuFile->Append(ID_Export, _("&Export...\tCtrl-E"));
 	menuFile->AppendSeparator();
 
 	fileHistory = new wxFileHistory();
@@ -130,7 +130,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	fileHistory->Load(*config);
 
 	menuFile->AppendSeparator();
-	menuFile->Append(ID_Quit, _("E&xit"));
+	menuFile->Append(ID_Quit, _("E&xit\tCtrl-Q"));
 
 	menuBar->Append(menuFile, _("&File"));
 
