@@ -103,12 +103,8 @@ void AudioPanel::RemoveAudio(std::string filename) {
 	Layout();
 }
 
-void AudioPanel::AddAudioDialog() {
-	wxFileDialog openFileDialog(this, _("Open audio file"), ".", "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_CANCEL)
-		return;
-
-	wxFileName filename(openFileDialog.GetPath());
+void AudioPanel::AddAudio(wxString path) {
+	wxFileName filename(path);
 	wxFileName defsPath(oaml->GetDefsFile());
 	filename.MakeRelativeTo(wxString(defsPath.GetPath()));
 	std::string fname = filename.GetFullPath().ToStdString();
@@ -124,6 +120,18 @@ void AudioPanel::AddAudioDialog() {
 	wxCommandEvent event(EVENT_ADD_AUDIO);
 	event.SetString(fname);
 	wxPostEvent(GetParent(), event);
+}
+
+void AudioPanel::AddAudioDialog() {
+	wxFileDialog openFileDialog(this, _("Open audio file"), ".", "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	wxArrayString paths;
+	openFileDialog.GetPaths(paths);
+	for (size_t i=0; i<paths.GetCount(); i++) {
+		AddAudio(paths.Item(i));
+	}
 }
 
 void AudioPanel::OnMenuEvent(wxCommandEvent& event) {

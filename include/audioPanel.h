@@ -40,6 +40,7 @@ public:
 
 	void AddAudio(oamlAudioInfo *audio, wxFrame *topWnd);
 	void RemoveAudio(std::string filename);
+	void AddAudio(wxString path);
 	void AddAudioDialog();
 	void UpdateTrackName(std::string newName);
 };
