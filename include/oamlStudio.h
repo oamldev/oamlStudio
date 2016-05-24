@@ -24,7 +24,6 @@
 #define __OAMLSTUDIO_H__
 
 #include <wx/wx.h>
-#include <SDL/SDL.h>
 
 extern void InitCallbacks(std::string prjPath);
 extern oamlFileCallbacks studioCbs;
@@ -75,8 +74,6 @@ enum {
 class oamlStudio : public wxApp {
 public:
 	virtual bool OnInit();
-
-	int OpenSDL();
 };
 
 #endif /* __OAMLSTUDIO_H__ */

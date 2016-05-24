@@ -125,39 +125,11 @@ void RemoveAudioInfo(std::string trackName, std::string audioFile) {
 	}
 }
 
-void audioCallback(void* WXUNUSED(userdata), Uint8* stream, int len) {
-	oaml->MixToBuffer(stream, len/2);
-}
-
-int oamlStudio::OpenSDL() {
-	SDL_AudioSpec spec;
-
-	SDL_memset(&spec, 0, sizeof(spec));
-	spec.freq = 44100;
-	spec.format = AUDIO_S16;
-	spec.channels = 2;
-	spec.samples = 4096;
-	spec.callback = audioCallback;
-
-	if (SDL_OpenAudio(&spec, NULL) < 0) {
-		fprintf(stderr, "Failed to open audio: %s\n", SDL_GetError());
-		return -1;
-	}
-
-	oaml->SetAudioFormat(44100, 2, 2);
-
-	SDL_PauseAudio(0);
-
-	return 0;
-}
-
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
 	studioApi = oaml->GetStudioApi();
+	oaml->InitAudioDevice();
 	oaml->SetFileCallbacks(&studioCbs);
-
-	if (OpenSDL() == -1)
-		return false;
 
 	StudioFrame *frame = new StudioFrame(_("oamlStudio"), wxPoint(0, 0), wxSize(1024, 768), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE);
 	frame->Show(true);
@@ -165,13 +137,7 @@ bool oamlStudio::OnInit() {
 	return true;
 }
 
-#undef main
 int main(int argc, char** argv) {
-	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-		std::cerr << "Could not initialize SDL.\n";
-		return 1;
-	}
-
 	oamlStudio* app = new oamlStudio();
 	wxApp::SetInstance(app);
 	return wxEntry(argc, argv);

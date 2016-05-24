@@ -52,13 +52,6 @@ if (OGGVORBIS_FOUND AND VORBISFILE_FOUND)
 endif()
 
 ##
-# Find SDL
-#
-set(SDL_BUILDING_LIBRARY true)
-find_package(SDL REQUIRED)
-set(LIBS ${LIBS} ${SDL_LIBRARY})
-
-##
 # Find liblzip
 #
 if (APPLE)
@@ -76,7 +69,7 @@ set(LIBS ${LIBS} ${OAML_LIBRARIES})
 ##
 # 
 #
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${SDL_INCLUDE_DIR} ${LibArchive_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${LibArchive_INCLUDE_DIR})
 set(SRCS
 	src/audioFile.cpp
 	src/audioPanel.cpp
