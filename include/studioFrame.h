@@ -87,7 +87,8 @@ private:
 	void SelectTrack(std::string name);
 
 	void CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg = false);
-	void ReloadDefs();
+	void Save();
+	void SaveAs();
 
 	int WriteDefsToZip(struct archive *zip);
 	int WriteFileToZip(struct archive *zip, std::string file);

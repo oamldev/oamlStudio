@@ -331,6 +331,8 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 
 	musicList->ClearAll();
 	sfxList->ClearAll();
+
+	SaveAs();
 }
 
 void StudioFrame::Load(std::string filename) {
@@ -483,29 +485,28 @@ void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 	}
 }
 
-void StudioFrame::ReloadDefs() {
-/*	tinyxml2::XMLDocument xmlDoc;
-	tinyxml2::XMLPrinter printer;
-
-	CreateDefs(xmlDoc);
-	xmlDoc.Accept(&printer);
-	oaml->InitString(printer.CStr());*/
-}
-
-void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
+void StudioFrame::Save() {
 	tinyxml2::XMLDocument xmlDoc;
 
 	CreateDefs(xmlDoc);
 	xmlDoc.SaveFile(defsPath.c_str());
 }
 
-void StudioFrame::OnSaveAs(wxCommandEvent& event) {
+void StudioFrame::SaveAs() {
 	wxFileDialog openFileDialog(this, _("Save oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_SAVE);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
 	defsPath = openFileDialog.GetPath();
-	OnSave(event);
+	Save();
+}
+
+void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
+	Save();
+}
+
+void StudioFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event)) {
+	SaveAs();
 }
 
 int StudioFrame::WriteDefsToZip(struct archive *zip) {
@@ -699,15 +700,12 @@ void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 	if (controlPane == NULL)
 		return;
 
-	ReloadDefs();
-
 	oamlAudioInfo info;
 	oamlRC rc = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString(), &info);
 	if (rc != OAML_OK)
 		return;
 
 	trackPane->AddAudio(&info);
-	ReloadDefs();
 
 	SetSizer(mainSizer);
 	Layout();
@@ -719,7 +717,6 @@ void StudioFrame::OnAddLayer(wxCommandEvent& event) {
 		return;
 
 	trackPane->AddAudio(audio);
-	ReloadDefs();
 
 	SetSizer(mainSizer);
 	Layout();*/
