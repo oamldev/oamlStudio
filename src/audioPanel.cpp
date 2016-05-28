@@ -96,6 +96,7 @@ void AudioPanel::RemoveAudio(std::string filename) {
 			layerPanels.erase(it);
 			delete lp;
 
+			studioApi->AudioRemove(trackName, filename);
 			break;
 		}
 	}

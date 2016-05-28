@@ -353,6 +353,8 @@ void StudioFrame::Load(std::string filename) {
 		return;
 	}
 
+	fileHistory->AddFileToHistory(filename);
+
 	musicList->ClearAll();
 	sfxList->ClearAll();
 
@@ -379,7 +381,6 @@ void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
 
 	wxString path = openFileDialog.GetPath();
 	Load(path.ToStdString());
-	fileHistory->AddFileToHistory(path);
 }
 
 void StudioFrame::OnRecentFile(wxCommandEvent& event) {
