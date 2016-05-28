@@ -92,7 +92,7 @@ void LayerPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 }
 
 void LayerPanel::AddLayerDialog() {
-	wxFileDialog openFileDialog(this, _("Open audio file"), ".", "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	wxFileDialog openFileDialog(this, _("Open audio file"), wxEmptyString, "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 

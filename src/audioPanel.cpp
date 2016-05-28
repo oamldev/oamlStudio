@@ -124,7 +124,7 @@ void AudioPanel::AddAudio(wxString path) {
 }
 
 void AudioPanel::AddAudioDialog() {
-	wxFileDialog openFileDialog(this, _("Open audio file"), ".", "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
+	wxFileDialog openFileDialog(this, _("Open audio file"), wxEmptyString, "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 

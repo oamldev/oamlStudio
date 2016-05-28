@@ -375,7 +375,7 @@ void StudioFrame::OnLoadProject(wxCommandEvent& event) {
 }
 
 void StudioFrame::OnLoad(wxCommandEvent& WXUNUSED(event)) {
-	wxFileDialog openFileDialog(this, _("Open oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	wxFileDialog openFileDialog(this, _("Open oaml.defs"), wxEmptyString, "oaml.defs", "*.defs", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
@@ -494,7 +494,7 @@ void StudioFrame::Save() {
 }
 
 void StudioFrame::SaveAs() {
-	wxFileDialog openFileDialog(this, _("Save oaml.defs"), ".", "oaml.defs", "*.defs", wxFD_SAVE);
+	wxFileDialog openFileDialog(this, _("Save oaml.defs"), wxEmptyString, "oaml.defs", "*.defs", wxFD_SAVE);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
@@ -629,7 +629,7 @@ void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
 		}
 	}
 
-	wxFileDialog openFileDialog(this, _("Save oamlPackage.zip"), ".", "oamlPackage.zip", "*.zip", wxFD_SAVE);
+	wxFileDialog openFileDialog(this, _("Save oamlPackage.zip"), wxEmptyString, "oamlPackage.zip", "*.zip", wxFD_SAVE);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
