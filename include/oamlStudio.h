@@ -29,6 +29,7 @@ extern void InitCallbacks(std::string prjPath);
 extern oamlFileCallbacks studioCbs;
 extern oamlApi *oaml;
 extern oamlStudioApi *studioApi;
+extern std::string projectPath;
 
 oamlTrackInfo* GetTrackInfo(std::string trackName);
 oamlRC GetAudioInfo(std::string trackName, std::string audioFile, oamlAudioInfo *info);

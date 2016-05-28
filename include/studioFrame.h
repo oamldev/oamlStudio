@@ -76,7 +76,6 @@ private:
 
 	wxMenu* viewMenu;
 
-	std::string prjPath;
 	std::string defsPath;
 
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value);

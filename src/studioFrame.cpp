@@ -338,8 +338,8 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 void StudioFrame::Load(std::string filename) {
 	defsPath = filename;
 	wxFileName fname(defsPath);
-	prjPath = fname.GetPathWithSep();
-	InitCallbacks(prjPath);
+	projectPath = fname.GetPathWithSep();
+	InitCallbacks(projectPath);
 
 	if (oaml->Init(fname.GetFullName().ToStdString().c_str()) != OAML_OK) {
 		wxMessageBox(_("Error loading project"));

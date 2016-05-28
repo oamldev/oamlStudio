@@ -106,8 +106,7 @@ void AudioPanel::RemoveAudio(std::string filename) {
 
 void AudioPanel::AddAudio(wxString path) {
 	wxFileName filename(path);
-	wxFileName defsPath(oaml->GetDefsFile());
-	filename.MakeRelativeTo(wxString(defsPath.GetPath()));
+	filename.MakeRelativeTo(wxString(projectPath));
 	std::string fname = filename.GetFullPath().ToStdString();
 
 	int type = 2;

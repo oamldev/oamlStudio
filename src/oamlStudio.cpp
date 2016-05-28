@@ -50,6 +50,7 @@ wxIMPLEMENT_APP_NO_MAIN(oamlStudio);
 
 oamlApi *oaml;
 oamlStudioApi *studioApi;
+std::string projectPath = "";
 
 oamlTrackInfo* GetTrackInfo(std::string trackName) {
 	oamlTracksInfo* info = oaml->GetTracksInfo();
