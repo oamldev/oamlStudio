@@ -499,6 +499,10 @@ void StudioFrame::SaveAs() {
 		return;
 
 	defsPath = openFileDialog.GetPath();
+	wxFileName fname(defsPath);
+	projectPath = fname.GetPathWithSep();
+	InitCallbacks(projectPath);
+
 	Save();
 }
 
