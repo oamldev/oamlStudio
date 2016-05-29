@@ -676,8 +676,9 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 	str.Printf("oamlStudio - Studio for Open Adaptive Music Library\r\n"
 		   "oaml and oamlStudio are both licensed under the MIT license.\r\n"
 		   "\r\n"
-		   "https://github.com/marcelofg55/oaml\r\n"
-		   "ttps://github.com/marcelofg55/oamlStudio\r\n"
+		   "https://oamldev.github.io\r\n"
+		   "https://github.com/oamldev/oaml\r\n"
+		   "https://github.com/oamldev/oamlStudio\r\n"
 		   "Copyright (c) 2015-2016 Marcelo Fernandez");
 
 	wxMessageBox(str, _("About oamlStudio"), wxOK | wxICON_INFORMATION, this);
