@@ -139,29 +139,37 @@ void ControlPanel::SetTrackMode(bool mode) {
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
 		sizer->Add(staticText, 0, wxALL, 5);
 
-		fadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		fadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeInChange, this);
+		fadeInCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		fadeInCtrl->SetRange(0, 1000000);
+		fadeInCtrl->SetIncrement(100);
+		fadeInCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnFadeInChange, this);
 		sizer->Add(fadeInCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade Out"));
 		sizer->Add(staticText, 0, wxALL, 5);
 
-		fadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		fadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnFadeOutChange, this);
+		fadeOutCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		fadeOutCtrl->SetRange(0, 1000000);
+		fadeOutCtrl->SetIncrement(100);
+		fadeOutCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnFadeOutChange, this);
 		sizer->Add(fadeOutCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade In"));
 		sizer->Add(staticText, 0, wxALL, 5);
 
-		xfadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		xfadeInCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeInChange, this);
+		xfadeInCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		xfadeInCtrl->SetRange(0, 1000000);
+		xfadeInCtrl->SetIncrement(100);
+		xfadeInCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnXFadeInChange, this);
 		sizer->Add(xfadeInCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade Out"));
 		sizer->Add(staticText, 0, wxALL, 5);
 
-		xfadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-		xfadeOutCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnXFadeOutChange, this);
+		xfadeOutCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		xfadeOutCtrl->SetRange(0, 1000000);
+		xfadeOutCtrl->SetIncrement(100);
+		xfadeOutCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnXFadeOutChange, this);
 		sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Id"));
@@ -198,67 +206,143 @@ void ControlPanel::SetTrackMode(bool mode) {
 }
 
 void ControlPanel::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->AudioSetVolume(trackName, audioFile, (float)volumeCtrl->GetValue());
+	float vol = (float)volumeCtrl->GetValue();
+
+	// Don't change the actual volume unless it's different
+	if (studioApi->AudioGetVolume(trackName, audioFile) != vol) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetVolume(trackName, audioFile, vol);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->AudioSetBPM(trackName, audioFile, (float)bpmCtrl->GetValue());
+	float value = (float)bpmCtrl->GetValue();
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetBPM(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetBPM(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->AudioSetBeatsPerBar(trackName, audioFile, (int)bpbCtrl->GetValue());
+	int value = (int)bpbCtrl->GetValue();
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetBeatsPerBar(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetBeatsPerBar(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->AudioSetBars(trackName, audioFile, (int)barsCtrl->GetValue());
+	int value = (int)barsCtrl->GetValue();
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetBars(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetBars(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->AudioSetRandomChance(trackName, audioFile, (int)randomChanceCtrl->GetValue());
+	int value = (int)randomChanceCtrl->GetValue();
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetRandomChance(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetRandomChance(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->AudioSetMinMovementBars(trackName, audioFile, (int)minMovementBarsCtrl->GetValue());
+	int value = (int)minMovementBarsCtrl->GetValue();
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetMinMovementBars(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetMinMovementBars(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = fadeInCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = (int)fadeInCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->AudioSetFadeIn(trackName, audioFile, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetFadeIn(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetFadeIn(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = fadeOutCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = (int)fadeOutCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->AudioSetFadeOut(trackName, audioFile, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetFadeOut(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetFadeOut(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = xfadeInCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = (int)xfadeInCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->AudioSetXFadeIn(trackName, audioFile, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetXFadeIn(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetXFadeIn(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = xfadeOutCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = (int)xfadeOutCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->AudioSetXFadeOut(trackName, audioFile, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioGetXFadeOut(trackName, audioFile) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioSetXFadeOut(trackName, audioFile, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void ControlPanel::OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
@@ -314,10 +398,6 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 
 	fileCtrl->Clear();
 	if (musicMode) {
-		fadeInCtrl->Clear();
-		fadeOutCtrl->Clear();
-		xfadeInCtrl->Clear();
-		xfadeOutCtrl->Clear();
 		condIdCtrl->Clear();
 		condValueCtrl->Clear();
 		condValue2Ctrl->Clear();
@@ -337,10 +417,10 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 			barsCtrl->SetValue(info.bars);
 			randomChanceCtrl->SetValue(info.randomChance);
 			minMovementBarsCtrl->SetValue(info.minMovementBars);
-			*fadeInCtrl << info.fadeIn;
-			*fadeOutCtrl << info.fadeOut;
-			*xfadeInCtrl << info.xfadeIn;
-			*xfadeOutCtrl << info.xfadeOut;
+			fadeInCtrl->SetValue(info.fadeIn);
+			fadeOutCtrl->SetValue(info.fadeOut);
+			xfadeInCtrl->SetValue(info.xfadeIn);
+			xfadeOutCtrl->SetValue(info.xfadeOut);
 			*condIdCtrl << info.condId;
 			condTypeCtrl->SetSelection(info.condType);
 			*condValueCtrl << info.condValue;
@@ -357,6 +437,10 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 			barsCtrl->SetValue(0.0);
 			randomChanceCtrl->SetValue(0.0);
 			minMovementBarsCtrl->SetValue(0.0);
+			fadeInCtrl->SetValue(0);
+			fadeOutCtrl->SetValue(0);
+			xfadeInCtrl->SetValue(0);
+			xfadeOutCtrl->SetValue(0);
 		}
 
 		enable = false;

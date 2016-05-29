@@ -36,10 +36,10 @@ private:
 	wxSpinCtrlDouble *barsCtrl;
 	wxSpinCtrlDouble *randomChanceCtrl;
 	wxSpinCtrlDouble *minMovementBarsCtrl;
-	wxTextCtrl *fadeInCtrl;
-	wxTextCtrl *fadeOutCtrl;
-	wxTextCtrl *xfadeInCtrl;
-	wxTextCtrl *xfadeOutCtrl;
+	wxSpinCtrlDouble *fadeInCtrl;
+	wxSpinCtrlDouble *fadeOutCtrl;
+	wxSpinCtrlDouble *xfadeInCtrl;
+	wxSpinCtrlDouble *xfadeOutCtrl;
 	wxTextCtrl *condIdCtrl;
 	wxComboBox *condTypeCtrl;
 	wxTextCtrl *condValueCtrl;
