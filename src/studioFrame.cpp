@@ -332,6 +332,8 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 	musicList->ClearAll();
 	sfxList->ClearAll();
 
+	studioApi->ProjectNew();
+
 	SaveAs();
 }
 
