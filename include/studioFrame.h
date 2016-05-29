@@ -78,6 +78,8 @@ private:
 
 	std::string defsPath;
 
+	bool dirty;
+
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, const char *value);
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value);
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, float value);
@@ -100,6 +102,7 @@ public:
 	tinyxml2::XMLNode* CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg);
 	void CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg);
 
+	void OnSetProjectDirty(wxCommandEvent& event);
 	void OnMusicListActivated(wxListEvent& event);
 	void OnMusicListMenu(wxMouseEvent& event);
 	void OnMusicEndLabelEdit(wxListEvent& event);

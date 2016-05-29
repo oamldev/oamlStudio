@@ -26,10 +26,10 @@
 class TrackControl : public wxPanel {
 private:
 	wxSpinCtrlDouble *volumeCtrl;
-	wxTextCtrl *fadeInCtrl;
-	wxTextCtrl *fadeOutCtrl;
-	wxTextCtrl *xfadeInCtrl;
-	wxTextCtrl *xfadeOutCtrl;
+	wxSpinCtrlDouble *fadeInCtrl;
+	wxSpinCtrlDouble *fadeOutCtrl;
+	wxSpinCtrlDouble *xfadeInCtrl;
+	wxSpinCtrlDouble *xfadeOutCtrl;
 
 	wxBoxSizer *mSizer;
 	wxBoxSizer *hSizer;

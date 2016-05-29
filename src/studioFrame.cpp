@@ -56,6 +56,7 @@ wxDEFINE_EVENT(EVENT_QUIT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_SET_PROJECT_DIRTY, wxCommandEvent);
 
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
@@ -81,6 +82,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_NEW_PROJECT, StudioFrame::OnNew)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_PROJECT, StudioFrame::OnLoadProject)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_OTHER, StudioFrame::OnLoad)
+	EVT_COMMAND(wxID_ANY, EVENT_SET_PROJECT_DIRTY, StudioFrame::OnSetProjectDirty)
 END_EVENT_TABLE()
 
 StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
@@ -219,6 +221,8 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	StartupFrame *startupFrame = new StartupFrame(this);
 	startupFrame->Show(true);
+
+	dirty = false;
 }
 
 void StudioFrame::SelectTrack(std::string name) {
@@ -253,6 +257,10 @@ void StudioFrame::SelectTrack(std::string name) {
 	controlPane->OnSelectAudio("");
 
 	trackControl->SetTrack(name);
+}
+
+void StudioFrame::OnSetProjectDirty(wxCommandEvent& WXUNUSED(event)) {
+	dirty = true;
 }
 
 void StudioFrame::OnMusicListActivated(wxListEvent& event) {
@@ -316,24 +324,38 @@ void StudioFrame::OnSfxEndLabelEdit(wxListEvent& event) {
 }
 
 void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
+	if (dirty) {
+		int ret = wxMessageBox("There are unsaved changes on the project, do you really want to quit without saving?", "Confirm", wxYES_NO, this);
+		if (ret == wxNO) {
+			return;
+		}
+	}
+
+	// Save our file history into config
 	fileHistory->Save(*config);
 
+	// Clear memory
 	delete config;
 	delete fileHistory;
 
+	// And close the app
 	Close(TRUE);
 }
 
 void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
+	// Destroy the track panel
 	if (trackPane) {
 		trackPane->Destroy();
 	}
 
+	// Clear music and sfx listviews
 	musicList->ClearAll();
 	sfxList->ClearAll();
 
+	// Tell oaml we're creating a new project
 	studioApi->ProjectNew();
 
+	// Ask the user to save it, path resolution will be based on the project path
 	SaveAs();
 }
 
@@ -491,8 +513,12 @@ void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 void StudioFrame::Save() {
 	tinyxml2::XMLDocument xmlDoc;
 
+	// Create the xml definitions and save the file
 	CreateDefs(xmlDoc);
 	xmlDoc.SaveFile(defsPath.c_str());
+
+	// We've saved our changes, we're clean!
+	dirty = false;
 }
 
 void StudioFrame::SaveAs() {

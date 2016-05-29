@@ -38,15 +38,16 @@ void AddAudioInfo(std::string trackName, oamlAudioInfo& audio);
 void RemoveAudioInfo(std::string trackName, std::string audioFile);
 
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_RELOAD_DEFS, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_PLAY, wxCommandEvent);
-wxDECLARE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_PLAY, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_RELOAD_DEFS, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_QUIT, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_SET_PROJECT_DIRTY, wxCommandEvent);
 
 enum {
 	ID_Quit = 1,

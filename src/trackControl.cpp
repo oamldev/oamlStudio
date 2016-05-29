@@ -46,9 +46,6 @@
 
 
 TrackControl::TrackControl(wxFrame* parent, wxWindowID id) : wxPanel(parent, id) {
-	int ctrlWidth = 110;
-	int ctrlHeight = -1;
-
 	trackName = "";
 
 	mSizer = new wxBoxSizer(wxVERTICAL);
@@ -73,29 +70,37 @@ TrackControl::TrackControl(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	fadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	fadeInCtrl->Bind(wxEVT_TEXT, &TrackControl::OnFadeInChange, this);
+	fadeInCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	fadeInCtrl->SetRange(0, 10000000);
+	fadeInCtrl->SetIncrement(100);
+	fadeInCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &TrackControl::OnFadeInChange, this);
 	sizer->Add(fadeInCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Fade Out"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	fadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	fadeOutCtrl->Bind(wxEVT_TEXT, &TrackControl::OnFadeOutChange, this);
+	fadeOutCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	fadeOutCtrl->SetRange(0, 10000000);
+	fadeOutCtrl->SetIncrement(100);
+	fadeOutCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &TrackControl::OnFadeOutChange, this);
 	sizer->Add(fadeOutCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade In"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	xfadeInCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	xfadeInCtrl->Bind(wxEVT_TEXT, &TrackControl::OnXFadeInChange, this);
+	xfadeInCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	xfadeInCtrl->SetRange(0, 10000000);
+	xfadeInCtrl->SetIncrement(100);
+	xfadeInCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &TrackControl::OnXFadeInChange, this);
 	sizer->Add(xfadeInCtrl, 0, wxALL, 5);
 
 	staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade Out"));
 	sizer->Add(staticText, 0, wxALL, 5);
 
-	xfadeOutCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
-	xfadeOutCtrl->Bind(wxEVT_TEXT, &TrackControl::OnXFadeOutChange, this);
+	xfadeOutCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+	xfadeOutCtrl->SetRange(0, 10000000);
+	xfadeOutCtrl->SetIncrement(100);
+	xfadeOutCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &TrackControl::OnXFadeOutChange, this);
 	sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
 
 	mSizer->Add(sizer);
@@ -113,47 +118,73 @@ TrackControl::~TrackControl() {
 
 
 void TrackControl::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
-	studioApi->TrackSetVolume(trackName, (float)volumeCtrl->GetValue());
+	float vol = (float)volumeCtrl->GetValue();
+
+	// Don't change the actual volume unless it's different
+	if (studioApi->TrackGetVolume(trackName) != vol) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->TrackSetVolume(trackName, vol);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void TrackControl::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = fadeInCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = fadeInCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->TrackSetFadeIn(trackName, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->TrackGetFadeIn(trackName) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->TrackSetFadeIn(trackName, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void TrackControl::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = fadeOutCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = fadeOutCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->TrackSetFadeOut(trackName, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->TrackGetFadeOut(trackName) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->TrackSetFadeOut(trackName, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void TrackControl::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = xfadeInCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = xfadeInCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->TrackSetXFadeIn(trackName, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->TrackGetXFadeIn(trackName) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->TrackSetXFadeIn(trackName, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void TrackControl::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
-	wxString str = xfadeOutCtrl->GetLineText(0);
-	if (str.IsEmpty())
-		return;
+	int value = xfadeOutCtrl->GetValue();
 
-	long l = 0;
-	str.ToLong(&l);
-	studioApi->TrackSetXFadeOut(trackName, (int)l);
+	// Don't change the actual value unless it's different
+	if (studioApi->TrackGetXFadeOut(trackName) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->TrackSetXFadeOut(trackName, value);
+
+		// Mark the project dirty
+		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+		wxPostEvent(GetParent(), event);
+	}
 }
 
 void TrackControl::SetTrack(std::string name) {
@@ -161,22 +192,21 @@ void TrackControl::SetTrack(std::string name) {
 
 	trackName = name;
 
-	fadeInCtrl->Clear();
-	fadeOutCtrl->Clear();
-	xfadeInCtrl->Clear();
-	xfadeOutCtrl->Clear();
-
 	oamlTrackInfo *info = GetTrackInfo(trackName);
 	if (info) {
 		volumeCtrl->SetValue(info->volume);
-		*fadeInCtrl << info->fadeIn;
-		*fadeOutCtrl << info->fadeOut;
-		*xfadeInCtrl << info->xfadeIn;
-		*xfadeOutCtrl << info->xfadeOut;
+		fadeInCtrl->SetValue(info->fadeIn);
+		fadeOutCtrl->SetValue(info->fadeOut);
+		xfadeInCtrl->SetValue(info->xfadeIn);
+		xfadeOutCtrl->SetValue(info->xfadeOut);
 
 		enable = true;
 	} else {
 		volumeCtrl->SetValue(0.0);
+		fadeInCtrl->SetValue(0);
+		fadeOutCtrl->SetValue(0);
+		xfadeInCtrl->SetValue(0);
+		xfadeOutCtrl->SetValue(0);
 
 		enable = false;
 	}
