@@ -192,22 +192,15 @@ void TrackControl::SetTrack(std::string name) {
 
 	trackName = name;
 
-	oamlTrackInfo *info = GetTrackInfo(trackName);
-	if (info) {
-		volumeCtrl->SetValue(info->volume);
-		fadeInCtrl->SetValue(info->fadeIn);
-		fadeOutCtrl->SetValue(info->fadeOut);
-		xfadeInCtrl->SetValue(info->xfadeIn);
-		xfadeOutCtrl->SetValue(info->xfadeOut);
+	volumeCtrl->SetValue(studioApi->TrackGetVolume(trackName));
+	fadeInCtrl->SetValue(studioApi->TrackGetFadeIn(trackName));
+	fadeOutCtrl->SetValue(studioApi->TrackGetFadeOut(trackName));
+	xfadeInCtrl->SetValue(studioApi->TrackGetXFadeIn(trackName));
+	xfadeOutCtrl->SetValue(studioApi->TrackGetXFadeOut(trackName));
 
+	if (studioApi->TrackExists(trackName)) {
 		enable = true;
 	} else {
-		volumeCtrl->SetValue(0.0);
-		fadeInCtrl->SetValue(0);
-		fadeOutCtrl->SetValue(0);
-		xfadeInCtrl->SetValue(0);
-		xfadeOutCtrl->SetValue(0);
-
 		enable = false;
 	}
 

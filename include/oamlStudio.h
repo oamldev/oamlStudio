@@ -31,10 +31,6 @@ extern oamlApi *oaml;
 extern oamlStudioApi *studioApi;
 extern std::string projectPath;
 
-oamlTrackInfo* GetTrackInfo(std::string trackName);
-oamlRC GetAudioInfo(std::string trackName, std::string audioFile, oamlAudioInfo *info);
-oamlRC GetLayerInfo(std::string trackName, std::string audioFile, oamlLayerInfo *info);
-
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);

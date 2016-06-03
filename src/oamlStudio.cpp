@@ -52,54 +52,6 @@ oamlApi *oaml;
 oamlStudioApi *studioApi;
 std::string projectPath = "";
 
-oamlTrackInfo* GetTrackInfo(std::string trackName) {
-	oamlTracksInfo* info = oaml->GetTracksInfo();
-	if (info == NULL)
-		return NULL;
-
-	for (size_t i=0; i<info->tracks.size(); i++) {
-		if (info->tracks[i].name == trackName) {
-			return &info->tracks[i];
-		}
-	}
-
-	return NULL;
-}
-
-oamlRC GetAudioInfo(std::string trackName, std::string audioFile, oamlAudioInfo *info) {
-	oamlTrackInfo* track = GetTrackInfo(trackName);
-	if (track == NULL)
-		return OAML_NOT_FOUND;
-
-	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
-		for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
-			if (layer->filename == audioFile) {
-				*info = *audio;
-				return OAML_OK;
-			}
-		}
-	}
-
-	return OAML_NOT_FOUND;
-}
-
-oamlRC GetLayerInfo(std::string trackName, std::string audioFile, oamlLayerInfo *info) {
-	oamlTrackInfo* track = GetTrackInfo(trackName);
-	if (track == NULL)
-		return OAML_NOT_FOUND;
-
-	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
-		for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
-			if (layer->filename == audioFile) {
-				*info = *layer;
-				return OAML_OK;
-			}
-		}
-	}
-
-	return OAML_NOT_FOUND;
-}
-
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
 	studioApi = oaml->GetStudioApi();
