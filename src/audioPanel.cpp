@@ -85,6 +85,10 @@ void AudioPanel::AddAudio(oamlAudioInfo *audio, wxFrame *topWnd) {
 	}
 
 	Layout();
+
+	// Mark the project dirty
+	wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+	wxPostEvent(GetParent(), event);
 }
 
 void AudioPanel::RemoveAudio(std::string filename) {
@@ -102,6 +106,10 @@ void AudioPanel::RemoveAudio(std::string filename) {
 	}
 
 	Layout();
+
+	// Mark the project dirty
+	wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+	wxPostEvent(GetParent(), event);
 }
 
 void AudioPanel::AddAudio(wxString path) {
