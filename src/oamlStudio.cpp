@@ -100,32 +100,6 @@ oamlRC GetLayerInfo(std::string trackName, std::string audioFile, oamlLayerInfo 
 	return OAML_NOT_FOUND;
 }
 
-void AddAudioInfo(std::string trackName, oamlAudioInfo& audio) {
-	oamlTrackInfo* info = GetTrackInfo(trackName);
-	if (info == NULL)
-		return;
-
-	info->audios.push_back(audio);
-}
-
-void RemoveAudioInfo(std::string trackName, std::string audioFile) {
-	oamlTrackInfo* track = GetTrackInfo(trackName);
-	if (track == NULL)
-		return;
-
-	for (std::vector<oamlAudioInfo>::iterator audio=track->audios.begin(); audio<track->audios.end(); ++audio) {
-		for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
-			if (layer->filename == audioFile) {
-				audio->layers.erase(layer);
-				if (audio->layers.size() == 0) {
-					track->audios.erase(audio);
-				}
-				return;
-			}
-		}
-	}
-}
-
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
 	studioApi = oaml->GetStudioApi();

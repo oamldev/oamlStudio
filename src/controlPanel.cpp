@@ -403,46 +403,32 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 		condValue2Ctrl->Clear();
 	}
 
+	volumeCtrl->SetValue(studioApi->AudioGetVolume(trackName, audioFile));
+
+	if (musicMode) {
+		bpmCtrl->SetValue(studioApi->AudioGetBPM(trackName, audioFile));
+		bpbCtrl->SetValue(studioApi->AudioGetBeatsPerBar(trackName, audioFile));
+		barsCtrl->SetValue(studioApi->AudioGetBars(trackName, audioFile));
+		randomChanceCtrl->SetValue(studioApi->AudioGetRandomChance(trackName, audioFile));
+		minMovementBarsCtrl->SetValue(studioApi->AudioGetMinMovementBars(trackName, audioFile));
+		fadeInCtrl->SetValue(studioApi->AudioGetFadeIn(trackName, audioFile));
+		fadeOutCtrl->SetValue(studioApi->AudioGetFadeOut(trackName, audioFile));
+		xfadeInCtrl->SetValue(studioApi->AudioGetXFadeIn(trackName, audioFile));
+		xfadeOutCtrl->SetValue(studioApi->AudioGetXFadeOut(trackName, audioFile));
+		*condIdCtrl << studioApi->AudioGetCondId(trackName, audioFile);
+		condTypeCtrl->SetSelection(studioApi->AudioGetCondType(trackName, audioFile));
+		*condValueCtrl << studioApi->AudioGetCondValue(trackName, audioFile);
+		*condValue2Ctrl << studioApi->AudioGetCondValue2(trackName, audioFile);
+	}
+
 	oamlAudioInfo info;
 	oamlLayerInfo layer;
 	oamlRC rc = GetAudioInfo(trackName, audioFile, &info);
 	oamlRC rc2 = GetLayerInfo(trackName, audioFile, &layer);
 	if (rc == OAML_OK && rc2 == OAML_OK) {
 		*fileCtrl << layer.filename;
-		volumeCtrl->SetValue(info.volume);
-
-		if (musicMode) {
-			bpmCtrl->SetValue(info.bpm);
-			bpbCtrl->SetValue(info.beatsPerBar);
-			barsCtrl->SetValue(info.bars);
-			randomChanceCtrl->SetValue(info.randomChance);
-			minMovementBarsCtrl->SetValue(info.minMovementBars);
-			fadeInCtrl->SetValue(info.fadeIn);
-			fadeOutCtrl->SetValue(info.fadeOut);
-			xfadeInCtrl->SetValue(info.xfadeIn);
-			xfadeOutCtrl->SetValue(info.xfadeOut);
-			*condIdCtrl << info.condId;
-			condTypeCtrl->SetSelection(info.condType);
-			*condValueCtrl << info.condValue;
-			*condValue2Ctrl << info.condValue2;
-		}
-
 		enable = true;
 	} else {
-		volumeCtrl->SetValue(0.0);
-
-		if (musicMode) {
-			bpmCtrl->SetValue(0.0);
-			bpbCtrl->SetValue(0.0);
-			barsCtrl->SetValue(0.0);
-			randomChanceCtrl->SetValue(0.0);
-			minMovementBarsCtrl->SetValue(0.0);
-			fadeInCtrl->SetValue(0);
-			fadeOutCtrl->SetValue(0);
-			xfadeInCtrl->SetValue(0);
-			xfadeOutCtrl->SetValue(0);
-		}
-
 		enable = false;
 	}
 

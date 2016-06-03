@@ -110,8 +110,6 @@ void TrackPanel::RemoveAudio(std::string audioFile) {
 	int i = GetPanelIndex(&audio);
 	audioPanel[i]->RemoveAudio(audioFile);
 
-	RemoveAudioInfo(trackName, audioFile);
-
 	SetSizer(sizer);
 	Layout();
 	sizer->Fit(this);

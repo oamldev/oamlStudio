@@ -113,8 +113,6 @@ void LayerPanel::AddLayerDialog() {
 		case 3: audio.type = 3; break;
 	}
 
-	AddAudioInfo(trackName, audio);
-
 	wxCommandEvent event(EVENT_ADD_AUDIO);
 	event.SetString(fname);
 	wxPostEvent(GetParent(), event);*/
