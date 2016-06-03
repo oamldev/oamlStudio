@@ -226,16 +226,12 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 }
 
 void StudioFrame::SelectTrack(std::string name) {
-	oamlTrackInfo *track = GetTrackInfo(name);
-	if (track == NULL)
-		return;
-
 	if (controlPane) controlPane->Destroy();
 	if (rightLine) rightLine->Destroy();
 	if (trackPane) trackPane->Destroy();
 
 	controlPane = new ControlPanel(this, wxID_ANY);
-	controlPane->SetTrackMode(track->musicTrack);
+	controlPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
 	controlPane->OnSelectAudio("");
 	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
 
@@ -243,11 +239,13 @@ void StudioFrame::SelectTrack(std::string name) {
 	vSizer->Add(rightLine, 0, wxEXPAND | wxALL, 0);
 
 	trackPane = new TrackPanel(this, wxID_ANY, name);
-	trackPane->SetTrackMode(track->musicTrack);
+	trackPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
 	vSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
 
-	for (size_t i=0; i<track->audios.size(); i++) {
-		trackPane->AddAudio(&track->audios[i]);
+	std::vector<std::string> list;
+	studioApi->TrackGetAudioList(name, list);
+	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
+		trackPane->AddAudio(*it);
 	}
 
 	SetSizer(mainSizer);
@@ -734,12 +732,7 @@ void StudioFrame::OnAddAudio(wxCommandEvent& event) {
 	if (controlPane == NULL)
 		return;
 
-	oamlAudioInfo info;
-	oamlRC rc = GetAudioInfo(controlPane->GetTrackName(), event.GetString().ToStdString(), &info);
-	if (rc != OAML_OK)
-		return;
-
-	trackPane->AddAudio(&info);
+	trackPane->AddAudio(event.GetString().ToStdString());
 
 	SetSizer(mainSizer);
 	Layout();

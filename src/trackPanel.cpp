@@ -78,23 +78,24 @@ void TrackPanel::SetTrackMode(bool mode) {
 	Layout();
 }
 
-int TrackPanel::GetPanelIndex(oamlAudioInfo *audio) {
+int TrackPanel::GetPanelIndex(std::string audioFile) {
 	if (musicMode == false) {
 		return 0;
 	}
 
+	int type = studioApi->AudioGetType(trackName, audioFile);
 	int i = 1;
-	if (audio->type == 1) {
+	if (type == 1) {
 		i = 0;
-	} else if (audio->type == 4) {
+	} else if (type == 4) {
 		i = 2;
 	}
 	return i;
 }
 
-void TrackPanel::AddAudio(oamlAudioInfo *audio) {
-	int i = GetPanelIndex(audio);
-	audioPanel[i]->AddAudio(audio, (wxFrame*)GetParent());
+void TrackPanel::AddAudio(std::string audioFile) {
+	int i = GetPanelIndex(audioFile);
+	audioPanel[i]->AddAudio(audioFile, (wxFrame*)GetParent());
 
 	SetSizer(sizer);
 	Layout();
@@ -102,12 +103,7 @@ void TrackPanel::AddAudio(oamlAudioInfo *audio) {
 }
 
 void TrackPanel::RemoveAudio(std::string audioFile) {
-	oamlAudioInfo audio;
-	oamlRC rc = GetAudioInfo(trackName, audioFile, &audio);
-	if (rc != OAML_OK)
-		return;
-
-	int i = GetPanelIndex(&audio);
+	int i = GetPanelIndex(audioFile);
 	audioPanel[i]->RemoveAudio(audioFile);
 
 	SetSizer(sizer);

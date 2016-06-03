@@ -38,7 +38,7 @@ public:
 	void OnMenuEvent(wxCommandEvent& event);
 	void OnRightUp(wxMouseEvent& WXUNUSED(event));
 
-	void AddAudio(oamlAudioInfo *audio, wxFrame *topWnd);
+	void AddAudio(std::string filename, wxFrame *topWnd);
 	void RemoveAudio(std::string filename);
 	void AddAudio(wxString path);
 	void AddAudioDialog();

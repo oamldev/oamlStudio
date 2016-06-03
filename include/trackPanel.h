@@ -37,8 +37,8 @@ private:
 public:
 	TrackPanel(wxWindow* parent, wxWindowID id, std::string name);
 
-	int GetPanelIndex(oamlAudioInfo *audio);
-	void AddAudio(oamlAudioInfo *audio);
+	int GetPanelIndex(std::string audioFile);
+	void AddAudio(std::string audioFile);
 	void RemoveAudio(std::string audioFile);
 	void UpdateTrackName(std::string oldName, std::string newName);
 

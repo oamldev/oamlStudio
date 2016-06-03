@@ -56,7 +56,7 @@ AudioPanel::AudioPanel(wxFrame* parent, int index, std::string name, wxString la
 
 	Bind(wxEVT_PAINT, &AudioPanel::OnPaint, this);
 	Bind(wxEVT_RIGHT_UP, &AudioPanel::OnRightUp, this);
-	Bind(wxEVT_COMMAND_MENU_SELECTED, &AudioPanel::OnMenuEvent, this, ID_AddAudio);
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &AudioPanel::OnMenuEvent, this);
 
 	SetMinSize(wxSize(240, -1));
 }
@@ -75,14 +75,12 @@ void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 	dc.DrawLine(0,  y2, x2, y2);
 }
 
-void AudioPanel::AddAudio(oamlAudioInfo *audio, wxFrame *topWnd) {
-	for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
-		LayerPanel *lp = new LayerPanel((wxFrame*)this);
-		layerPanels.push_back(lp);
-		lp->AddWaveform(layer->filename, sfxMode, topWnd);
+void AudioPanel::AddAudio(std::string filename, wxFrame *topWnd) {
+	LayerPanel *lp = new LayerPanel((wxFrame*)this);
+	layerPanels.push_back(lp);
+	lp->AddWaveform(filename, sfxMode, topWnd);
 
-		sizer->Add(lp, 0, wxALL, 5);
-	}
+	sizer->Add(lp, 0, wxALL, 5);
 
 	Layout();
 }

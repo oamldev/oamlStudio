@@ -421,12 +421,8 @@ void ControlPanel::OnSelectAudio(std::string audio) {
 		*condValue2Ctrl << studioApi->AudioGetCondValue2(trackName, audioFile);
 	}
 
-	oamlAudioInfo info;
-	oamlLayerInfo layer;
-	oamlRC rc = GetAudioInfo(trackName, audioFile, &info);
-	oamlRC rc2 = GetLayerInfo(trackName, audioFile, &layer);
-	if (rc == OAML_OK && rc2 == OAML_OK) {
-		*fileCtrl << layer.filename;
+	if (studioApi->AudioExists(trackName, audioFile)) {
+		*fileCtrl << audioFile;
 		enable = true;
 	} else {
 		enable = false;
