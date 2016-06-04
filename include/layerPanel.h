@@ -33,8 +33,9 @@ public:
 
 	bool IsEmpty();
 
-	void AddWaveform(std::string filename, bool sfxMode, wxFrame *topWnd);
+	void AddWaveform(std::string filename, std::string audioName, bool sfxMode, wxFrame *topWnd);
 	void RemoveWaveform(std::string filename);
+	void UpdateAudioName(std::string oldName, std::string newName);
 
 	void OnPaint(wxPaintEvent& WXUNUSED(evt));
 

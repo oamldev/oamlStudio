@@ -128,6 +128,7 @@ public:
 	void OnRecentFile(wxCommandEvent& event);
 	void OnLoadProject(wxCommandEvent& event);
 	void OnPlaybackPanel(wxCommandEvent& event);
+	void OnUpdateAudioName(wxCommandEvent& event);
 
 	void UpdateTrackName(std::string trackName, std::string newName);
 

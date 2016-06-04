@@ -121,3 +121,9 @@ void TrackPanel::UpdateTrackName(std::string oldName, std::string newName) {
 		audioPanel[i]->UpdateTrackName(trackName);
 	}
 }
+
+void TrackPanel::UpdateAudioName(std::string oldName, std::string newName) {
+	for (int i=0; i<panelCount; i++) {
+		audioPanel[i]->UpdateAudioName(oldName, newName);
+	}
+}

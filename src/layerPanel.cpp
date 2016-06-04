@@ -50,13 +50,13 @@ LayerPanel::LayerPanel(wxFrame* parent) : wxPanel(parent) {
 	Bind(wxEVT_PAINT, &LayerPanel::OnPaint, this);
 }
 
-void LayerPanel::AddWaveform(std::string filename, bool sfxMode, wxFrame *topWnd) {
+void LayerPanel::AddWaveform(std::string filename, std::string audioName, bool sfxMode, wxFrame *topWnd) {
 	WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
-	waveDisplay->SetSource(filename, sfxMode);
+	waveDisplay->SetSource(filename, audioName, sfxMode);
 
 	waveDisplays.push_back(waveDisplay);
 
-	sizer->Add(waveDisplay, 0, wxALL, 2);
+	sizer->Add(waveDisplay, 0, wxALL, 4);
 	Layout();
 }
 
@@ -73,6 +73,15 @@ void LayerPanel::RemoveWaveform(std::string filename) {
 	Layout();
 }
 
+void LayerPanel::UpdateAudioName(std::string oldName, std::string newName) {
+	for (std::vector<WaveformDisplay*>::iterator it=waveDisplays.begin(); it<waveDisplays.end(); ++it) {
+		WaveformDisplay *waveDisplay = *it;
+		if (waveDisplay->GetAudioName() == oldName) {
+			waveDisplay->SetAudioName(newName);
+		}
+	}
+}
+
 bool LayerPanel::IsEmpty() {
 	return waveDisplays.size() == 0;
 }
@@ -84,7 +93,7 @@ void LayerPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 	int x2 = size.GetWidth();
 	int y2 = size.GetHeight();
 
-	dc.SetPen(wxPen(wxColour(128, 128, 128), 4));
+	dc.SetPen(wxPen(wxColour(0, 128, 128), 4));
 	dc.DrawLine(0,  0,  0,  y2);
 	dc.DrawLine(x2, 0,  x2, y2);
 	dc.DrawLine(0,  0,  x2, 0);

@@ -29,6 +29,7 @@ class ControlTimer;
 
 class ControlPanel : public wxPanel {
 private:
+	wxTextCtrl *nameCtrl;
 	wxTextCtrl *fileCtrl;
 	wxSpinCtrlDouble *volumeCtrl;
 	wxSpinCtrlDouble *bpmCtrl;
@@ -49,18 +50,21 @@ private:
 	wxBoxSizer *hSizer;
 	wxGridSizer *sizer;
 	std::string trackName;
-	std::string audioFile;
-	std::string selectedAudioName;
+	std::string audioName;
+	std::string filename;
 
 	bool musicMode;
+
+	void MarkProjectDirty();
 
 public:
 	ControlPanel(wxFrame* parent, wxWindowID id);
 	~ControlPanel();
 
-	const char *GetSelectedAudioName() const { return selectedAudioName.c_str(); }
+	const char *GetAudioName() const { return audioName.c_str(); }
 	const char *GetTrack() const { return trackName.c_str(); }
 
+	void OnNameChange(wxCommandEvent& WXUNUSED(event));
 	void OnVolumeChange(wxCommandEvent& WXUNUSED(event));
 	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
 	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
@@ -78,7 +82,7 @@ public:
 	void OnPlay(wxCommandEvent& WXUNUSED(event));
 	void OnPause(wxCommandEvent& WXUNUSED(event));
 	void SetTrack(std::string name);
-	void OnSelectAudio(std::string audio);
+	void OnSelectAudio(std::string _audioName, std::string _filename);
 
 	std::string GetTrackName() const { return trackName; }
 	void UpdateTrackName(std::string oldName, std::string newName);

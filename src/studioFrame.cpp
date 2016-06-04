@@ -57,6 +57,7 @@ wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SET_PROJECT_DIRTY, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_UPDATE_AUDIO_NAME, wxCommandEvent);
 
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
@@ -83,6 +84,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_PROJECT, StudioFrame::OnLoadProject)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_OTHER, StudioFrame::OnLoad)
 	EVT_COMMAND(wxID_ANY, EVENT_SET_PROJECT_DIRTY, StudioFrame::OnSetProjectDirty)
+	EVT_COMMAND(wxID_ANY, EVENT_UPDATE_AUDIO_NAME, StudioFrame::OnUpdateAudioName)
 END_EVENT_TABLE()
 
 StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
@@ -232,7 +234,7 @@ void StudioFrame::SelectTrack(std::string name) {
 
 	controlPane = new ControlPanel(this, wxID_ANY);
 	controlPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
-	controlPane->OnSelectAudio("");
+	controlPane->OnSelectAudio("", "");
 	vSizer->Add(controlPane, 0, wxEXPAND | wxALL, 5);
 
 	rightLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
@@ -252,7 +254,7 @@ void StudioFrame::SelectTrack(std::string name) {
 	Layout();
 
 	controlPane->SetTrack(name);
-	controlPane->OnSelectAudio("");
+	controlPane->OnSelectAudio("", "");
 
 	trackControl->SetTrack(name);
 }
@@ -434,6 +436,8 @@ tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, o
 	tinyxml2::XMLNode *audioEl = xmlDoc.NewElement("audio");
 	if (audioEl == NULL)
 		return NULL;
+
+	AddSimpleChildToNode(audioEl, "name", audio->name.c_str());
 
 	for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
 		if (createPkg) {
@@ -723,8 +727,11 @@ void StudioFrame::OnEditSfxTrackName(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
+	std::string str = event.GetString().ToStdString();
+	int len = event.GetInt();
+
 	if (controlPane) {
-		controlPane->OnSelectAudio(event.GetString().ToStdString());
+		controlPane->OnSelectAudio(str.substr(0, len), str.substr(len));
 	}
 }
 
@@ -751,7 +758,7 @@ void StudioFrame::OnAddLayer(wxCommandEvent& event) {
 
 void StudioFrame::OnRemoveAudio(wxCommandEvent& event) {
 	if (controlPane) {
-		controlPane->OnSelectAudio("");
+		controlPane->OnSelectAudio("", "");
 	}
 
 	trackPane->RemoveAudio(event.GetString().ToStdString());
@@ -767,7 +774,7 @@ void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 	if (controlPane->IsMusicMode()) {
 		oaml->PlayTrack(controlPane->GetTrack());
 	} else {
-		oaml->PlaySfx(controlPane->GetSelectedAudioName());
+		oaml->PlaySfx(controlPane->GetAudioName());
 	}
 }
 
@@ -775,4 +782,15 @@ void StudioFrame::OnPlaybackPanel(wxCommandEvent& WXUNUSED(event)) {
 	bool show = playFrame->IsShown() ? false : true;
 	playFrame->Show(show);
 	viewMenu->Check(ID_PlaybackPanel, show);
+}
+
+void StudioFrame::OnUpdateAudioName(wxCommandEvent& event) {
+	if (controlPane == NULL)
+		return;
+
+	std::string str = event.GetString().ToStdString();
+	int len = event.GetInt();
+	if (trackPane) {
+		trackPane->UpdateAudioName(str.substr(0, len), str.substr(len));
+	}
 }

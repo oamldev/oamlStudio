@@ -41,6 +41,7 @@ public:
 	void AddAudio(std::string audioFile);
 	void RemoveAudio(std::string audioFile);
 	void UpdateTrackName(std::string oldName, std::string newName);
+	void UpdateAudioName(std::string oldName, std::string newName);
 
 	void SetTrackMode(bool mode);
 };

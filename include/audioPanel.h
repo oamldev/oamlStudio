@@ -25,6 +25,7 @@
 
 class AudioPanel : public wxPanel {
 private:
+	wxBoxSizer *vSizer;
 	wxBoxSizer *sizer;
 	std::vector<LayerPanel*> layerPanels;
 	std::string trackName;
@@ -43,6 +44,7 @@ public:
 	void AddAudio(wxString path);
 	void AddAudioDialog();
 	void UpdateTrackName(std::string newName);
+	void UpdateAudioName(std::string oldName, std::string newName);
 };
 
 #endif

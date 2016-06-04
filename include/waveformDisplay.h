@@ -37,6 +37,7 @@ private:
 
 	std::string path;
 	std::string filename;
+	std::string audioName;
 	audioFile *handle;
 	ByteBuffer buffer;
 
@@ -57,7 +58,7 @@ public:
 	~WaveformDisplay();
 
 	int read32();
-	void SetSource(std::string _filename, bool sfxMode);
+	void SetSource(std::string _filename, std::string _audioName, bool sfxMode);
 
 	void OnPaint(wxPaintEvent& evt);
 	void OnLeftUp(wxMouseEvent& evt);
@@ -66,6 +67,8 @@ public:
 	void OnEraseBackground(wxEraseEvent& evt);
 
 	std::string GetFilename() { return filename; }
+	std::string GetAudioName() { return audioName; }
+	void SetAudioName(std::string name) { audioName = name; }
 };
 
 #endif

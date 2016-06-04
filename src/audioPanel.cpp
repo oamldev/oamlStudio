@@ -48,17 +48,21 @@ AudioPanel::AudioPanel(wxFrame* parent, int index, std::string name, wxString la
 	trackName = name;
 	sfxMode = mode;
 
-	sizer = new wxBoxSizer(wxVERTICAL);
+	vSizer = new wxBoxSizer(wxVERTICAL);
 	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, labelStr, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
 	staticText->SetBackgroundColour(wxColour(0xD0, 0xD0, 0xD0));
-	sizer->Add(staticText, 0, wxALL | wxEXPAND | wxGROW, 5);
-	SetSizer(sizer);
+	vSizer->Add(staticText, 0, wxALL | wxEXPAND | wxGROW, 5);
+
+	sizer = new wxBoxSizer(wxHORIZONTAL);
+	vSizer->Add(sizer);
+
+	SetSizer(vSizer);
 
 	Bind(wxEVT_PAINT, &AudioPanel::OnPaint, this);
 	Bind(wxEVT_RIGHT_UP, &AudioPanel::OnRightUp, this);
 	Bind(wxEVT_COMMAND_MENU_SELECTED, &AudioPanel::OnMenuEvent, this);
 
-	SetMinSize(wxSize(240, -1));
+//	SetMinSize(wxSize(240, -1));
 }
 
 void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
@@ -75,13 +79,17 @@ void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 	dc.DrawLine(0,  y2, x2, y2);
 }
 
-void AudioPanel::AddAudio(std::string filename, wxFrame *topWnd) {
+void AudioPanel::AddAudio(std::string audioName, wxFrame *topWnd) {
 	LayerPanel *lp = new LayerPanel((wxFrame*)this);
+	std::vector<std::string> list;
+
 	layerPanels.push_back(lp);
-	lp->AddWaveform(filename, sfxMode, topWnd);
+	studioApi->AudioGetLayerList(trackName, audioName, list);
+	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
+		lp->AddWaveform(*it, audioName, sfxMode, topWnd);
+	}
 
 	sizer->Add(lp, 0, wxALL, 5);
-
 	Layout();
 }
 
@@ -156,5 +164,12 @@ void AudioPanel::OnRightUp(wxMouseEvent& WXUNUSED(event)) {
 
 void AudioPanel::UpdateTrackName(std::string newName) {
 	trackName = newName;
+}
+
+void AudioPanel::UpdateAudioName(std::string oldName, std::string newName) {
+	for (std::vector<LayerPanel*>::iterator it=layerPanels.begin(); it<layerPanels.end(); ++it) {
+		LayerPanel *lp = *it;
+		lp->UpdateAudioName(oldName, newName);
+	}
 }
 

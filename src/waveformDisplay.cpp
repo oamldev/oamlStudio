@@ -94,10 +94,11 @@ int WaveformDisplay::read32() {
 	return ret;
 }
 
-void WaveformDisplay::SetSource(std::string _filename, bool sfxMode) {
+void WaveformDisplay::SetSource(std::string _filename, std::string _audioName, bool sfxMode) {
 	ASSERT(topWnd != NULL);
 
 	filename = _filename;
+	audioName = _audioName;
 
 	buffer.clear();
 	peaksL.clear();
@@ -123,12 +124,20 @@ void WaveformDisplay::SetSource(std::string _filename, bool sfxMode) {
 		return;
 	}
 
+	int samplesDiv;
 	int w = 1;
 	if (sfxMode) {
-		w = (handle->GetTotalSamples() / handle->GetChannels()) / (handle->GetSamplesPerSec() / 1000);
+		samplesDiv = 1000;
 	} else {
-		w = (handle->GetTotalSamples() / handle->GetChannels()) / (handle->GetSamplesPerSec() / 10);
+		unsigned int totalSecs = (handle->GetTotalSamples() / handle->GetChannels()) / handle->GetSamplesPerSec();
+		if (totalSecs < 10) {
+			samplesDiv = 20;
+		} else {
+			samplesDiv = 10;
+		}
 	}
+
+	w = (handle->GetTotalSamples() / handle->GetChannels()) / (handle->GetSamplesPerSec() / samplesDiv);
 	wxSize size(w, 100);
 	SetSize(size);
 	SetMinSize(size);
@@ -149,7 +158,8 @@ void WaveformDisplay::SetSource(std::string _filename, bool sfxMode) {
 
 void WaveformDisplay::OnLeftUp(wxMouseEvent& WXUNUSED(evt)) {
 	wxCommandEvent event(EVENT_SELECT_AUDIO);
-	event.SetString(wxString(filename));
+	event.SetString(wxString(audioName)+wxString(filename));
+	event.SetInt(audioName.length());
 	wxPostEvent(GetParent(), event);
 }
 
