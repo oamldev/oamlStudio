@@ -98,36 +98,38 @@ private:
 	void Load(std::string filename);
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style);
+	~StudioFrame();
 
 	tinyxml2::XMLNode* CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg);
 	void CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg);
 
-	void OnSetProjectDirty(wxCommandEvent& event);
+	void OnAbout(wxCommandEvent& event);
+	void OnAddAudio(wxCommandEvent& event);
+	void OnAddLayer(wxCommandEvent& event);
+	void OnAddMusicTrack(wxCommandEvent& event);
+	void OnAddSfxTrack(wxCommandEvent& event);
+	void OnClose(wxCloseEvent& event);
+	void OnEditMusicTrackName(wxCommandEvent& event);
+	void OnEditSfxTrackName(wxCommandEvent& event);
+	void OnExport(wxCommandEvent& event);
+	void OnLoad(wxCommandEvent& event);
+	void OnLoadProject(wxCommandEvent& event);
 	void OnMusicListActivated(wxListEvent& event);
 	void OnMusicListMenu(wxMouseEvent& event);
 	void OnMusicEndLabelEdit(wxListEvent& event);
+	void OnNew(wxCommandEvent& event);
+	void OnPlay(wxCommandEvent& event);
+	void OnPlaybackPanel(wxCommandEvent& event);
+	void OnRecentFile(wxCommandEvent& event);
+	void OnRemoveAudio(wxCommandEvent& event);
+	void OnQuit(wxCommandEvent& event);
+	void OnSetProjectDirty(wxCommandEvent& event);
 	void OnSfxListActivated(wxListEvent& event);
 	void OnSfxListMenu(wxMouseEvent& event);
 	void OnSfxEndLabelEdit(wxListEvent& event);
-	void OnNew(wxCommandEvent& event);
-	void OnLoad(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
 	void OnSaveAs(wxCommandEvent& event);
-	void OnExport(wxCommandEvent& event);
-	void OnQuit(wxCommandEvent& event);
-	void OnAbout(wxCommandEvent& event);
-	void OnAddMusicTrack(wxCommandEvent& event);
-	void OnEditMusicTrackName(wxCommandEvent& event);
-	void OnAddSfxTrack(wxCommandEvent& event);
-	void OnEditSfxTrackName(wxCommandEvent& event);
 	void OnSelectAudio(wxCommandEvent& event);
-	void OnAddAudio(wxCommandEvent& event);
-	void OnRemoveAudio(wxCommandEvent& event);
-	void OnAddLayer(wxCommandEvent& event);
-	void OnPlay(wxCommandEvent& event);
-	void OnRecentFile(wxCommandEvent& event);
-	void OnLoadProject(wxCommandEvent& event);
-	void OnPlaybackPanel(wxCommandEvent& event);
 	void OnUpdateAudioName(wxCommandEvent& event);
 
 	void UpdateTrackName(std::string trackName, std::string newName);

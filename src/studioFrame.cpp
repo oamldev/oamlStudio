@@ -61,6 +61,7 @@ wxDEFINE_EVENT(EVENT_UPDATE_AUDIO_NAME, wxCommandEvent);
 
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
+	EVT_CLOSE(StudioFrame::OnClose)
 	EVT_MENU(ID_New, StudioFrame::OnNew)
 	EVT_MENU(ID_Load, StudioFrame::OnLoad)
 	EVT_MENU(ID_Save, StudioFrame::OnSave)
@@ -227,6 +228,18 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	dirty = false;
 }
 
+StudioFrame::~StudioFrame() {
+	if (config) {
+		delete config;
+		config = NULL;
+	}
+
+	if (fileHistory) {
+		delete fileHistory;
+		fileHistory = NULL;
+	}
+}
+
 void StudioFrame::SelectTrack(std::string name) {
 	if (controlPane) controlPane->Destroy();
 	if (rightLine) rightLine->Destroy();
@@ -323,7 +336,7 @@ void StudioFrame::OnSfxEndLabelEdit(wxListEvent& event) {
 	timer->StartOnce(10);
 }
 
-void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
+void StudioFrame::OnClose(wxCloseEvent& WXUNUSED(event)) {
 	if (dirty) {
 		int ret = wxMessageBox("There are unsaved changes on the project, do you really want to quit without saving?", "Confirm", wxYES_NO, this);
 		if (ret == wxNO) {
@@ -331,14 +344,16 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 		}
 	}
 
-	// Save our file history into config
-	fileHistory->Save(*config);
+	if (fileHistory && config) {
+		// Save our file history into config
+		fileHistory->Save(*config);
+	}
 
-	// Clear memory
-	delete config;
-	delete fileHistory;
+	Destroy();
+}
 
-	// And close the app
+void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
+	// Close the app
 	Close(TRUE);
 }
 
@@ -794,3 +809,4 @@ void StudioFrame::OnUpdateAudioName(wxCommandEvent& event) {
 		trackPane->UpdateAudioName(str.substr(0, len), str.substr(len));
 	}
 }
+
