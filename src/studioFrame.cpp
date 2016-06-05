@@ -59,6 +59,7 @@ wxDEFINE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SET_PROJECT_DIRTY, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SET_STATUS_TEXT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_UPDATE_AUDIO_NAME, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_UPDATE_LAYOUT, wxCommandEvent);
 
 
 BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
@@ -89,6 +90,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_SET_PROJECT_DIRTY, StudioFrame::OnSetProjectDirty)
 	EVT_COMMAND(wxID_ANY, EVENT_SET_STATUS_TEXT, StudioFrame::OnSetStatusText)
 	EVT_COMMAND(wxID_ANY, EVENT_UPDATE_AUDIO_NAME, StudioFrame::OnUpdateAudioName)
+	EVT_COMMAND(wxID_ANY, EVENT_UPDATE_LAYOUT, StudioFrame::OnUpdateLayout)
 END_EVENT_TABLE()
 
 StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
@@ -883,5 +885,9 @@ void StudioFrame::OnUpdateAudioName(wxCommandEvent& event) {
 
 void StudioFrame::OnSetStatusText(wxCommandEvent& event) {
 	SetStatusText(event.GetString());
+}
+
+void StudioFrame::OnUpdateLayout(wxCommandEvent& WXUNUSED(event)) {
+	Layout();
 }
 

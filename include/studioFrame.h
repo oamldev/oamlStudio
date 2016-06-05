@@ -137,6 +137,7 @@ public:
 	void OnSelectAudio(wxCommandEvent& event);
 	void OnSetStatusText(wxCommandEvent& event);
 	void OnUpdateAudioName(wxCommandEvent& event);
+	void OnUpdateLayout(wxCommandEvent& event);
 
 	void UpdateTrackName(std::string trackName, std::string newName);
 

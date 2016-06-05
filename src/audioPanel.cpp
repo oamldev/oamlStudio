@@ -91,6 +91,9 @@ void AudioPanel::AddAudio(std::string audioName) {
 
 	sizer->Add(afp, 0, wxALL, 5);
 	Layout();
+
+	wxCommandEvent event(EVENT_UPDATE_LAYOUT);
+	wxPostEvent(GetParent(), event);
 }
 
 void AudioPanel::RemoveAudio(std::string filename) {

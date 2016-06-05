@@ -44,6 +44,7 @@ public:
 	void UpdateAudioName(std::string oldName, std::string newName);
 
 	void SetTrackMode(bool mode);
+	void UpdateLayout(wxCommandEvent& event);
 };
 
 #endif

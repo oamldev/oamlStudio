@@ -60,6 +60,16 @@ TrackPanel::TrackPanel(wxWindow* parent, wxWindowID id, std::string name) : wxSc
 	Layout();
 
 	sizer->Fit(this);
+
+	Bind(EVENT_UPDATE_LAYOUT, &TrackPanel::UpdateLayout, this);
+}
+
+void TrackPanel::UpdateLayout(wxCommandEvent& event) {
+	SetSizer(sizer);
+	Layout();
+	sizer->Fit(this);
+
+	wxPostEvent(GetParent(), event);
 }
 
 void TrackPanel::SetTrackMode(bool mode) {
