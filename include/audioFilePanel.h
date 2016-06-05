@@ -20,18 +20,26 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __LAYERPANEL_H__
-#define __LAYERPANEL_H__
+#ifndef __AUDIOFILEPANEL_H__
+#define __AUDIOFILEPANEL_H__
 
-class LayerPanel : public wxPanel {
+class AudioFilePanel : public wxPanel {
 private:
 	wxBoxSizer *sizer;
-	wxBoxSizer *vSizer;
+	std::vector<WaveformDisplay*> waveDisplays;
 
 public:
-	LayerPanel(wxFrame* parent);
+	AudioFilePanel(wxFrame* parent);
 
-	void LoadLayers();
+	bool IsEmpty();
+
+	void AddWaveform(std::string filename, std::string audioName, bool sfxMode, wxFrame *topWnd);
+	void RemoveWaveform(std::string filename);
+	void UpdateAudioName(std::string oldName, std::string newName);
+
+	void OnPaint(wxPaintEvent& WXUNUSED(evt));
+
+	void AddLayerDialog();
 };
 
 #endif

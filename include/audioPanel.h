@@ -27,7 +27,7 @@ class AudioPanel : public wxPanel {
 private:
 	wxBoxSizer *vSizer;
 	wxBoxSizer *sizer;
-	std::vector<LayerPanel*> layerPanels;
+	std::vector<AudioFilePanel*> filePanels;
 	std::string trackName;
 	int panelIndex;
 	bool sfxMode;

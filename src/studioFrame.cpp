@@ -116,6 +116,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	trackPane = NULL;
 	controlPane = NULL;
 	rightLine = NULL;
+	layerPanel = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
@@ -244,6 +245,7 @@ void StudioFrame::SelectTrack(std::string name) {
 	if (controlPane) controlPane->Destroy();
 	if (rightLine) rightLine->Destroy();
 	if (trackPane) trackPane->Destroy();
+	if (layerPanel) layerPanel->Destroy();
 
 	controlPane = new ControlPanel(this, wxID_ANY);
 	controlPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
@@ -253,9 +255,18 @@ void StudioFrame::SelectTrack(std::string name) {
 	rightLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
 	vSizer->Add(rightLine, 0, wxEXPAND | wxALL, 0);
 
+	hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+	layerPanel = new LayerPanel(this);
+	hSizer->Add(layerPanel, 0, wxEXPAND | wxALL, 5);
+
 	trackPane = new TrackPanel(this, wxID_ANY, name);
 	trackPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
-	vSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
+	hSizer->Add(trackPane, 1, wxEXPAND | wxALL, 5);
+
+	vSizer->Add(hSizer, 1, wxEXPAND | wxALL, 5);
+
+	layerPanel->LoadLayers();
 
 	std::vector<std::string> list;
 	studioApi->TrackGetAudioList(name, list);
@@ -454,12 +465,12 @@ tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, o
 
 	AddSimpleChildToNode(audioEl, "name", audio->name.c_str());
 
-	for (std::vector<oamlLayerInfo>::iterator layer=audio->layers.begin(); layer<audio->layers.end(); ++layer) {
+	for (std::vector<oamlAudioFileInfo>::iterator file=audio->files.begin(); file<audio->files.end(); ++file) {
 		if (createPkg) {
-			wxFileName fname(layer->filename);
+			wxFileName fname(file->filename);
 			AddSimpleChildToNode(audioEl, "filename", fname.GetFullName().ToStdString().c_str());
 		} else {
-			AddSimpleChildToNode(audioEl, "filename", layer->filename.c_str());
+			AddSimpleChildToNode(audioEl, "filename", file->filename.c_str());
 		}
 	}
 
@@ -672,8 +683,8 @@ void StudioFrame::OnExport(wxCommandEvent& WXUNUSED(event)) {
 	oamlTracksInfo* info = oaml->GetTracksInfo();
 	for (size_t i=0; i<info->tracks.size(); i++) {
 		for (size_t j=0; j<info->tracks[i].audios.size(); j++) {
-			for (size_t k=0; k<info->tracks[i].audios[j].layers.size(); k++) {
-				list.push_back(info->tracks[i].audios[j].layers[k].filename);
+			for (size_t k=0; k<info->tracks[i].audios[j].files.size(); k++) {
+				list.push_back(info->tracks[i].audios[j].files[k].filename);
 			}
 		}
 	}

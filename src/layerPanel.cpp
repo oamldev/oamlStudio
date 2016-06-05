@@ -44,85 +44,37 @@
 
 
 LayerPanel::LayerPanel(wxFrame* parent) : wxPanel(parent) {
-	sizer = new wxBoxSizer(wxVERTICAL);
+	sizer = new wxBoxSizer(wxHORIZONTAL);
+
+	vSizer = new wxBoxSizer(wxVERTICAL);
+	sizer->Add(vSizer);
+
+	wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL);
+	sizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
+
 	SetSizer(sizer);
-
-	Bind(wxEVT_PAINT, &LayerPanel::OnPaint, this);
-}
-
-void LayerPanel::AddWaveform(std::string filename, std::string audioName, bool sfxMode, wxFrame *topWnd) {
-	WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
-	waveDisplay->SetSource(filename, audioName, sfxMode);
-
-	waveDisplays.push_back(waveDisplay);
-
-	sizer->Add(waveDisplay, 0, wxALL, 4);
 	Layout();
 }
 
-void LayerPanel::RemoveWaveform(std::string filename) {
-	for (std::vector<WaveformDisplay*>::iterator it=waveDisplays.begin(); it<waveDisplays.end(); ++it) {
-		WaveformDisplay *waveDisplay = *it;
-		if (waveDisplay->GetFilename().compare(filename) == 0) {
-			sizer->Detach((wxWindow*)waveDisplay);
-			waveDisplays.erase(it);
-			delete waveDisplay;
-		}
+void LayerPanel::LoadLayers() {
+	int waveformHeight = 104;
+
+	std::vector<std::string> list;
+	studioApi->LayerList(list);
+
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Layers --"));
+	vSizer->Add(staticText, 0, wxALL, 5);
+
+	wxSize s = staticText->GetClientSize();
+	vSizer->Add(0, waveformHeight/2 - s.GetHeight());
+
+	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
+		staticText = new wxStaticText(this, wxID_ANY, wxString(it->c_str()));
+		vSizer->Add(staticText, 0, wxALL, 5);
+
+		s = staticText->GetClientSize();
+		vSizer->Add(0, waveformHeight - s.GetHeight());
 	}
 
 	Layout();
-}
-
-void LayerPanel::UpdateAudioName(std::string oldName, std::string newName) {
-	for (std::vector<WaveformDisplay*>::iterator it=waveDisplays.begin(); it<waveDisplays.end(); ++it) {
-		WaveformDisplay *waveDisplay = *it;
-		if (waveDisplay->GetAudioName() == oldName) {
-			waveDisplay->SetAudioName(newName);
-		}
-	}
-}
-
-bool LayerPanel::IsEmpty() {
-	return waveDisplays.size() == 0;
-}
-
-void LayerPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
-	wxPaintDC dc(this);
-
-	wxSize size = GetSize();
-	int x2 = size.GetWidth();
-	int y2 = size.GetHeight();
-
-	dc.SetPen(wxPen(wxColour(0, 128, 128), 4));
-	dc.DrawLine(0,  0,  0,  y2);
-	dc.DrawLine(x2, 0,  x2, y2);
-	dc.DrawLine(0,  0,  x2, 0);
-	dc.DrawLine(0,  y2, x2, y2);
-}
-
-void LayerPanel::AddLayerDialog() {
-	wxFileDialog openFileDialog(this, _("Open audio file"), wxEmptyString, "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_CANCEL)
-		return;
-
-/*	oamlAudioInfo audio;
-	memset(&audio, 0, sizeof(oamlAudioInfo));
-	wxFileName filename(openFileDialog.GetPath());
-	wxFileName defsPath(oaml->GetDefsFile());
-	filename.MakeRelativeTo(wxString(defsPath.GetPath()));
-	std::string fname = filename.GetFullPath().ToStdString();*/
-
-/*	oamlLayerInfo layer;
-	layer.filename = fname;
-	audio.layers.push_back(layer);
-	switch (panelIndex) {
-		case 0: audio.type = 1; break;
-		case 1: audio.type = 2; break;
-		case 2: audio.type = 4; break;
-		case 3: audio.type = 3; break;
-	}
-
-	wxCommandEvent event(EVENT_ADD_AUDIO);
-	event.SetString(fname);
-	wxPostEvent(GetParent(), event);*/
 }

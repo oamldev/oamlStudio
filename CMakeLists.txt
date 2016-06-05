@@ -73,6 +73,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${LibArchive_INCLUDE_DIR
 set(SRCS
 	src/audioFile.cpp
 	src/audioPanel.cpp
+	src/audioFilePanel.cpp
 	src/oamlCallbacks.cpp
 	src/controlPanel.cpp
 	src/layerPanel.cpp

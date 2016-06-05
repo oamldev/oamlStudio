@@ -80,27 +80,27 @@ void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 }
 
 void AudioPanel::AddAudio(std::string audioName, wxFrame *topWnd) {
-	LayerPanel *lp = new LayerPanel((wxFrame*)this);
+	AudioFilePanel *afp = new AudioFilePanel((wxFrame*)this);
 	std::vector<std::string> list;
 
-	layerPanels.push_back(lp);
-	studioApi->AudioGetLayerList(trackName, audioName, list);
+	filePanels.push_back(afp);
+	studioApi->AudioGetAudioFileList(trackName, audioName, list);
 	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
-		lp->AddWaveform(*it, audioName, sfxMode, topWnd);
+		afp->AddWaveform(*it, audioName, sfxMode, topWnd);
 	}
 
-	sizer->Add(lp, 0, wxALL, 5);
+	sizer->Add(afp, 0, wxALL, 5);
 	Layout();
 }
 
 void AudioPanel::RemoveAudio(std::string filename) {
-	for (std::vector<LayerPanel*>::iterator it=layerPanels.begin(); it<layerPanels.end(); ++it) {
-		LayerPanel *lp = *it;
-		lp->RemoveWaveform(filename);
-		if (lp->IsEmpty()) {
-			sizer->Detach((wxWindow*)lp);
-			layerPanels.erase(it);
-			delete lp;
+	for (std::vector<AudioFilePanel*>::iterator it=filePanels.begin(); it<filePanels.end(); ++it) {
+		AudioFilePanel *afp = *it;
+		afp->RemoveWaveform(filename);
+		if (afp->IsEmpty()) {
+			sizer->Detach((wxWindow*)afp);
+			filePanels.erase(it);
+			delete afp;
 
 			studioApi->AudioRemove(trackName, filename);
 			break;
@@ -167,9 +167,9 @@ void AudioPanel::UpdateTrackName(std::string newName) {
 }
 
 void AudioPanel::UpdateAudioName(std::string oldName, std::string newName) {
-	for (std::vector<LayerPanel*>::iterator it=layerPanels.begin(); it<layerPanels.end(); ++it) {
-		LayerPanel *lp = *it;
-		lp->UpdateAudioName(oldName, newName);
+	for (std::vector<AudioFilePanel*>::iterator it=filePanels.begin(); it<filePanels.end(); ++it) {
+		AudioFilePanel *afp = *it;
+		afp->UpdateAudioName(oldName, newName);
 	}
 }
 

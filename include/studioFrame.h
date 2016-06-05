@@ -65,6 +65,7 @@ private:
 	wxListView* sfxList;
 	wxBoxSizer* mainSizer;
 	wxBoxSizer* vSizer;
+	wxBoxSizer* hSizer;
 	wxStaticLine* rightLine;
 	wxFileHistory* fileHistory;
 
@@ -73,6 +74,7 @@ private:
 	TrackControl* trackControl;
 	StudioTimer* timer;
 	PlaybackFrame* playFrame;
+	LayerPanel* layerPanel;
 
 	wxMenu* viewMenu;
 

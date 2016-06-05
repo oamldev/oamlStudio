@@ -68,6 +68,7 @@
 #include "oamlStudio.h"
 #include "waveformDisplay.h"
 #include "layerPanel.h"
+#include "audioFilePanel.h"
 #include "audioPanel.h"
 #include "playbackFrame.h"
 #include "controlPanel.h"
