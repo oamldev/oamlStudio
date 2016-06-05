@@ -60,6 +60,8 @@ enum {
 	ID_RemoveAudio,
 	ID_EditMusicTrackName,
 	ID_EditSfxTrackName,
+	ID_RemoveMusicTrack,
+	ID_RemoveSfxTrack,
 	ID_Play,
 	ID_Pause,
 	ID_Recent,

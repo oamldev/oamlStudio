@@ -86,7 +86,6 @@ private:
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, int value);
 	void AddSimpleChildToNode(tinyxml2::XMLNode *node, const char *name, float value);
 
-	void AddTrack(std::string name);
 	void SelectTrack(std::string name);
 
 	void CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg = false);
@@ -98,6 +97,8 @@ private:
 	int CreateZip(std::string zfile, std::vector<std::string> files);
 
 	void Load(std::string filename);
+
+	void SetProjectDirty() { dirty = true; }
 public:
 	StudioFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style);
 	~StudioFrame();
@@ -124,6 +125,8 @@ public:
 	void OnPlaybackPanel(wxCommandEvent& event);
 	void OnRecentFile(wxCommandEvent& event);
 	void OnRemoveAudio(wxCommandEvent& event);
+	void OnRemoveMusicTrack(wxCommandEvent& event);
+	void OnRemoveSfxTrack(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnSetProjectDirty(wxCommandEvent& event);
 	void OnSfxListActivated(wxListEvent& event);

@@ -74,6 +74,8 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_AddSfxTrack, StudioFrame::OnAddSfxTrack)
 	EVT_MENU(ID_EditMusicTrackName, StudioFrame::OnEditMusicTrackName)
 	EVT_MENU(ID_EditSfxTrackName, StudioFrame::OnEditSfxTrackName)
+	EVT_MENU(ID_RemoveMusicTrack, StudioFrame::OnRemoveMusicTrack)
+	EVT_MENU(ID_RemoveSfxTrack, StudioFrame::OnRemoveSfxTrack)
 	EVT_MENU(ID_PlaybackPanel, StudioFrame::OnPlaybackPanel)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
@@ -91,10 +93,12 @@ END_EVENT_TABLE()
 
 StudioTimer::StudioTimer(StudioFrame* pane) : wxTimer() {
 	StudioTimer::pane = pane;
+	musicList = NULL;
+	sfxList = NULL;
 }
 
 void StudioTimer::Notify() {
-	wxString str = musicList->GetItemText(labelIndex);
+	wxString str = musicList ? musicList->GetItemText(labelIndex) : sfxList->GetItemText(labelIndex);
 	studioApi->TrackRename(trackName, str.ToStdString());
 	pane->UpdateTrackName(trackName, str.ToStdString());
 }
@@ -243,10 +247,29 @@ StudioFrame::~StudioFrame() {
 }
 
 void StudioFrame::SelectTrack(std::string name) {
-	if (controlPane) controlPane->Destroy();
-	if (rightLine) rightLine->Destroy();
-	if (trackPane) trackPane->Destroy();
-	if (layerPanel) layerPanel->Destroy();
+	if (controlPane) {
+		controlPane->Destroy();
+		controlPane = NULL;
+	}
+	if (rightLine) {
+		rightLine->Destroy();
+		rightLine = NULL;
+	}
+	if (trackPane) {
+		trackPane->Destroy();
+		trackPane = NULL;
+	}
+	if (layerPanel) {
+		layerPanel->Destroy();
+		layerPanel = NULL;
+	}
+
+	if (name == "") {
+		trackControl->SetTrack(name);
+
+		Layout();
+		return;
+	}
 
 	controlPane = new ControlPanel(this, wxID_ANY);
 	controlPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
@@ -303,6 +326,7 @@ void StudioFrame::OnMusicListMenu(wxMouseEvent& WXUNUSED(event)) {
 	wxMenu menu(wxT(""));
 	menu.Append(ID_AddMusicTrack, wxT("&Add Track"));
 	menu.Append(ID_EditMusicTrackName, wxT("Edit Track &Name"));
+	menu.Append(ID_RemoveMusicTrack, wxT("&Remove Track"));
 	PopupMenu(&menu);
 }
 
@@ -333,6 +357,7 @@ void StudioFrame::OnSfxListMenu(wxMouseEvent& WXUNUSED(event)) {
 	wxMenu menu(wxT(""));
 	menu.Append(ID_AddSfxTrack, wxT("&Add Track"));
 	menu.Append(ID_EditSfxTrackName, wxT("Edit Track &Name"));
+	menu.Append(ID_RemoveSfxTrack, wxT("&Remove Track"));
 	PopupMenu(&menu);
 }
 
@@ -713,17 +738,13 @@ void StudioFrame::OnAbout(wxCommandEvent& WXUNUSED(event)) {
 	wxMessageBox(str, _("About oamlStudio"), wxOK | wxICON_INFORMATION, this);
 }
 
-void StudioFrame::AddTrack(std::string name) {
-	studioApi->TrackNew(name);
-}
-
 void StudioFrame::OnAddMusicTrack(wxCommandEvent& WXUNUSED(event)) {
 	oamlTracksInfo *info = oaml->GetTracksInfo();
 	int index = info ? info->tracks.size() : 0;
 
 	char name[1024];
 	snprintf(name, 1024, "Track%d", index);
-	AddTrack(std::string(name));
+	studioApi->TrackNew(std::string(name), false);
 
 	musicList->InsertItem(index, wxString(name));
 	SelectTrack(name);
@@ -737,7 +758,7 @@ void StudioFrame::OnAddSfxTrack(wxCommandEvent& WXUNUSED(event)) {
 
 	char name[1024];
 	snprintf(name, 1024, "Track%d", index);
-	AddTrack(std::string(name));
+	studioApi->TrackNew(std::string(name), true);
 
 	sfxList->InsertItem(index, wxString(name));
 	SelectTrack(name);
@@ -751,6 +772,44 @@ void StudioFrame::OnEditMusicTrackName(wxCommandEvent& WXUNUSED(event)) {
 
 void StudioFrame::OnEditSfxTrackName(wxCommandEvent& WXUNUSED(event)) {
 	sfxList->EditLabel(sfxList->GetFirstSelected());
+}
+
+void StudioFrame::OnRemoveMusicTrack(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = musicList->GetItemText(musicList->GetFirstSelected());
+	std::string name = str.ToStdString();
+
+	// If the track is currently selected deselect it
+	if (trackControl && trackControl->GetTrackName() == name) {
+		SelectTrack("");
+	}
+
+	// Remove the track from the list
+	musicList->DeleteItem(musicList->GetFirstSelected());
+
+	// Remove the track from oaml
+	studioApi->TrackRemove(name);
+
+	// Mark the project dirty
+	SetProjectDirty();
+}
+
+void StudioFrame::OnRemoveSfxTrack(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = sfxList->GetItemText(sfxList->GetFirstSelected());
+	std::string name = str.ToStdString();
+
+	// If the track is currently selected deselect it
+	if (trackControl && trackControl->GetTrackName() == name) {
+		SelectTrack("");
+	}
+
+	// Remove the track from the list
+	sfxList->DeleteItem(sfxList->GetFirstSelected());
+
+	// Remove the track from oaml
+	studioApi->TrackRemove(name);
+
+	// Mark the project dirty
+	SetProjectDirty();
 }
 
 void StudioFrame::OnSelectAudio(wxCommandEvent& event) {
