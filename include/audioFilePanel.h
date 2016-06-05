@@ -28,16 +28,20 @@ private:
 	wxBoxSizer *sizer;
 	std::vector<WaveformDisplay*> waveDisplays;
 
+	std::string trackName;
+	std::string audioName;
+
 public:
-	AudioFilePanel(wxFrame* parent);
+	AudioFilePanel(std::string _trackName, std::string _audioName, wxFrame* parent);
 
 	bool IsEmpty();
 
-	void AddWaveform(std::string filename, std::string audioName, bool sfxMode, wxFrame *topWnd);
+	void AddWaveform(std::string filename, std::string audioName, bool sfxMode);
 	void RemoveWaveform(std::string filename);
 	void UpdateAudioName(std::string oldName, std::string newName);
 
 	void OnPaint(wxPaintEvent& WXUNUSED(evt));
+	void OnRemoveAudioFile(wxCommandEvent& evt);
 
 	void AddLayerDialog();
 };

@@ -95,7 +95,7 @@ int TrackPanel::GetPanelIndex(std::string audioFile) {
 
 void TrackPanel::AddAudio(std::string audioFile) {
 	int i = GetPanelIndex(audioFile);
-	audioPanel[i]->AddAudio(audioFile, (wxFrame*)GetParent());
+	audioPanel[i]->AddAudio(audioFile);
 
 	SetSizer(sizer);
 	Layout();

@@ -52,8 +52,7 @@ void RenderTimer::Notify() {
 }
 
 
-WaveformDisplay::WaveformDisplay(wxFrame* parent, wxFrame* wnd) : wxPanel(parent) {
-	topWnd = wnd;
+WaveformDisplay::WaveformDisplay(wxFrame* parent) : wxPanel(parent) {
 	handle = NULL;
 	timer = NULL;
 
@@ -95,8 +94,6 @@ int WaveformDisplay::read32() {
 }
 
 void WaveformDisplay::SetSource(std::string _filename, std::string _audioName, bool sfxMode) {
-	ASSERT(topWnd != NULL);
-
 	filename = _filename;
 	audioName = _audioName;
 
@@ -153,7 +150,7 @@ void WaveformDisplay::SetSource(std::string _filename, std::string _audioName, b
 
 	timer->Start(10);
 
-	topWnd->SetStatusText(_("Reading.."));
+//	topWnd->SetStatusText(_("Reading.."));
 }
 
 void WaveformDisplay::OnLeftUp(wxMouseEvent& WXUNUSED(evt)) {
@@ -182,7 +179,7 @@ void WaveformDisplay::OnMenuEvent(wxCommandEvent& event) {
 			} break;
 
 		case ID_RemoveAudio:
-			{ wxCommandEvent event(EVENT_REMOVE_AUDIO);
+			{ wxCommandEvent event(EVENT_REMOVE_AUDIO_FILE);
 			event.SetString(wxString(filename));
 			wxPostEvent(GetParent(), event);
 			} break;
@@ -246,8 +243,8 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	dc.DrawText(filename.c_str(), 10, 10);
 
 	if (bytesRead == 0) {
-		topWnd->SetStatusText(_("Ready"));
+//		topWnd->SetStatusText(_("Ready"));
 	} else {
-		topWnd->SetStatusText(_("Reading.."));
+//		topWnd->SetStatusText(_("Reading.."));
 	}
 }

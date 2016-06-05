@@ -39,9 +39,9 @@ public:
 	void OnMenuEvent(wxCommandEvent& event);
 	void OnRightUp(wxMouseEvent& WXUNUSED(event));
 
-	void AddAudio(std::string filename, wxFrame *topWnd);
+	void AddAudio(std::string filename);
 	void RemoveAudio(std::string filename);
-	void AddAudio(wxString path);
+	void AddAudioPath(wxString path);
 	void AddAudioDialog();
 	void UpdateTrackName(std::string newName);
 	void UpdateAudioName(std::string oldName, std::string newName);

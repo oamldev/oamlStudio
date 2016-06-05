@@ -79,14 +79,14 @@ void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 	dc.DrawLine(0,  y2, x2, y2);
 }
 
-void AudioPanel::AddAudio(std::string audioName, wxFrame *topWnd) {
-	AudioFilePanel *afp = new AudioFilePanel((wxFrame*)this);
+void AudioPanel::AddAudio(std::string audioName) {
+	AudioFilePanel *afp = new AudioFilePanel(trackName, audioName, (wxFrame*)this);
 	std::vector<std::string> list;
 
 	filePanels.push_back(afp);
 	studioApi->AudioGetAudioFileList(trackName, audioName, list);
 	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
-		afp->AddWaveform(*it, audioName, sfxMode, topWnd);
+		afp->AddWaveform(*it, audioName, sfxMode);
 	}
 
 	sizer->Add(afp, 0, wxALL, 5);
@@ -114,8 +114,9 @@ void AudioPanel::RemoveAudio(std::string filename) {
 	wxPostEvent(GetParent(), event);
 }
 
-void AudioPanel::AddAudio(wxString path) {
+void AudioPanel::AddAudioPath(wxString path) {
 	wxFileName filename(path);
+
 	filename.MakeRelativeTo(wxString(projectPath));
 	std::string fname = filename.GetFullPath().ToStdString();
 
@@ -125,11 +126,21 @@ void AudioPanel::AddAudio(wxString path) {
 		case 1: type = 2; break;
 		case 2: type = 4; break;
 	}
-	studioApi->AudioNew(trackName, fname, type);
 
-	wxCommandEvent event(EVENT_ADD_AUDIO);
-	event.SetString(fname);
-	wxPostEvent(GetParent(), event);
+	std::string name;
+	for (int i=0; i<1000; i++) {
+		char str[1024];
+		snprintf(str, 1024, "audio%d", i);
+		name = str;
+		if (studioApi->AudioExists(trackName, name) == false) {
+			break;
+		}
+	}
+
+	studioApi->AudioNew(trackName, name, type);
+	studioApi->AudioAddAudioFile(trackName, name, fname);
+
+	AddAudio(name);
 
 	// Mark the project dirty
 	wxCommandEvent event2(EVENT_SET_PROJECT_DIRTY);
@@ -144,7 +155,7 @@ void AudioPanel::AddAudioDialog() {
 	wxArrayString paths;
 	openFileDialog.GetPaths(paths);
 	for (size_t i=0; i<paths.GetCount(); i++) {
-		AddAudio(paths.Item(i));
+		AddAudioPath(paths.Item(i));
 	}
 }
 

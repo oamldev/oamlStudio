@@ -51,10 +51,8 @@ private:
 	int bytesPerSec;
 	int samplesPerPixel;
 
-	wxFrame* topWnd;
-
 public:
-	WaveformDisplay(wxFrame* parent, wxFrame* wnd);
+	WaveformDisplay(wxFrame* parent);
 	~WaveformDisplay();
 
 	int read32();

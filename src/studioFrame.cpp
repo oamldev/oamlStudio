@@ -48,7 +48,7 @@
 
 
 wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_REMOVE_AUDIO, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_REMOVE_AUDIO_FILE, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
@@ -77,7 +77,6 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
-	EVT_COMMAND(wxID_ANY, EVENT_REMOVE_AUDIO, StudioFrame::OnRemoveAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_LAYER, StudioFrame::OnAddLayer)
 	EVT_COMMAND(wxID_ANY, EVENT_PLAY, StudioFrame::OnPlay)
 	EVT_COMMAND(wxID_ANY, EVENT_QUIT, StudioFrame::OnQuit)

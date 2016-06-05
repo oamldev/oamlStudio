@@ -43,15 +43,19 @@
 #include <wx/config.h>
 
 
-AudioFilePanel::AudioFilePanel(wxFrame* parent) : wxPanel(parent) {
+AudioFilePanel::AudioFilePanel(std::string _trackName, std::string _audioName, wxFrame* parent) : wxPanel(parent) {
+	trackName = _trackName;
+	audioName = _audioName;
+
 	sizer = new wxBoxSizer(wxVERTICAL);
 	SetSizer(sizer);
 
 	Bind(wxEVT_PAINT, &AudioFilePanel::OnPaint, this);
+	Bind(EVENT_REMOVE_AUDIO_FILE, &AudioFilePanel::OnRemoveAudioFile, this);
 }
 
-void AudioFilePanel::AddWaveform(std::string filename, std::string audioName, bool sfxMode, wxFrame *topWnd) {
-	WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this, topWnd);
+void AudioFilePanel::AddWaveform(std::string filename, std::string audioName, bool sfxMode) {
+	WaveformDisplay *waveDisplay = new WaveformDisplay((wxFrame*)this);
 	waveDisplay->SetSource(filename, audioName, sfxMode);
 
 	waveDisplays.push_back(waveDisplay);
@@ -67,7 +71,21 @@ void AudioFilePanel::RemoveWaveform(std::string filename) {
 			sizer->Detach((wxWindow*)waveDisplay);
 			waveDisplays.erase(it);
 			delete waveDisplay;
+
+			studioApi->AudioFileRemove(trackName, audioName, filename);
 		}
+	}
+
+	if (waveDisplays.size() == 0) {
+		// No waveform left on the panel, remove us
+		studioApi->AudioRemove(trackName, audioName);
+
+		wxCommandEvent event(EVENT_SELECT_AUDIO);
+		event.SetString(wxString(""));
+		wxPostEvent(GetParent(), event);
+
+		Destroy();
+		return;
 	}
 
 	Layout();
@@ -125,4 +143,8 @@ void AudioFilePanel::AddLayerDialog() {
 	wxCommandEvent event(EVENT_ADD_AUDIO);
 	event.SetString(fname);
 	wxPostEvent(GetParent(), event);*/
+}
+
+void AudioFilePanel::OnRemoveAudioFile(wxCommandEvent& event) {
+	RemoveWaveform(event.GetString().ToStdString());
 }
