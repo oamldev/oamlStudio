@@ -67,6 +67,8 @@ public:
 	std::string GetFilename() { return filename; }
 	std::string GetAudioName() { return audioName; }
 	void SetAudioName(std::string name) { audioName = name; }
+
+	void SetStatusText(wxString status);
 };
 
 #endif

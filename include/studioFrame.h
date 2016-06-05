@@ -132,6 +132,7 @@ public:
 	void OnSave(wxCommandEvent& event);
 	void OnSaveAs(wxCommandEvent& event);
 	void OnSelectAudio(wxCommandEvent& event);
+	void OnSetStatusText(wxCommandEvent& event);
 	void OnUpdateAudioName(wxCommandEvent& event);
 
 	void UpdateTrackName(std::string trackName, std::string newName);

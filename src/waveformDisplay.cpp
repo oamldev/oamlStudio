@@ -243,8 +243,14 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	dc.DrawText(filename.c_str(), 10, 10);
 
 	if (bytesRead == 0) {
-//		topWnd->SetStatusText(_("Ready"));
+		SetStatusText(_("Ready"));
 	} else {
-//		topWnd->SetStatusText(_("Reading.."));
+		SetStatusText(_("Reading.."));
 	}
+}
+
+void WaveformDisplay::SetStatusText(wxString status) {
+	wxCommandEvent event(EVENT_SET_STATUS_TEXT);
+	event.SetString(status);
+	wxPostEvent(GetParent(), event);
 }

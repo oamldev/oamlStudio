@@ -57,6 +57,7 @@ wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SET_PROJECT_DIRTY, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_SET_STATUS_TEXT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_UPDATE_AUDIO_NAME, wxCommandEvent);
 
 
@@ -84,6 +85,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_PROJECT, StudioFrame::OnLoadProject)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_OTHER, StudioFrame::OnLoad)
 	EVT_COMMAND(wxID_ANY, EVENT_SET_PROJECT_DIRTY, StudioFrame::OnSetProjectDirty)
+	EVT_COMMAND(wxID_ANY, EVENT_SET_STATUS_TEXT, StudioFrame::OnSetStatusText)
 	EVT_COMMAND(wxID_ANY, EVENT_UPDATE_AUDIO_NAME, StudioFrame::OnUpdateAudioName)
 END_EVENT_TABLE()
 
@@ -818,5 +820,9 @@ void StudioFrame::OnUpdateAudioName(wxCommandEvent& event) {
 	if (trackPane) {
 		trackPane->UpdateAudioName(str.substr(0, len), str.substr(len));
 	}
+}
+
+void StudioFrame::OnSetStatusText(wxCommandEvent& event) {
+	SetStatusText(event.GetString());
 }
 
