@@ -28,7 +28,7 @@
 #include "oamlCommon.h"
 
 
-PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, id, _("Playback"), wxPoint(50, 50), wxSize(360, 180), wxFRAME_TOOL_WINDOW | wxFRAME_FLOAT_ON_PARENT | wxCAPTION | wxRESIZE_BORDER) {
+PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, id, _("Playback"), wxPoint(50, 50), wxSize(360, 180), wxFRAME_TOOL_WINDOW | wxFRAME_FLOAT_ON_PARENT | wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX) {
 	mSizer = new wxBoxSizer(wxVERTICAL);
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -75,6 +75,8 @@ PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, 
 
 	mSizer->Add(hSizer, 0, wxEXPAND | wxGROW | wxALL);
 
+	Bind(wxEVT_CLOSE_WINDOW, &PlaybackFrame::OnClose, this);
+
 	SetSizer(mSizer);
 	Layout();
 
@@ -90,6 +92,13 @@ PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, 
 
 PlaybackFrame::~PlaybackFrame() {
 	delete timer;
+}
+
+void PlaybackFrame::OnClose(wxCloseEvent& event) {
+	wxCommandEvent event2(EVENT_CLOSE_PLAYBACK);
+	wxPostEvent(GetParent(), event2);
+
+	event.Veto();
 }
 
 void PlaybackFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
@@ -129,4 +138,3 @@ PlaybackTimer::PlaybackTimer(PlaybackFrame* pane) : wxTimer() {
 void PlaybackTimer::Notify() {
 	pane->Update();
 }
-

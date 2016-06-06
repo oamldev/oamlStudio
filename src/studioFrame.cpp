@@ -48,16 +48,18 @@
 
 
 wxDEFINE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_REMOVE_AUDIO_FILE, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_QUIT, wxCommandEvent);
-wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_CLOSE_PLAYBACK, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_CLOSE_SETTINGS, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_PLAY, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_REMOVE_AUDIO_FILE, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_QUIT, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SET_PROJECT_DIRTY, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_SET_STATUS_TEXT, wxCommandEvent);
+wxDEFINE_EVENT(EVENT_SELECT_AUDIO, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_UPDATE_AUDIO_NAME, wxCommandEvent);
 wxDEFINE_EVENT(EVENT_UPDATE_LAYOUT, wxCommandEvent);
 
@@ -80,14 +82,16 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_PlaybackPanel, StudioFrame::OnPlaybackPanel)
 	EVT_MENU(ID_SettingsPanel, StudioFrame::OnSettingsPanel)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
-	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_LAYER, StudioFrame::OnAddLayer)
-	EVT_COMMAND(wxID_ANY, EVENT_PLAY, StudioFrame::OnPlay)
-	EVT_COMMAND(wxID_ANY, EVENT_QUIT, StudioFrame::OnQuit)
-	EVT_COMMAND(wxID_ANY, EVENT_NEW_PROJECT, StudioFrame::OnNew)
+	EVT_COMMAND(wxID_ANY, EVENT_CLOSE_PLAYBACK, StudioFrame::OnClosePlayback)
+	EVT_COMMAND(wxID_ANY, EVENT_CLOSE_SETTINGS, StudioFrame::OnCloseSettings)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_PROJECT, StudioFrame::OnLoadProject)
 	EVT_COMMAND(wxID_ANY, EVENT_LOAD_OTHER, StudioFrame::OnLoad)
+	EVT_COMMAND(wxID_ANY, EVENT_NEW_PROJECT, StudioFrame::OnNew)
+	EVT_COMMAND(wxID_ANY, EVENT_PLAY, StudioFrame::OnPlay)
+	EVT_COMMAND(wxID_ANY, EVENT_QUIT, StudioFrame::OnQuit)
+	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_SET_PROJECT_DIRTY, StudioFrame::OnSetProjectDirty)
 	EVT_COMMAND(wxID_ANY, EVENT_SET_STATUS_TEXT, StudioFrame::OnSetStatusText)
 	EVT_COMMAND(wxID_ANY, EVENT_UPDATE_AUDIO_NAME, StudioFrame::OnUpdateAudioName)
@@ -228,9 +232,9 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	Centre(wxBOTH);
 
-	playFrame = new PlaybackFrame(this, wxID_ANY);
-	playFrame->Show(true);
-	viewMenu->Check(ID_PlaybackPanel, playFrame->IsShown());
+	playbackFrame = new PlaybackFrame(this, wxID_ANY);
+	playbackFrame->Show(true);
+	viewMenu->Check(ID_PlaybackPanel, playbackFrame->IsShown());
 
 	settingsFrame = new SettingsFrame(this, wxID_ANY);
 	settingsFrame->Show(false);
@@ -896,9 +900,14 @@ void StudioFrame::OnPlay(wxCommandEvent& WXUNUSED(event)) {
 }
 
 void StudioFrame::OnPlaybackPanel(wxCommandEvent& WXUNUSED(event)) {
-	bool show = playFrame->IsShown() ? false : true;
-	playFrame->Show(show);
+	bool show = playbackFrame->IsShown() ? false : true;
+	playbackFrame->Show(show);
 	viewMenu->Check(ID_PlaybackPanel, show);
+}
+
+void StudioFrame::OnClosePlayback(wxCommandEvent& WXUNUSED(event)) {
+	playbackFrame->Show(false);
+	viewMenu->Check(ID_PlaybackPanel, false);
 }
 
 void StudioFrame::OnSettingsPanel(wxCommandEvent& WXUNUSED(event)) {
@@ -906,6 +915,11 @@ void StudioFrame::OnSettingsPanel(wxCommandEvent& WXUNUSED(event)) {
 	settingsFrame->Show(show);
 	settingsFrame->Center();
 	viewMenu->Check(ID_SettingsPanel, show);
+}
+
+void StudioFrame::OnCloseSettings(wxCommandEvent& WXUNUSED(event)) {
+	settingsFrame->Show(false);
+	viewMenu->Check(ID_SettingsPanel, false);
 }
 
 void StudioFrame::OnUpdateAudioName(wxCommandEvent& event) {

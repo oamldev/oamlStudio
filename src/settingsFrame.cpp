@@ -28,7 +28,7 @@
 #include "oamlCommon.h"
 
 
-SettingsFrame::SettingsFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, id, _("Settings"), wxPoint(50, 50), wxSize(360, 180), wxFRAME_TOOL_WINDOW | wxFRAME_FLOAT_ON_PARENT | wxCAPTION | wxRESIZE_BORDER) {
+SettingsFrame::SettingsFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, id, _("Settings"), wxPoint(50, 50), wxSize(360, 180), wxFRAME_TOOL_WINDOW | wxFRAME_FLOAT_ON_PARENT | wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX) {
 	mSizer = new wxBoxSizer(wxVERTICAL);
 
 	sizer = new wxGridSizer(2, 0, 0);
@@ -49,6 +49,8 @@ SettingsFrame::SettingsFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, 
 
 	mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
 
+	Bind(wxEVT_CLOSE_WINDOW, &SettingsFrame::OnClose, this);
+
 	SetSizer(mSizer);
 	Layout();
 }
@@ -59,6 +61,13 @@ SettingsFrame::~SettingsFrame() {
 void SettingsFrame::OnLoad() {
 	bpmCtrl->SetValue(studioApi->ProjectGetBPM());
 	bpbCtrl->SetValue(studioApi->ProjectGetBeatsPerBar());
+}
+
+void SettingsFrame::OnClose(wxCloseEvent& event) {
+	wxCommandEvent event2(EVENT_CLOSE_SETTINGS);
+	wxPostEvent(GetParent(), event2);
+
+	event.Veto();
 }
 
 void SettingsFrame::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {

@@ -33,6 +33,8 @@ extern std::string projectPath;
 
 wxDECLARE_EVENT(EVENT_ADD_AUDIO, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_ADD_LAYER, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_CLOSE_PLAYBACK, wxCommandEvent);
+wxDECLARE_EVENT(EVENT_CLOSE_SETTINGS, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_LOAD_PROJECT, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_LOAD_OTHER, wxCommandEvent);
 wxDECLARE_EVENT(EVENT_NEW_PROJECT, wxCommandEvent);

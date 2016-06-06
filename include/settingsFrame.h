@@ -39,8 +39,9 @@ public:
 
 	void OnLoad();
 
-	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
-	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
+	void OnClose(wxCloseEvent& event);
+	void OnBpmChange(wxCommandEvent& event);
+	void OnBpbChange(wxCommandEvent& event);
 };
 
 #endif

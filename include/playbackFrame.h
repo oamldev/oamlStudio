@@ -42,6 +42,7 @@ public:
 	PlaybackFrame(wxWindow *parent, wxWindowID id);
 	~PlaybackFrame();
 
+	void OnClose(wxCloseEvent& event);
 	void OnPlay(wxCommandEvent& WXUNUSED(event));
 	void OnPause(wxCommandEvent& WXUNUSED(event));
 	void OnCondition(wxCommandEvent& WXUNUSED(event));

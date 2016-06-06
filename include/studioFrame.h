@@ -73,7 +73,7 @@ private:
 	TrackPanel* trackPane;
 	TrackControl* trackControl;
 	StudioTimer* timer;
-	PlaybackFrame* playFrame;
+	PlaybackFrame* playbackFrame;
 	SettingsFrame* settingsFrame;
 	LayerPanel* layerPanel;
 
@@ -113,6 +113,8 @@ public:
 	void OnAddMusicTrack(wxCommandEvent& event);
 	void OnAddSfxTrack(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
+	void OnClosePlayback(wxCommandEvent& event);
+	void OnCloseSettings(wxCommandEvent& event);
 	void OnEditMusicTrackName(wxCommandEvent& event);
 	void OnEditSfxTrackName(wxCommandEvent& event);
 	void OnExport(wxCommandEvent& event);
