@@ -68,6 +68,7 @@ enum {
 	ID_Recent,
 	ID_Condition,
 	ID_PlaybackPanel,
+	ID_SettingsPanel,
 	ID_AddLayer,
 	ID_RemveLayer
 };

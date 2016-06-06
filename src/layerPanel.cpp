@@ -44,9 +44,18 @@
 
 
 LayerPanel::LayerPanel(wxFrame* parent) : wxPanel(parent) {
+	waveformHeight = 104;
+
 	sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	vSizer = new wxBoxSizer(wxVERTICAL);
+
+	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Layers --"));
+	vSizer->Add(staticText, 0, wxALL, 5);
+
+	wxSize s = staticText->GetClientSize();
+	vSizer->Add(0, waveformHeight/2 - s.GetHeight());
+
 	sizer->Add(vSizer);
 
 	wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL);
@@ -56,25 +65,48 @@ LayerPanel::LayerPanel(wxFrame* parent) : wxPanel(parent) {
 	Layout();
 }
 
+void LayerPanel::AddLayer(std::string name, int id) {
+	wxTextCtrl *textCtrl = new wxTextCtrl(this, wxID_ANY, name, wxDefaultPosition, wxSize(80, -1));
+	layerData *data = new layerData();
+
+	textCtrl->SetClientData(data);
+	textCtrl->Bind(wxEVT_TEXT, &LayerPanel::OnLayerNameChange, this, wxID_ANY, wxID_ANY);
+	vSizer->Add(textCtrl, 0, wxALL, 5);
+
+	wxSize s = textCtrl->GetClientSize();
+	vSizer->Add(0, waveformHeight - s.GetHeight());
+
+	data->nameCtrl = textCtrl;
+	data->name = name;
+	data->id = id;
+
+	layers.push_back(data);
+}
+
 void LayerPanel::LoadLayers() {
-	int waveformHeight = 104;
-
 	std::vector<std::string> list;
+
 	studioApi->LayerList(list);
-
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Layers --"));
-	vSizer->Add(staticText, 0, wxALL, 5);
-
-	wxSize s = staticText->GetClientSize();
-	vSizer->Add(0, waveformHeight/2 - s.GetHeight());
-
 	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
-		staticText = new wxStaticText(this, wxID_ANY, wxString(it->c_str()));
-		vSizer->Add(staticText, 0, wxALL, 5);
-
-		s = staticText->GetClientSize();
-		vSizer->Add(0, waveformHeight - s.GetHeight());
+		std::string name = *it;
+		AddLayer(name, studioApi->LayerGetId(name));
 	}
 
 	Layout();
 }
+
+void LayerPanel::OnLayerNameChange(wxCommandEvent& event) {
+	wxTextCtrl *textCtrl = (wxTextCtrl*)event.GetEventObject();
+	layerData *data = (layerData*)textCtrl->GetClientData();
+
+	wxString str = textCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	studioApi->LayerRename(data->name, str.ToStdString());
+
+	// Mark the project dirty
+	wxCommandEvent event2(EVENT_SET_PROJECT_DIRTY);
+	wxPostEvent(GetParent(), event2);
+}
+

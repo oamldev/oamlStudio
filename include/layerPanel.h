@@ -23,15 +23,27 @@
 #ifndef __LAYERPANEL_H__
 #define __LAYERPANEL_H__
 
+typedef struct {
+	int id;
+	std::string name;
+	wxTextCtrl *nameCtrl;
+} layerData;
+
 class LayerPanel : public wxPanel {
 private:
 	wxBoxSizer *sizer;
 	wxBoxSizer *vSizer;
 
+	int waveformHeight;
+	std::vector<layerData*> layers;
+
 public:
 	LayerPanel(wxFrame* parent);
 
+	void OnLayerNameChange(wxCommandEvent& event);
+
 	void LoadLayers();
+	void AddLayer(std::string name, int id);
 };
 
 #endif

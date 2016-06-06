@@ -78,6 +78,7 @@ BEGIN_EVENT_TABLE(StudioFrame, wxFrame)
 	EVT_MENU(ID_RemoveMusicTrack, StudioFrame::OnRemoveMusicTrack)
 	EVT_MENU(ID_RemoveSfxTrack, StudioFrame::OnRemoveSfxTrack)
 	EVT_MENU(ID_PlaybackPanel, StudioFrame::OnPlaybackPanel)
+	EVT_MENU(ID_SettingsPanel, StudioFrame::OnSettingsPanel)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, StudioFrame::OnRecentFile)
 	EVT_COMMAND(wxID_ANY, EVENT_SELECT_AUDIO, StudioFrame::OnSelectAudio)
 	EVT_COMMAND(wxID_ANY, EVENT_ADD_AUDIO, StudioFrame::OnAddAudio)
@@ -162,6 +163,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 	viewMenu = new wxMenu;
 	viewMenu->AppendCheckItem(ID_PlaybackPanel, _("&Playback Panel"));
+	viewMenu->AppendCheckItem(ID_SettingsPanel, _("&Settings Panel"));
 	viewMenu->AppendSeparator();
 
 	menuBar->Append(viewMenu, _("&View"));
@@ -229,6 +231,10 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	playFrame = new PlaybackFrame(this, wxID_ANY);
 	playFrame->Show(true);
 	viewMenu->Check(ID_PlaybackPanel, playFrame->IsShown());
+
+	settingsFrame = new SettingsFrame(this, wxID_ANY);
+	settingsFrame->Show(false);
+	viewMenu->Check(ID_SettingsPanel, settingsFrame->IsShown());
 
 	StartupFrame *startupFrame = new StartupFrame(this);
 	startupFrame->Show(true);
@@ -446,6 +452,8 @@ void StudioFrame::Load(std::string filename) {
 			sfxList->InsertItem(sfxList->GetItemCount(), wxString(track->name));
 		}
 	}
+
+	settingsFrame->OnLoad();
 }
 
 void StudioFrame::OnLoadProject(wxCommandEvent& event) {
@@ -494,12 +502,23 @@ tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, o
 	AddSimpleChildToNode(audioEl, "name", audio->name.c_str());
 
 	for (std::vector<oamlAudioFileInfo>::iterator file=audio->files.begin(); file<audio->files.end(); ++file) {
+		tinyxml2::XMLElement *el = audioEl->GetDocument()->NewElement("filename");
+
 		if (createPkg) {
 			wxFileName fname(file->filename);
-			AddSimpleChildToNode(audioEl, "filename", fname.GetFullName().ToStdString().c_str());
+			el->SetText(fname.GetFullName().ToStdString().c_str());
 		} else {
-			AddSimpleChildToNode(audioEl, "filename", file->filename.c_str());
+			el->SetText(file->filename.c_str());
 		}
+
+		if (file->layer != "") {
+			el->SetAttribute("layer", file->layer.c_str());
+		}
+		if (file->randomChance != -1) {
+			el->SetAttribute("randomChance", file->randomChance);
+		}
+
+		audioEl->InsertEndChild(el);
 	}
 
 	if (audio->type) AddSimpleChildToNode(audioEl, "type", audio->type);
@@ -521,7 +540,7 @@ tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, o
 	return audioEl;
 }
 
-void StudioFrame::CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg) {
+tinyxml2::XMLNode* StudioFrame::CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg) {
 	tinyxml2::XMLNode *trackEl = xmlDoc.NewElement("track");
 	if (track->sfxTrack) {
 		trackEl->ToElement()->SetAttribute("type", "sfx");
@@ -554,16 +573,26 @@ void StudioFrame::CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *
 		}
 	}
 
-	xmlDoc.InsertEndChild(trackEl);
+	return trackEl;
 }
 
 void StudioFrame::CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg) {
 	xmlDoc.InsertFirstChild(xmlDoc.NewDeclaration());
 
 	oamlTracksInfo *info = oaml->GetTracksInfo();
+	tinyxml2::XMLNode *prjEl = xmlDoc.NewElement("project");
+
+	if (info->bpm) AddSimpleChildToNode(prjEl, "bpm", info->bpm);
+	if (info->beatsPerBar) AddSimpleChildToNode(prjEl, "beatsPerBar", info->beatsPerBar);
+
 	for (std::vector<oamlTrackInfo>::iterator track=info->tracks.begin(); track<info->tracks.end(); ++track) {
-		CreateTrackDefs(xmlDoc, &(*track), createPkg);
+		tinyxml2::XMLNode *el = CreateTrackDefs(xmlDoc, &(*track), createPkg);
+		if (el != NULL) {
+			prjEl->InsertEndChild(el);
+		}
 	}
+
+	xmlDoc.InsertEndChild(prjEl);
 }
 
 void StudioFrame::Save() {
@@ -870,6 +899,13 @@ void StudioFrame::OnPlaybackPanel(wxCommandEvent& WXUNUSED(event)) {
 	bool show = playFrame->IsShown() ? false : true;
 	playFrame->Show(show);
 	viewMenu->Check(ID_PlaybackPanel, show);
+}
+
+void StudioFrame::OnSettingsPanel(wxCommandEvent& WXUNUSED(event)) {
+	bool show = settingsFrame->IsShown() ? false : true;
+	settingsFrame->Show(show);
+	settingsFrame->Center();
+	viewMenu->Check(ID_SettingsPanel, show);
 }
 
 void StudioFrame::OnUpdateAudioName(wxCommandEvent& event) {

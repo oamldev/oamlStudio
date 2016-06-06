@@ -79,6 +79,7 @@ set(SRCS
 	src/layerPanel.cpp
 	src/oamlStudio.cpp
 	src/playbackFrame.cpp
+	src/settingsFrame.cpp
 	src/startupFrame.cpp
 	src/studioFrame.cpp
 	src/trackControl.cpp

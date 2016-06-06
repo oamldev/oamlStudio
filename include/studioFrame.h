@@ -74,6 +74,7 @@ private:
 	TrackControl* trackControl;
 	StudioTimer* timer;
 	PlaybackFrame* playFrame;
+	SettingsFrame* settingsFrame;
 	LayerPanel* layerPanel;
 
 	wxMenu* viewMenu;
@@ -104,7 +105,7 @@ public:
 	~StudioFrame();
 
 	tinyxml2::XMLNode* CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, oamlAudioInfo *audio, bool createPkg);
-	void CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg);
+	tinyxml2::XMLNode* CreateTrackDefs(tinyxml2::XMLDocument& xmlDoc, oamlTrackInfo *track, bool createPkg);
 
 	void OnAbout(wxCommandEvent& event);
 	void OnAddAudio(wxCommandEvent& event);
@@ -129,6 +130,7 @@ public:
 	void OnRemoveSfxTrack(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void OnSetProjectDirty(wxCommandEvent& event);
+	void OnSettingsPanel(wxCommandEvent& event);
 	void OnSfxListActivated(wxListEvent& event);
 	void OnSfxListMenu(wxMouseEvent& event);
 	void OnSfxEndLabelEdit(wxListEvent& event);

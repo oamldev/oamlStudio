@@ -20,62 +20,27 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef __OAMLCOMMON_H__
-#define __OAMLCOMMON_H__
+#ifndef __SETTINGSFRAME_H__
+#define __SETTINGSFRAME_H__
 
-#include <assert.h>
+#include <wx/spinctrl.h>
 
-//
-// Definitions
-//
+class SettingsFrame: public wxFrame {
+private:
+	wxSpinCtrlDouble *bpmCtrl;
+	wxSpinCtrlDouble *bpbCtrl;
 
-#ifdef _WIN32
-#define PATH_SEPARATOR "\\"
-#else
-#define PATH_SEPARATOR "/"
-#endif
+	wxBoxSizer *mSizer;
+	wxGridSizer *sizer;
 
+public:
+	SettingsFrame(wxWindow *parent, wxWindowID id);
+	~SettingsFrame();
 
-// Visual Studio specific stuff
-#ifdef _MSC_VER
+	void OnLoad();
 
-#define snprintf	sprintf_s
-
-#endif
-
-
-#ifdef DEBUG
-
-#ifdef _MSC_VER
-#define ASSERT(e)
-#else
-#define ASSERT(e)  \
-    ((void) ((e) ? ((void)0) : __assert (#e, __FILE__, __LINE__)))
-#endif
-
-#else
-
-#define ASSERT(e)
+	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
+	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
+};
 
 #endif
-
-#include <oaml.h>
-#include "ByteBuffer.h"
-#include "audioFile.h"
-#include "aif.h"
-#include "ogg.h"
-#include "wav.h"
-#include "oamlStudio.h"
-#include "waveformDisplay.h"
-#include "layerPanel.h"
-#include "audioFilePanel.h"
-#include "audioPanel.h"
-#include "playbackFrame.h"
-#include "settingsFrame.h"
-#include "controlPanel.h"
-#include "trackPanel.h"
-#include "trackControl.h"
-#include "startupFrame.h"
-#include "studioFrame.h"
-
-#endif /* __OAMLCOMMON_H__ */
