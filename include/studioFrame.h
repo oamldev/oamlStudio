@@ -73,6 +73,7 @@ private:
 	TrackPanel* trackPane;
 	TrackControl* trackControl;
 	StudioTimer* timer;
+	StartupFrame* startupFrame;
 	PlaybackFrame* playbackFrame;
 	SettingsFrame* settingsFrame;
 	LayerPanel* layerPanel;
@@ -91,7 +92,7 @@ private:
 
 	void CreateDefs(tinyxml2::XMLDocument& xmlDoc, bool createPkg = false);
 	void Save();
-	void SaveAs();
+	bool SaveAs();
 
 	int WriteDefsToZip(struct archive *zip);
 	int WriteFileToZip(struct archive *zip, std::string file);

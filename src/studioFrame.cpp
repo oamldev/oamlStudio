@@ -240,7 +240,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	settingsFrame->Show(false);
 	viewMenu->Check(ID_SettingsPanel, settingsFrame->IsShown());
 
-	StartupFrame *startupFrame = new StartupFrame(this);
+	startupFrame = new StartupFrame(this);
 	startupFrame->Show(true);
 
 	dirty = false;
@@ -406,7 +406,7 @@ void StudioFrame::OnQuit(wxCommandEvent& WXUNUSED(event)) {
 	Close(TRUE);
 }
 
-void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
+void StudioFrame::OnNew(wxCommandEvent& event) {
 	// Destroy the track panel
 	if (trackPane) {
 		trackPane->Destroy();
@@ -420,7 +420,9 @@ void StudioFrame::OnNew(wxCommandEvent& WXUNUSED(event)) {
 	studioApi->ProjectNew();
 
 	// Ask the user to save it, path resolution will be based on the project path
-	SaveAs();
+	if (SaveAs() == false) {
+		startupFrame->Show(true);
+	}
 }
 
 void StudioFrame::Load(std::string filename) {
@@ -610,10 +612,10 @@ void StudioFrame::Save() {
 	dirty = false;
 }
 
-void StudioFrame::SaveAs() {
+bool StudioFrame::SaveAs() {
 	wxFileDialog openFileDialog(this, _("Save oaml.defs"), wxEmptyString, "oaml.defs", "*.defs", wxFD_SAVE);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
-		return;
+		return false;
 
 	defsPath = openFileDialog.GetPath();
 	wxFileName fname(defsPath);
@@ -621,6 +623,7 @@ void StudioFrame::SaveAs() {
 	InitCallbacks(projectPath);
 
 	Save();
+	return true;
 }
 
 void StudioFrame::OnSave(wxCommandEvent& WXUNUSED(event)) {
