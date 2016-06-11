@@ -622,6 +622,8 @@ bool StudioFrame::SaveAs() {
 	projectPath = fname.GetPathWithSep();
 	InitCallbacks(projectPath);
 
+	fileHistory->AddFileToHistory(defsPath);
+
 	Save();
 	return true;
 }
@@ -815,6 +817,12 @@ void StudioFrame::OnEditSfxTrackName(wxCommandEvent& WXUNUSED(event)) {
 void StudioFrame::OnRemoveMusicTrack(wxCommandEvent& WXUNUSED(event)) {
 	wxString str = musicList->GetItemText(musicList->GetFirstSelected());
 	std::string name = str.ToStdString();
+
+	wxString msg = "Are you sure you want to remove track '" + str + "'?";
+	int ret = wxMessageBox(msg, "Confirm", wxYES_NO, this);
+	if (ret == wxNO) {
+		return;
+	}
 
 	// If the track is currently selected deselect it
 	if (trackControl && trackControl->GetTrackName() == name) {
