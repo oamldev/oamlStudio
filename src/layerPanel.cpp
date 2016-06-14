@@ -61,11 +61,14 @@ LayerPanel::LayerPanel(wxFrame* parent) : wxPanel(parent) {
 	wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL);
 	sizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
 
+	Bind(wxEVT_RIGHT_UP, &LayerPanel::OnRightUp, this);
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &LayerPanel::OnMenuEvent, this);
+
 	SetSizer(sizer);
 	Layout();
 }
 
-void LayerPanel::AddLayer(std::string name, int id) {
+void LayerPanel::AddLayer(std::string name) {
 	wxTextCtrl *textCtrl = new wxTextCtrl(this, wxID_ANY, name, wxDefaultPosition, wxSize(80, -1));
 	layerData *data = new layerData();
 
@@ -78,18 +81,24 @@ void LayerPanel::AddLayer(std::string name, int id) {
 
 	data->nameCtrl = textCtrl;
 	data->name = name;
-	data->id = id;
+	data->id = studioApi->LayerGetId(name);
 
 	layers.push_back(data);
+
+	Layout();
 }
 
 void LayerPanel::LoadLayers() {
 	std::vector<std::string> list;
 
 	studioApi->LayerList(list);
-	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
-		std::string name = *it;
-		AddLayer(name, studioApi->LayerGetId(name));
+	if (list.size() == 0) {
+		AddNewLayer();
+	} else {
+		for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
+			std::string name = *it;
+			AddLayer(name);
+		}
 	}
 
 	Layout();
@@ -110,3 +119,28 @@ void LayerPanel::OnLayerNameChange(wxCommandEvent& event) {
 	wxPostEvent(GetParent(), event2);
 }
 
+void LayerPanel::AddNewLayer() {
+	std::vector<std::string> list;
+
+	studioApi->LayerList(list);
+
+	char str[256];
+	snprintf(str, 256, "Layer%d", int(list.size() + 1));
+	std::string name = str;
+	studioApi->LayerNew(name);
+	AddLayer(name);
+}
+
+void LayerPanel::OnMenuEvent(wxCommandEvent& event) {
+	switch (event.GetId()) {
+		case ID_AddLayer:
+			AddNewLayer();
+			break;
+	}
+}
+
+void LayerPanel::OnRightUp(wxMouseEvent& WXUNUSED(event)) {
+	wxMenu menu(wxT(""));
+	menu.Append(ID_AddLayer, wxT("&Add Layer"));
+	PopupMenu(&menu);
+}

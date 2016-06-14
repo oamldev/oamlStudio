@@ -51,6 +51,8 @@ AudioFilePanel::AudioFilePanel(std::string _trackName, std::string _audioName, w
 	SetSizer(sizer);
 
 	Bind(wxEVT_PAINT, &AudioFilePanel::OnPaint, this);
+	Bind(wxEVT_RIGHT_UP, &AudioFilePanel::OnRightUp, this);
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &AudioFilePanel::OnMenuEvent, this);
 	Bind(EVENT_REMOVE_AUDIO_FILE, &AudioFilePanel::OnRemoveAudioFile, this);
 }
 
@@ -73,6 +75,10 @@ void AudioFilePanel::RemoveWaveform(std::string filename) {
 			delete waveDisplay;
 
 			studioApi->AudioFileRemove(trackName, audioName, filename);
+
+			// Mark the project dirty
+			wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
+			wxPostEvent(GetParent(), event);
 		}
 	}
 
@@ -118,33 +124,66 @@ void AudioFilePanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 	dc.DrawLine(0,  y2, x2, y2);
 }
 
-void AudioFilePanel::AddLayerDialog() {
-	wxFileDialog openFileDialog(this, _("Open audio file"), wxEmptyString, "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+void AudioFilePanel::AddAudioFilePath(wxString path) {
+/*	wxFileName filename(path);
+
+	filename.MakeRelativeTo(wxString(projectPath));
+	std::string fname = filename.GetFullPath().ToStdString();
+
+	int type = 2;
+	switch (panelIndex) {
+		case 0: type = 1; break;
+		case 1: type = 2; break;
+		case 2: type = 4; break;
+	}
+
+	std::string name;
+	for (int i=0; i<1000; i++) {
+		char str[1024];
+		snprintf(str, 1024, "audio%d", i);
+		name = str;
+		if (studioApi->AudioExists(trackName, name) == false) {
+			break;
+		}
+	}
+
+	studioApi->AudioNew(trackName, name, type);
+	studioApi->AudioAddAudioFile(trackName, name, fname);
+
+	AddAudio(name);
+
+	// Mark the project dirty
+	wxCommandEvent event2(EVENT_SET_PROJECT_DIRTY);
+	wxPostEvent(GetParent(), event2);*/
+}
+
+void AudioFilePanel::AddAudioFileDialog() {
+/*	wxFileDialog openFileDialog(this, _("Open audio file"), wxEmptyString, "", "Audio files (*.wav;*.aif;*.ogg)|*.aif;*.aiff;*.wav;*.wave;*.ogg", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 
-/*	oamlAudioInfo audio;
-	memset(&audio, 0, sizeof(oamlAudioInfo));
-	wxFileName filename(openFileDialog.GetPath());
-	wxFileName defsPath(oaml->GetDefsFile());
-	filename.MakeRelativeTo(wxString(defsPath.GetPath()));
-	std::string fname = filename.GetFullPath().ToStdString();*/
-
-/*	oamlLayerInfo layer;
-	layer.filename = fname;
-	audio.layers.push_back(layer);
-	switch (panelIndex) {
-		case 0: audio.type = 1; break;
-		case 1: audio.type = 2; break;
-		case 2: audio.type = 4; break;
-		case 3: audio.type = 3; break;
-	}
-
-	wxCommandEvent event(EVENT_ADD_AUDIO);
-	event.SetString(fname);
-	wxPostEvent(GetParent(), event);*/
+	wxArrayString paths;
+	openFileDialog.GetPaths(paths);
+	for (size_t i=0; i<paths.GetCount(); i++) {
+		AddAudioFilePath(paths.Item(i));
+	}*/
 }
 
 void AudioFilePanel::OnRemoveAudioFile(wxCommandEvent& event) {
 	RemoveWaveform(event.GetString().ToStdString());
 }
+
+void AudioFilePanel::OnMenuEvent(wxCommandEvent& event) {
+	switch (event.GetId()) {
+		case ID_AddAudioFile:
+			AddAudioFileDialog();
+			break;
+	}
+}
+
+void AudioFilePanel::OnRightUp(wxMouseEvent& WXUNUSED(event)) {
+/*	wxMenu menu(wxT(""));
+	menu.Append(ID_AddAudioFile, wxT("&Add AudioFile"));
+	PopupMenu(&menu);*/
+}
+

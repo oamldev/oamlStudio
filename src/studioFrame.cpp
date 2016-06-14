@@ -128,7 +128,7 @@ StudioFrame::StudioFrame(const wxString& title, const wxPoint& pos, const wxSize
 	trackPane = NULL;
 	controlPane = NULL;
 	rightLine = NULL;
-	layerPanel = NULL;
+//	layerPanel = NULL;
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *menuFile = new wxMenu;
@@ -271,10 +271,10 @@ void StudioFrame::SelectTrack(std::string name) {
 		trackPane->Destroy();
 		trackPane = NULL;
 	}
-	if (layerPanel) {
+/*	if (layerPanel) {
 		layerPanel->Destroy();
 		layerPanel = NULL;
-	}
+	}*/
 
 	if (name == "") {
 		trackControl->SetTrack(name);
@@ -293,8 +293,8 @@ void StudioFrame::SelectTrack(std::string name) {
 
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	layerPanel = new LayerPanel(this);
-	hSizer->Add(layerPanel, 0, wxEXPAND | wxALL, 5);
+//	layerPanel = new LayerPanel(this);
+//	hSizer->Add(layerPanel, 0, wxEXPAND | wxALL, 5);
 
 	trackPane = new TrackPanel(this, wxID_ANY, name);
 	trackPane->SetTrackMode(studioApi->TrackIsMusicTrack(name));
@@ -302,7 +302,7 @@ void StudioFrame::SelectTrack(std::string name) {
 
 	vSizer->Add(hSizer, 1, wxEXPAND | wxALL, 5);
 
-	layerPanel->LoadLayers();
+//	layerPanel->LoadLayers();
 
 	std::vector<std::string> list;
 	studioApi->TrackGetAudioList(name, list);

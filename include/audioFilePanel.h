@@ -31,6 +31,9 @@ private:
 	std::string trackName;
 	std::string audioName;
 
+	void AddAudioFilePath(wxString path);
+	void AddAudioFileDialog();
+
 public:
 	AudioFilePanel(std::string _trackName, std::string _audioName, wxFrame* parent);
 
@@ -40,10 +43,10 @@ public:
 	void RemoveWaveform(std::string filename);
 	void UpdateAudioName(std::string oldName, std::string newName);
 
-	void OnPaint(wxPaintEvent& WXUNUSED(evt));
+	void OnMenuEvent(wxCommandEvent& event);
+	void OnPaint(wxPaintEvent& evt);
 	void OnRemoveAudioFile(wxCommandEvent& evt);
-
-	void AddLayerDialog();
+	void OnRightUp(wxMouseEvent& event);
 };
 
 #endif

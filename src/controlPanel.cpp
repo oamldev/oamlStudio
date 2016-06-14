@@ -220,9 +220,7 @@ void ControlPanel::OnVolumeChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetVolume(trackName, audioName, vol);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -234,9 +232,7 @@ void ControlPanel::OnBpmChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetBPM(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -248,9 +244,7 @@ void ControlPanel::OnBpbChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetBeatsPerBar(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -262,9 +256,7 @@ void ControlPanel::OnBarsChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetBars(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -276,9 +268,7 @@ void ControlPanel::OnRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetRandomChance(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -290,9 +280,7 @@ void ControlPanel::OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetMinMovementBars(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -304,9 +292,7 @@ void ControlPanel::OnFadeInChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetFadeIn(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -318,9 +304,7 @@ void ControlPanel::OnFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetFadeOut(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -332,9 +316,7 @@ void ControlPanel::OnXFadeInChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetXFadeIn(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -346,9 +328,7 @@ void ControlPanel::OnXFadeOutChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetXFadeOut(trackName, audioName, value);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -364,9 +344,7 @@ void ControlPanel::OnCondIdChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetCondId(trackName, audioName, (int)l);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -377,9 +355,7 @@ void ControlPanel::OnCondTypeChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetCondType(trackName, audioName, condType);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 
@@ -395,9 +371,7 @@ void ControlPanel::OnCondValueChange(wxCommandEvent& WXUNUSED(event)) {
 		// Send the actual change to oaml through the studioApi
 		studioApi->AudioSetCondValue(trackName, audioName, (int)l);
 
-		// Mark the project dirty
-		wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
-		wxPostEvent(GetParent(), event);
+		MarkProjectDirty();
 	}
 }
 

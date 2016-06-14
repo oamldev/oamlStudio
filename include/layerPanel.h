@@ -43,7 +43,11 @@ public:
 	void OnLayerNameChange(wxCommandEvent& event);
 
 	void LoadLayers();
-	void AddLayer(std::string name, int id);
+	void AddLayer(std::string name);
+	void AddNewLayer();
+
+	void OnMenuEvent(wxCommandEvent& event);
+	void OnRightUp(wxMouseEvent& WXUNUSED(event));
 };
 
 #endif
