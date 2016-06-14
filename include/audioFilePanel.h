@@ -30,16 +30,18 @@ private:
 
 	std::string trackName;
 	std::string audioName;
+	bool sfxMode;
 
 	void AddAudioFilePath(wxString path);
 	void AddAudioFileDialog();
+	void UpdateLayout();
 
 public:
-	AudioFilePanel(std::string _trackName, std::string _audioName, wxFrame* parent);
+	AudioFilePanel(std::string _trackName, std::string _audioName, bool _sfxMode, wxFrame* parent);
 
 	bool IsEmpty();
 
-	void AddWaveform(std::string filename, std::string audioName, bool sfxMode);
+	void AddWaveform(std::string filename);
 	void RemoveWaveform(std::string filename);
 	void UpdateAudioName(std::string oldName, std::string newName);
 

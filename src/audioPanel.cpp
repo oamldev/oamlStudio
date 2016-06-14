@@ -80,13 +80,13 @@ void AudioPanel::OnPaint(wxPaintEvent& WXUNUSED(evt)) {
 }
 
 void AudioPanel::AddAudio(std::string audioName) {
-	AudioFilePanel *afp = new AudioFilePanel(trackName, audioName, (wxFrame*)this);
+	AudioFilePanel *afp = new AudioFilePanel(trackName, audioName, sfxMode, (wxFrame*)this);
 	std::vector<std::string> list;
 
 	filePanels.push_back(afp);
 	studioApi->AudioGetAudioFileList(trackName, audioName, list);
 	for (std::vector<std::string>::iterator it=list.begin(); it<list.end(); ++it) {
-		afp->AddWaveform(*it, audioName, sfxMode);
+		afp->AddWaveform(*it);
 	}
 
 	sizer->Add(afp, 0, wxALL, 5);
