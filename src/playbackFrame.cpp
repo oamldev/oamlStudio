@@ -70,14 +70,15 @@ PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, 
 
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	infoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(360, 80), wxTE_READONLY | wxTE_MULTILINE);
-	hSizer->Add(infoText, 0, wxEXPAND | wxGROW | wxALL, 5);
+	infoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(-1, -1), wxTE_READONLY | wxTE_MULTILINE);
+	infoText->SetMinSize(wxSize(320, 80));
+	hSizer->Add(infoText, 1, wxEXPAND | wxGROW | wxALL, 5);
 
-	mSizer->Add(hSizer, 0, wxEXPAND | wxGROW | wxALL);
+	mSizer->Add(hSizer, 1, wxEXPAND | wxGROW | wxALL);
 
 	Bind(wxEVT_CLOSE_WINDOW, &PlaybackFrame::OnClose, this);
 
-	SetSizer(mSizer);
+	SetSizerAndFit(mSizer);
 	Layout();
 
 	wxRect rect = parent->GetRect();
