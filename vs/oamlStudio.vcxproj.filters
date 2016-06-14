@@ -49,6 +49,8 @@
     <ClCompile Include="..\src\startupFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\audioFilePanel.cpp" />
+    <ClCompile Include="..\src\settingsFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\aif.h">
@@ -81,6 +83,8 @@
     <ClInclude Include="..\include\wav.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\audioFilePanel.h" />
+    <ClInclude Include="..\include\settingsFrame.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
