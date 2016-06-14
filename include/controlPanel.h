@@ -45,6 +45,8 @@ private:
 	wxComboBox *condTypeCtrl;
 	wxTextCtrl *condValueCtrl;
 	wxTextCtrl *condValue2Ctrl;
+	wxTextCtrl *afLayerCtrl;
+	wxSpinCtrlDouble *afRandomChanceCtrl;
 
 	wxBoxSizer *mSizer;
 	wxBoxSizer *hSizer;
@@ -64,23 +66,25 @@ public:
 	const char *GetAudioName() const { return audioName.c_str(); }
 	const char *GetTrack() const { return trackName.c_str(); }
 
-	void OnNameChange(wxCommandEvent& WXUNUSED(event));
-	void OnVolumeChange(wxCommandEvent& WXUNUSED(event));
-	void OnBpmChange(wxCommandEvent& WXUNUSED(event));
-	void OnBpbChange(wxCommandEvent& WXUNUSED(event));
-	void OnBarsChange(wxCommandEvent& WXUNUSED(event));
-	void OnRandomChanceChange(wxCommandEvent& WXUNUSED(event));
-	void OnMinMovementBarsChange(wxCommandEvent& WXUNUSED(event));
-	void OnFadeInChange(wxCommandEvent& WXUNUSED(event));
-	void OnFadeOutChange(wxCommandEvent& WXUNUSED(event));
-	void OnXFadeInChange(wxCommandEvent& WXUNUSED(event));
-	void OnXFadeOutChange(wxCommandEvent& WXUNUSED(event));
-	void OnCondIdChange(wxCommandEvent& WXUNUSED(event));
-	void OnCondTypeChange(wxCommandEvent& WXUNUSED(event));
-	void OnCondValueChange(wxCommandEvent& WXUNUSED(event));
-	void OnCondValue2Change(wxCommandEvent& WXUNUSED(event));
-	void OnPlay(wxCommandEvent& WXUNUSED(event));
-	void OnPause(wxCommandEvent& WXUNUSED(event));
+	void OnAFLayerChange(wxCommandEvent& event);
+	void OnAFRandomChanceChange(wxCommandEvent& event);
+	void OnNameChange(wxCommandEvent& event);
+	void OnVolumeChange(wxCommandEvent& event);
+	void OnBpmChange(wxCommandEvent& event);
+	void OnBpbChange(wxCommandEvent& event);
+	void OnBarsChange(wxCommandEvent& event);
+	void OnRandomChanceChange(wxCommandEvent& event);
+	void OnMinMovementBarsChange(wxCommandEvent& event);
+	void OnFadeInChange(wxCommandEvent& event);
+	void OnFadeOutChange(wxCommandEvent& event);
+	void OnXFadeInChange(wxCommandEvent& event);
+	void OnXFadeOutChange(wxCommandEvent& event);
+	void OnCondIdChange(wxCommandEvent& event);
+	void OnCondTypeChange(wxCommandEvent& event);
+	void OnCondValueChange(wxCommandEvent& event);
+	void OnCondValue2Change(wxCommandEvent& event);
+	void OnPlay(wxCommandEvent& event);
+	void OnPause(wxCommandEvent& event);
 	void SetTrack(std::string name);
 	void OnSelectAudio(std::string _audioName, std::string _filename);
 

@@ -54,37 +54,8 @@ ControlPanel::ControlPanel(wxFrame* parent, wxWindowID id) : wxPanel(parent, id)
 
 	mSizer = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Audio Controls --"));
-
-	hSizer = new wxBoxSizer(wxHORIZONTAL);
-
-	hSizer->Add(staticText, 1, wxEXPAND | wxALL, 0);
-
-	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
-
-	hSizer = new wxBoxSizer(wxHORIZONTAL);
-
-	staticText = new wxStaticText(this, wxID_ANY, wxString("Name"));
-	hSizer->Add(staticText, 0, wxALL, 5);
-
-	nameCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, -1));
-	nameCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnNameChange, this);
-	hSizer->Add(nameCtrl, 0, wxALL, 5);
-
-	staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
-	hSizer->Add(staticText, 0, wxALL, 5);
-
-	fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(320, -1), wxTE_READONLY);
-	hSizer->Add(fileCtrl, 0, wxALL, 5);
-
-	mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
-
-	sizer = new wxGridSizer(4, 0, 0);
-
-	mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
-
 	SetSizer(mSizer);
-	SetMinSize(wxSize(-1, 240));
+	SetMinSize(wxSize(-1, 300));
 
 	Layout();
 }
@@ -95,118 +66,219 @@ ControlPanel::~ControlPanel() {
 void ControlPanel::SetTrackMode(bool mode) {
 	int ctrlWidth = 160;
 	int ctrlHeight = -1;
+	int border = 2;
 
 	musicMode = mode;
 
-	wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("Volume"));
-	sizer->Add(staticText, 0, wxALL, 5);
-
-	volumeCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
-	volumeCtrl->SetRange(0.0, 1.0);
-	volumeCtrl->SetIncrement(0.1);
-	volumeCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnVolumeChange, this);
-	sizer->Add(volumeCtrl, 0, wxALL, 5);
-
 	if (musicMode) {
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Audio Controls --"));
+		hSizer->Add(staticText, 1, wxEXPAND | wxALL, 5);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Name"));
+		hSizer->Add(staticText, 0, wxALL, border);
+
+		nameCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, -1));
+		nameCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnNameChange, this);
+		hSizer->Add(nameCtrl, 0, wxALL, border);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+		sizer = new wxGridSizer(6, 0, 0);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Volume"));
+		sizer->Add(staticText, 0, wxALL, border);
+
+		volumeCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		volumeCtrl->SetRange(0.0, 1.0);
+		volumeCtrl->SetIncrement(0.1);
+		volumeCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnVolumeChange, this);
+		sizer->Add(volumeCtrl, 0, wxALL, border);
+
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Bpm"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		bpmCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		bpmCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBpmChange, this);
-		sizer->Add(bpmCtrl, 0, wxALL, 5);
+		sizer->Add(bpmCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Beats Per Bar"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		bpbCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		bpbCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBpbChange, this);
-		sizer->Add(bpbCtrl, 0, wxALL, 5);
+		sizer->Add(bpbCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Bars"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		barsCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		barsCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBarsChange, this);
-		sizer->Add(barsCtrl, 0, wxALL, 5);
+		sizer->Add(barsCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		randomChanceCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		randomChanceCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnRandomChanceChange, this);
-		sizer->Add(randomChanceCtrl, 0, wxALL, 5);
+		sizer->Add(randomChanceCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Min movement bars"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		minMovementBarsCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		minMovementBarsCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnMinMovementBarsChange, this);
-		sizer->Add(minMovementBarsCtrl, 0, wxALL, 5);
+		sizer->Add(minMovementBarsCtrl, 0, wxALL, border);
+
+		mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
+
+		sizer = new wxGridSizer(4, 0, 0);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade In"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		fadeInCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		fadeInCtrl->SetRange(0, 1000000);
 		fadeInCtrl->SetIncrement(100);
 		fadeInCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnFadeInChange, this);
-		sizer->Add(fadeInCtrl, 0, wxALL, 5);
+		sizer->Add(fadeInCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Fade Out"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		fadeOutCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		fadeOutCtrl->SetRange(0, 1000000);
 		fadeOutCtrl->SetIncrement(100);
 		fadeOutCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnFadeOutChange, this);
-		sizer->Add(fadeOutCtrl, 0, wxALL, 5);
+		sizer->Add(fadeOutCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade In"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		xfadeInCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		xfadeInCtrl->SetRange(0, 1000000);
 		xfadeInCtrl->SetIncrement(100);
 		xfadeInCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnXFadeInChange, this);
-		sizer->Add(xfadeInCtrl, 0, wxALL, 5);
+		sizer->Add(xfadeInCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Crossfade Out"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		xfadeOutCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
 		xfadeOutCtrl->SetRange(0, 1000000);
 		xfadeOutCtrl->SetIncrement(100);
 		xfadeOutCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnXFadeOutChange, this);
-		sizer->Add(xfadeOutCtrl, 0, wxALL, 5);
+		sizer->Add(xfadeOutCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Id"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		condIdCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
 		condIdCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondIdChange, this);
-		sizer->Add(condIdCtrl, 0, wxALL, 5);
+		sizer->Add(condIdCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Type"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		wxString condTypeStrings[4] = { "Equal", "Greater", "Less", "Range" };
 		condTypeCtrl = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight), 4, condTypeStrings, wxCB_READONLY);
 		condTypeCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondTypeChange, this);
-		sizer->Add(condTypeCtrl, 0, wxALL, 5);
+		sizer->Add(condTypeCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		condValueCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
 		condValueCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValueChange, this);
-		sizer->Add(condValueCtrl, 0, wxALL, 5);
+		sizer->Add(condValueCtrl, 0, wxALL, border);
 
 		staticText = new wxStaticText(this, wxID_ANY, wxString("Condition Value2"));
-		sizer->Add(staticText, 0, wxALL, 5);
+		sizer->Add(staticText, 0, wxALL, border);
 
 		condValue2Ctrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
 		condValue2Ctrl->Bind(wxEVT_TEXT, &ControlPanel::OnCondValue2Change, this);
-		sizer->Add(condValue2Ctrl, 0, wxALL, 5);
+		sizer->Add(condValue2Ctrl, 0, wxALL, border);
+
+		mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
+
+		wxStaticLine *staticLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
+		mSizer->Add(staticLine, 0, wxEXPAND | wxALL, 0);
+
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("-- AudioFile Controls --"));
+		hSizer->Add(staticText, 1, wxEXPAND | wxALL, border);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+		hSizer->Add(staticText, 0, wxALL, border);
+
+		fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(320, -1), wxTE_READONLY);
+		hSizer->Add(fileCtrl, 0, wxALL, border);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+		sizer = new wxGridSizer(4, 0, 0);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Layer"));
+		sizer->Add(staticText, 0, wxALL, border);
+
+		afLayerCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(ctrlWidth, ctrlHeight));
+		afLayerCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnAFLayerChange, this);
+		sizer->Add(afLayerCtrl, 0, wxALL, border);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Random Chance"));
+		sizer->Add(staticText, 0, wxALL, border);
+
+		afRandomChanceCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		afRandomChanceCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnAFRandomChanceChange, this);
+		sizer->Add(afRandomChanceCtrl, 0, wxALL, border);
+
+		mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
+	} else {
+		wxStaticText *staticText = new wxStaticText(this, wxID_ANY, wxString("-- Audio Controls --"));
+
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+		hSizer->Add(staticText, 1, wxEXPAND | wxALL, 5);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+		hSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Name"));
+		hSizer->Add(staticText, 0, wxALL, border);
+
+		nameCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(160, -1));
+		nameCtrl->Bind(wxEVT_TEXT, &ControlPanel::OnNameChange, this);
+		hSizer->Add(nameCtrl, 0, wxALL, border);
+
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Filename"));
+		hSizer->Add(staticText, 0, wxALL, border);
+
+		fileCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(320, -1), wxTE_READONLY);
+		hSizer->Add(fileCtrl, 0, wxALL, border);
+
+		mSizer->Add(hSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL);
+
+		sizer = new wxGridSizer(4, 0, 0);
+
+		mSizer->Add(sizer, 1, wxEXPAND | wxALL, 0);
+		staticText = new wxStaticText(this, wxID_ANY, wxString("Volume"));
+		sizer->Add(staticText, 0, wxALL, border);
+
+		volumeCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		volumeCtrl->SetRange(0.0, 1.0);
+		volumeCtrl->SetIncrement(0.1);
+		volumeCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnVolumeChange, this);
+		sizer->Add(volumeCtrl, 0, wxALL, border);
 	}
 
 	Layout();
@@ -413,6 +485,34 @@ void ControlPanel::OnNameChange(wxCommandEvent& WXUNUSED(event)) {
 	}
 }
 
+void ControlPanel::OnAFLayerChange(wxCommandEvent& WXUNUSED(event)) {
+	wxString str = afLayerCtrl->GetLineText(0);
+	if (str.IsEmpty())
+		return;
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioFileGetLayer(trackName, audioName, filename) != str.ToStdString()) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioFileSetLayer(trackName, audioName, filename, str.ToStdString());
+
+		MarkProjectDirty();
+	}
+}
+
+
+void ControlPanel::OnAFRandomChanceChange(wxCommandEvent& WXUNUSED(event)) {
+	int value = (int)afRandomChanceCtrl->GetValue();
+
+	// Don't change the actual value unless it's different
+	if (studioApi->AudioFileGetRandomChance(trackName, audioName, filename) != value) {
+		// Send the actual change to oaml through the studioApi
+		studioApi->AudioFileSetRandomChance(trackName, audioName, filename, value);
+
+		MarkProjectDirty();
+	}
+}
+
+
 void ControlPanel::MarkProjectDirty() {
 	wxCommandEvent event(EVENT_SET_PROJECT_DIRTY);
 	wxPostEvent(GetParent(), event);
@@ -434,6 +534,7 @@ void ControlPanel::OnSelectAudio(std::string _audioName, std::string _filename) 
 		condIdCtrl->Clear();
 		condValueCtrl->Clear();
 		condValue2Ctrl->Clear();
+		afLayerCtrl->Clear();
 	}
 
 	volumeCtrl->SetValue(studioApi->AudioGetVolume(trackName, audioName));
@@ -452,6 +553,9 @@ void ControlPanel::OnSelectAudio(std::string _audioName, std::string _filename) 
 		condTypeCtrl->SetSelection(studioApi->AudioGetCondType(trackName, audioName));
 		*condValueCtrl << studioApi->AudioGetCondValue(trackName, audioName);
 		*condValue2Ctrl << studioApi->AudioGetCondValue2(trackName, audioName);
+
+		afRandomChanceCtrl->SetValue(studioApi->AudioFileGetRandomChance(trackName, audioName, filename));
+		*afLayerCtrl << studioApi->AudioFileGetLayer(trackName, audioName, filename);
 	}
 
 	if (studioApi->AudioExists(trackName, audioName)) {
@@ -478,6 +582,8 @@ void ControlPanel::OnSelectAudio(std::string _audioName, std::string _filename) 
 		condTypeCtrl->Enable(enable);
 		condValueCtrl->Enable(enable);
 		condValue2Ctrl->Enable(enable);
+		afRandomChanceCtrl->Enable(enable);
+		afLayerCtrl->Enable(enable);
 	}
 }
 
