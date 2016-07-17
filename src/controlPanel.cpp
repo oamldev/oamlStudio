@@ -104,6 +104,7 @@ void ControlPanel::SetTrackMode(bool mode) {
 		sizer->Add(staticText, 0, wxALL, border);
 
 		bpmCtrl = new wxSpinCtrlDouble(this, wxID_ANY);
+		bpmCtrl->SetRange(0.0, 1000.0);
 		bpmCtrl->Bind(wxEVT_SPINCTRLDOUBLE, &ControlPanel::OnBpmChange, this);
 		sizer->Add(bpmCtrl, 0, wxALL, border);
 
