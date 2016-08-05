@@ -534,6 +534,7 @@ tinyxml2::XMLNode* StudioFrame::CreateAudioDefs(tinyxml2::XMLDocument& xmlDoc, o
 	if (audio->bars) AddSimpleChildToNode(audioEl, "bars", audio->bars);
 	if (audio->minMovementBars) AddSimpleChildToNode(audioEl, "minMovementBars", audio->minMovementBars);
 	if (audio->randomChance) AddSimpleChildToNode(audioEl, "randomChance", audio->randomChance);
+	if (audio->playOrder) AddSimpleChildToNode(audioEl, "playOrder", audio->playOrder);
 	if (audio->fadeIn) AddSimpleChildToNode(audioEl, "fadeIn", audio->fadeIn);
 	if (audio->fadeOut) AddSimpleChildToNode(audioEl, "fadeOut", audio->fadeOut);
 	if (audio->xfadeIn) AddSimpleChildToNode(audioEl, "xfadeIn", audio->xfadeIn);
