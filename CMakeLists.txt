@@ -1,5 +1,26 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 
+# Creates C resources file from files in given directory
+function(create_resources dir output)
+    # Create empty output file
+    file(WRITE ${output} "")
+    # Collect input files
+    file(GLOB bins ${dir}/*)
+    # Iterate through input files
+    foreach(bin ${bins})
+        # Get short filename
+        string(REGEX MATCH "([^/]+)$" filename ${bin})
+        # Replace filename spaces & extension separator for C compatibility
+        string(REGEX REPLACE "\\.| |-" "_" filename ${filename})
+        # Read hex data from file
+        file(READ ${bin} filedata HEX)
+        # Convert hex data for C compatibility
+        string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
+        # Append data to output file
+        file(APPEND ${output} "const unsigned char ${filename}[] = {${filedata}};\nconst unsigned ${filename}_size = sizeof(${filename});\n")
+    endforeach()
+endfunction()
+
 project(oamlStudio)
 set(oamlStudio_VERSION_MAJOR 1)
 set(oamlStudio_VERSION_MINOR 1)
@@ -69,9 +90,14 @@ find_package(OAML REQUIRED)
 set(LIBS ${LIBS} ${OAML_LIBRARIES})
 
 ##
+# Resource files
+#
+create_resources(images ${CMAKE_CURRENT_BINARY_DIR}/resources.h)
+
+##
 # 
 #
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${LibArchive_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${LibArchive_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(SRCS
 	src/audioFile.cpp
 	src/audioPanel.cpp
