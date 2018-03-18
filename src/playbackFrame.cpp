@@ -25,20 +25,41 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __APPLE__
+#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFBundle.h>
+#endif
+
 #include "oamlCommon.h"
 
-
 PlaybackFrame::PlaybackFrame(wxWindow *parent, wxWindowID id) : wxFrame(parent, id, _("Playback"), wxPoint(50, 50), wxSize(360, 180), wxFRAME_TOOL_WINDOW | wxFRAME_FLOAT_ON_PARENT | wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX) {
+	wxString playPng = wxT("images/play.png");
+	wxString pausePng = wxT("images/pause.png");
+
 	mSizer = new wxBoxSizer(wxVERTICAL);
 	hSizer = new wxBoxSizer(wxHORIZONTAL);
 
 	wxImage::AddHandler(new wxPNGHandler);
 
-	playBtn = new wxBitmapButton(this, ID_Play, wxBitmap(wxT("images/play.png"), wxBITMAP_TYPE_PNG));
+#ifdef __APPLE__
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef urlRef;
+
+	urlRef = CFBundleCopyResourceURL(mainBundle, CFSTR("play.png"), NULL, NULL);
+	playPng = CFStringGetCStringPtr(CFURLCopyFileSystemPath(urlRef, kCFURLPOSIXPathStyle), CFStringGetSystemEncoding());
+
+	CFRelease(urlRef);
+
+	urlRef = CFBundleCopyResourceURL(mainBundle, CFSTR("pause.png"), NULL, NULL);
+	pausePng = CFStringGetCStringPtr(CFURLCopyFileSystemPath(urlRef, kCFURLPOSIXPathStyle), CFStringGetSystemEncoding());
+	CFRelease(urlRef);
+#endif
+
+	playBtn = new wxBitmapButton(this, ID_Play, wxBitmap(playPng, wxBITMAP_TYPE_PNG));
 	playBtn->Bind(wxEVT_BUTTON, &PlaybackFrame::OnPlay, this);
 	hSizer->Add(playBtn, 0, wxALL, 5);
 
-	pauseBtn = new wxBitmapButton(this, ID_Pause, wxBitmap(wxT("images/pause.png"), wxBITMAP_TYPE_PNG));
+	pauseBtn = new wxBitmapButton(this, ID_Pause, wxBitmap(pausePng, wxBITMAP_TYPE_PNG));
 	pauseBtn->Bind(wxEVT_BUTTON, &PlaybackFrame::OnPause, this);
 	hSizer->Add(pauseBtn, 0, wxALL, 5);
 

@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 
 project(oamlStudio)
+set(oamlStudio_VERSION_MAJOR 1)
+set(oamlStudio_VERSION_MINOR 1)
 
 # Configuration types
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -101,4 +103,18 @@ target_link_libraries(oamlStudio ${wxWidgets_LIBRARIES} ${LIBS})
 ##
 # Install rules
 #
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
+set(CMAKE_INSTALL_DEBUG_LIBRARIES ON)
+include(InstallRequiredSystemLibraries)
+
 install(TARGETS oamlStudio DESTINATION bin)
+
+if (APPLE)
+	set(APPS ${CMAKE_CURRENT_BINARY_DIR}/oamlStudio.app)  # paths to executables
+	set(DIRS . /usr/lib /usr/local/lib)   # directories to search for prerequisites
+
+	install(CODE "
+	   include(BundleUtilities)
+	   fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
+	   " COMPONENT Runtime)
+endif()

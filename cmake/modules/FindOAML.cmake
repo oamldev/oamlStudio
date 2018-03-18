@@ -24,7 +24,7 @@ find_package(VorbisFile)
 if(OGGVORBIS_FOUND AND VORBISFILE_FOUND)
 	find_path(OAML_INCLUDE_DIRS oaml.h)
 	find_library(OAML_LIBRARY_STATIC oaml)
-	find_library(OAML_LIBRARY_SHARED oaml_shared)
+	find_library(OAML_LIBRARY_SHARED oaml)
 
 	if (OAML_LIBRARY_STATIC AND OAML_INCLUDE_DIRS)
 		set(OAML_FOUND "YES")
