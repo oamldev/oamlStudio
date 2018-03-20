@@ -1,9 +1,8 @@
 [Desktop Entry]
-Version=1.1
 Type=Application
 Name=oamlStudio
 GenericName=oamlStudio
 Comment=oamlStudio
 Exec=AppRun %F
 Icon=oamlStudio
-Categories=Audio;
+Categories=Audio;AudioVideo;
