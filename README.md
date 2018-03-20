@@ -1,4 +1,4 @@
-### oamlStudio [![Build Status](https://travis-ci.org/marcelofg55/oamlStudio.svg)](https://travis-ci.org/marcelofg55/oamlStudio.svg?branch=master)
+### oamlStudio [![Build Status](https://travis-ci.org/oamldev/oamlStudio.svg)](https://travis-ci.org/oamldev/oamlStudio.svg?branch=master)
 
 oamlStudio is the graphical user interface (GUI) to configure and export the music package to be used by a game that implements adaptive music using the [Open Adative Music Library](https://github.com/oamldev/oaml).
 
@@ -14,13 +14,20 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 
 ### Compiling
 
-On OSX and Linux steps are easy:
+1. First install the required packages:
+- Ubuntu: `sudo apt install g++ cmake libwxgtk3.0-dev libogg-dev libvorbis-dev libsoxr-dev libarchive-dev`
+- OS X: `brew install cmake wxwidgets libogg libvorbis libsoxr libarchive`
 
+2. Now install OAML:
+- [Open Adative Music Library](https://github.com/oamldev/oaml#how-to-compile)
+
+3. Finally compile oamlStudio:
+- On Linux and OS X:
     mkdir build
     cd build
     cmake ..
     make
-
+- On Windows with Visual Studio check the folder 'vs'.
 
 
 ### TODO
@@ -41,5 +48,5 @@ oamlStudio uses the following graphics:
 
 ### About
 
-Copyright (c) 2015-2016 Marcelo Fernandez
+Copyright (c) 2015-2018 Marcelo Fernandez
 
