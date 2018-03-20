@@ -195,9 +195,22 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	wxSize size = GetSize();
 	samplesPerPixel = (handle->GetTotalSamples() / handle->GetChannels()) / size.GetWidth();
 
-	int bytesRead = handle->Read(&buffer, bytesPerSec);
-	if (bytesRead == 0) {
-		timer->Stop();
+	char buf[1024];
+	int totalToRead = bytesPerSec;
+	int toRead = totalToRead > 1024 ? 1024 : totalToRead;
+	bool done = false;
+	while (toRead > 0) {
+		int bytesRead = handle->Read(buf, toRead);
+		if (bytesRead == 0) {
+			done = true;
+			timer->Stop();
+			break;
+		}
+
+		buffer.putBytes((uint8_t*)buf, bytesRead);
+
+		totalToRead-= bytesRead;
+		toRead = totalToRead > 1024 ? 1024 : totalToRead;
 	}
 
 	while (buffer.bytesRemaining() > 0) {
@@ -242,7 +255,7 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	dc.SetTextForeground(wxColor(228, 228, 228));
 	dc.DrawText(filename.c_str(), 10, 10);
 
-	if (bytesRead == 0) {
+	if (done) {
 		SetStatusText(_("Ready"));
 	} else {
 		SetStatusText(_("Reading.."));

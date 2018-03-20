@@ -25,6 +25,7 @@
 
 class aifFile : public audioFile {
 private:
+	int format;
 	int channels;
 	int samplesPerSec;
 	int bitsPerSample;
@@ -38,7 +39,7 @@ public:
 	aifFile(oamlFileCallbacks *cbs);
 	~aifFile();
 
-	int GetFormat() const { return 0; }
+	int GetFormat() const { return format; }
 	int GetChannels() const { return channels; }
 	int GetSamplesPerSec() const { return samplesPerSec; }
 	int GetBitsPerSample() const { return bitsPerSample; }
@@ -46,7 +47,7 @@ public:
 	int GetTotalSamples() const { return totalSamples; }
 
 	int Open(const char *filename);
-	int Read(ByteBuffer *buffer, int size);
+	int Read(char *buffer, int size);
 
 	void WriteToFile(const char *filename, ByteBuffer *buffer, int channels, unsigned int sampleRate, int bytesPerSample);
 
