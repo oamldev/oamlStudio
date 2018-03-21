@@ -80,16 +80,30 @@ int WaveformDisplay::read32() {
 
 	ASSERT(handle != NULL);
 
-	if (handle->GetBytesPerSample() == 3) {
-		ret|= ((unsigned int)buffer.get())<<8;
-		ret|= ((unsigned int)buffer.get())<<16;
-		ret|= ((unsigned int)buffer.get())<<24;
-	} else if (handle->GetBytesPerSample() == 2) {
-		ret|= ((unsigned int)buffer.get())<<16;
-		ret|= ((unsigned int)buffer.get())<<24;
-	} else if (handle->GetBytesPerSample() == 1) {
-		ret|= ((unsigned int)buffer.get())<<23;
+	switch (handle->GetFormat()) {
+		case AF_FORMAT_SINT8:
+			ret|= ((unsigned int)buffer.get())<<23;
+			break;
+
+		case AF_FORMAT_SINT16:
+			ret|= ((unsigned int)buffer.getShort())<<16;
+			break;
+
+		case AF_FORMAT_SINT24:
+			ret|= ((unsigned int)buffer.get())<<8;
+			ret|= ((unsigned int)buffer.get())<<16;
+			ret|= ((unsigned int)buffer.get())<<24;
+			break;
+
+		case AF_FORMAT_SINT32:
+			ret|= ((unsigned int)buffer.getInt());
+			break;
+
+		case AF_FORMAT_FLOAT32:
+			ret|= ((int)(buffer.getFloat() * 8388608) & 0x00ffffff);
+			break;
 	}
+
 	return ret;
 }
 
@@ -201,7 +215,7 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 	bool done = false;
 	while (toRead > 0) {
 		int bytesRead = handle->Read(buf, toRead);
-		if (bytesRead == 0) {
+		if (bytesRead <= 0) {
 			done = true;
 			timer->Stop();
 			break;
