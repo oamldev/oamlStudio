@@ -227,7 +227,7 @@ void WaveformDisplay::OnPaint(wxPaintEvent&  WXUNUSED(evt)) {
 		toRead = totalToRead > 1024 ? 1024 : totalToRead;
 	}
 
-	while (buffer.bytesRemaining() > 0) {
+	while (buffer.bytesRemaining() >= (uint32_t)(handle->GetBytesPerSample() * 2)) {
 		int sl = abs(read32() >> 16);
 		int sr = abs(read32() >> 16);
 
