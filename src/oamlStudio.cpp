@@ -55,6 +55,7 @@ std::string projectPath = "";
 bool oamlStudio::OnInit() {
 	oaml = new oamlApi();
 	studioApi = oaml->GetStudioApi();
+	printf("Initializing OAML v%s\n", oaml->GetVersion());
 	oaml->InitAudioDevice();
 	oaml->SetFileCallbacks(&studioCbs);
 
