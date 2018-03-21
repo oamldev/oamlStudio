@@ -24,6 +24,7 @@ endfunction()
 project(oamlStudio)
 set(oamlStudio_VERSION_MAJOR 1)
 set(oamlStudio_VERSION_MINOR 1)
+set(oamlStudio_VERSION_PATCH 1)
 
 # Configuration types
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
