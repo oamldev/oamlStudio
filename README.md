@@ -22,11 +22,7 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 - [Open Adative Music Library](https://github.com/oamldev/oaml#how-to-compile)
 
 3. Finally compile oamlStudio:
-- On Linux and OS X:
-    mkdir build
-    cd build
-    cmake ..
-    make
+- On Linux and OS X: `mkdir build; cd build; cmake ..; make`
 - On Windows with Visual Studio check the folder 'vs'.
 
 
