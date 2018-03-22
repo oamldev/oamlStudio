@@ -30,6 +30,11 @@ oamlStudio is the graphical user interface (GUI) to configure and export the mus
 - On Windows with Visual Studio check the folder 'vs'.
 
 
+### Troubleshoot
+
+WAV files that use 8 bits data will not be resampled properly. For now you can convert the file to 16 bits and it will work.
+
+
 ### TODO
 - Export a wav as a preview?
 - Add a small tutorial/guide at start
